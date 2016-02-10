@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.Action;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
@@ -59,6 +58,8 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
     private final InstanceContent lookupContents;
 
     private RootChildrenKeys childKeys;
+
+    private Project serverProject;
 //    private ModulesChangeListener modulesChangeListener;
 
     /**
@@ -72,6 +73,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
         this(DataObject.find(serverProj.getProjectDirectory().
                 getFileObject(SuiteConstants.SERVER_INSTANCES_FOLDER)).getNodeDelegate(),
                 new RootChildrenKeys(serverProj), new InstanceContent());
+        this.serverProject = serverProj;
     }
 
     public ServerInstancesRootNode(Node node, RootChildrenKeys childKeys, InstanceContent instanceContent) throws DataObjectNotFoundException {
@@ -88,11 +90,16 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
 
     private void init(FileObject instanciesDir) {
         lookupContents.add(this);
-        FileOwnerQuery.getOwner(instanciesDir).getLookup()
+        BaseUtil.getOwnerProject(instanciesDir).getLookup()
                 .lookup(SuiteNotifier.class)
                 .setNotifier(this);
     }
-
+    
+    public InstanceNode findInstanceNode(Project instanceProject) {
+        String uri = SuiteManager.getManager(instanceProject).getUri();
+        return getChildKeys().findInstanceNode(uri);
+    }
+    
     public RootChildrenKeys getChildKeys() {
         return this.childKeys;
     }
@@ -105,7 +112,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
     }
 
     @Override
-    public void displayNameChange(String uri, String newValue) {
+    public synchronized void displayNameChange(String uri, String newValue) {
         if (childKeys != null) {
             childKeys.displayNameChange(uri, newValue);
         }
@@ -199,22 +206,28 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
     }
 
     @Override
-    public void childrenChanged() {
+    public synchronized void childrenChanged() {
+// 10.02        childKeys.addNotify();
+
         if (childKeys != null) {
-            childKeys.addNotify();
+            if (SuiteManager.getServerInstanceIds(serverProject).isEmpty()) {
+                childKeys.removeNotify();
+            } else {
+                childKeys.addNotify();
+
+            }
         }
+
     }
 
     @Override
-    public void childrenChanged(Object source, Object... params) {
+    public synchronized void childrenChanged(Object source, Object... params) {
         if (childKeys == null) {
             return;
         }
 
         if (source instanceof DistributedWebAppManager) {
-        BaseUtil.out("ServerInstanceRootNode childrenChanged");            
             childKeys.childrenChanged(source, params);
-            //DistributedWebAppManager distManager = (DistributedWebAppManager) source;
         }
     }
 
@@ -248,8 +261,8 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
          * specified key
          */
         @Override
-        protected Node[] createNodes(String key) {
-            return new Node[]{InstanceNodeFactory.getNode(key, suiteProj)};
+        protected synchronized Node[] createNodes(String key) {
+            return new Node[]{ServerInstancesNodeFactory.getNode(key, suiteProj)};
 
             //return new Node[]{};
         }
@@ -262,54 +275,51 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
          * }.
          */
         @Override
-        public void addNotify() {
-            List<String> uris = SuiteManager.getServerInstanceIds(suiteProj);
-BaseUtil.out("ServerInstanceRootNode uris.size = " + uris.size());
-            if ( uris.size() == 0 ) {
+        public synchronized void addNotify() {
+            List<String> uris = SuiteManager.getLiveServerInstanceIds(suiteProj);
+            if (uris.size() == 0) {
                 removeNotify();
             } else {
-BaseUtil.out("ServerInstanceRootNode uris[0] = " + uris.get(0));
                 removeNotify();
                 setKeys(uris);
             }
-            
+
         }
 
-        public void childrenChanged(Object source, Object... params) {
-//            addNotify();
+        public synchronized void childrenChanged(Object source, Object... params) {
             if (source instanceof DistributedWebAppManager) {
                 DistributedWebAppManager distManager = (DistributedWebAppManager) source;
                 Project instance = distManager.getProject();
                 String uri = SuiteManager.getManager(instance).getUri();
                 InstanceNode instanceNode = findInstanceNode(uri);
-                if ( instanceNode == null ) {
+                if (instanceNode == null) {
                     return;
                 }
-                BaseUtil.out("ServerInstanceRootNode.RootChildKeys childrenChanged");            
-                
+
                 instanceNode.childrenChanged(source, params);
-                
+
             }
 
         }
+
         /**
          * Called when all the children Nodes are freed from memory. The
          * implementation just invokes 
          * {@literal setKey(Collections.EMPTY_LIST) }.
          */
         @Override
-        public void removeNotify() {
+        public synchronized void removeNotify() {
             this.setKeys(Collections.EMPTY_LIST);
         }
 
         @Override
-        protected void destroyNodes(Node[] destroyed) {
+        protected synchronized void destroyNodes(Node[] destroyed) {
             for (Node node : destroyed) {
-                BaseUtil.out("destroyNodes  node.name = node.getName=" + node.getName());
+                BaseUtil.out("ServerInstanceRootNode destroyNodes  node.name = node.getName=" + node.getName());
             }
         }
 
-        public void iconChange(String uri, boolean newValue) {
+        public synchronized void iconChange(String uri, boolean newValue) {
             InstanceNode node = findInstanceNode(uri);
             if (node == null) {
                 return;

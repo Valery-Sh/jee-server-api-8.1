@@ -23,10 +23,8 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -40,9 +38,9 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
- * The class provides implementations of the  context aware action 
- * to be performed to start the server in debug mode from the server 
- * project's pop up menu.
+ * The class provides implementations of the  context aware action of 
+ * a Web Application  to be performed to add {@literal beans.xml} file 
+ * to a {@literal  WEB-INF} directory of the Web Application 
  * 
  * @author V. Shyshkin
  */
@@ -93,16 +91,16 @@ public final class AddBeanXmlAction extends AbstractAction implements ContextAwa
             if ( p != null && id.startsWith("jettystandalone:deploy:server") && p.getInstanceProperties() != null ) {
                 File file = new File( BaseUtil.getServerLocation(p.getInstanceProperties()));
                 FileObject fo = FileUtil.toFileObject(file);
-                serverProject = FileOwnerQuery.getOwner(fo);            
+                serverProject = BaseUtil.getOwnerProject(fo);            
             } else {
                 serverProject = null;
             }
             
-            enabled = serverProject == null ? false : true;
             
-            if ( enabled ) {
+            setEnabled(false);
+            if ( serverProject != null ) {
                 setEnabled(DDHelper.needsBeansXml(serverProject, webProject));
-            }
+            } 
             
             putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, true);
             

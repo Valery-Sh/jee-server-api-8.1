@@ -28,6 +28,7 @@ import static javax.swing.Action.NAME;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.loaders.DataFolder;
 import org.openide.util.ContextAwareAction;
@@ -103,7 +104,7 @@ public final class WebAppOpenInnerProjectAction extends AbstractAction implement
                     // Collect projects corresponding to selected folders.
                     for (DataFolder d : context.lookupAll(DataFolder.class)) {
                         try {
-                            Project p = ProjectManager.getDefault().findProject(d.getPrimaryFile());
+                            Project p = BaseUtil.findOwnerProject(d.getPrimaryFile());
                             if (p != null) {
                                 projects.add(p);
                             }

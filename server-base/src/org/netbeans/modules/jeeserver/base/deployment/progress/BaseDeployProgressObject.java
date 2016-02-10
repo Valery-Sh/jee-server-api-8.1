@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.BaseTarget;
@@ -79,7 +78,8 @@ public class BaseDeployProgressObject extends AbstractProgressObject {
         setCompleteImmediately(completeImmediately);
         setMode(getManager().getCurrentDeploymentMode());
         fireRunning(CommandType.DISTRIBUTE, getManager().getDefaultTarget().getName());
-        //requestProcessor().post(this, 10, Thread.NORM_PRIORITY);
+        //BaseUtil.out("BaseDeployProgressObject deploy module cp=" + module.getContextPath() );
+        
         RP.post(this, 10, Thread.NORM_PRIORITY);
         return this;
     }
@@ -93,7 +93,7 @@ public class BaseDeployProgressObject extends AbstractProgressObject {
         this.setTargetModuleID(module);
         setCompleteImmediately(completeImmediately);
         setMode(getManager().getCurrentDeploymentMode());
-        BaseUtil.out("command = 'undeploy'");
+        //BaseUtil.out("command = 'undeploy'");
         fireRunning(CommandType.UNDEPLOY, getManager().getDefaultTarget().getName());
         RP.post(this, 0, Thread.NORM_PRIORITY);
         return this;
@@ -167,10 +167,14 @@ public class BaseDeployProgressObject extends AbstractProgressObject {
     @Override
     public void run() {
         String command = this.command;
+        //BaseUtil.out("BaseDeployProgressObject run command=" + command  );
+
         if (!isCompleteImmediately()) {
             //
             // actual execution
             //
+        //BaseUtil.out("BaseDeployProgressObject run 1 command" + command  );
+            
             executeServerCommand();
         }
         CommandType commandType = CommandType.DISTRIBUTE;
@@ -196,9 +200,9 @@ public class BaseDeployProgressObject extends AbstractProgressObject {
         }
         try {
             fireCompleted(commandType, getManager().getDefaultTarget().getName());
-        } catch (Throwable e) {
-            BaseUtil.out("EXCEPTION!");
-            LOG.log(Level.INFO, e.getMessage());
+        } catch (Throwable ex) {
+            BaseUtil.out("BaseDeploProgressObject run() EXCEPTION " + ex.getMessage());
+            LOG.log(Level.INFO, ex.getMessage());
         }
 
     }
@@ -254,7 +258,7 @@ public class BaseDeployProgressObject extends AbstractProgressObject {
         }
 
         List<Pair<BaseTargetModuleID, BaseTargetModuleID>> modules = getManager().getInitialDeployedModulesOld();
-        Project wp = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(getTargetModuleID().getProjectDir())));
+        Project wp = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(getTargetModuleID().getProjectDir())));
 
         int i = 0;
         for (Pair<BaseTargetModuleID, BaseTargetModuleID> pair : modules) {

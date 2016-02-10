@@ -24,10 +24,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
 import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
@@ -104,7 +101,7 @@ public final class RemoveDistWebAppAction extends AbstractAction implements Cont
             if ( p != null && p.getInstanceProperties() != null && p.getInstanceProperties().getProperty(SuiteConstants.SUITE_PROJECT_LOCATION) != null) {
                 File file = new File( BaseUtil.getServerLocation(p.getInstanceProperties()));
                 FileObject fo = FileUtil.toFileObject(file);
-                serverProject = FileOwnerQuery.getOwner(fo);            
+                serverProject = BaseUtil.getOwnerProject(fo);            
                 distManager = DistributedWebAppManager.getInstance(serverProject);
                 
             } else {

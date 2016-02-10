@@ -47,6 +47,7 @@ import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 
 import org.openide.util.ImageUtilities;
@@ -71,6 +72,9 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
 //        ServerInstanceProperties sp = SuiteUtil.getServerProperties(serverProject);
 
         Socket socket = new Socket();
+        if ( dm == null || dm.getInstanceProperties() == null ) {
+            return false;
+        }
         int port = Integer.parseInt(dm.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
         int timeout = 50;
         try {
@@ -126,7 +130,7 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
 
         int port = Integer.parseInt(dm.getInstanceProperties().getProperty(BaseConstants.SHUTDOWN_PORT_PROP));
         // checking whether a socket can be created is not reliable enough, see #47048
-BaseUtil.out("TomcatEmbeddedSpecifics port=" + port);        
+        BaseUtil.out("TomcatEmbeddedSpecifics shutdownCommand(): port=" + port);        
         Socket socket = new Socket();
         
 
@@ -173,7 +177,7 @@ BaseUtil.out("TomcatEmbeddedSpecifics port=" + port);
         try {
             String urlstr = "/jeeserver/manager?" + cmd;
             
-            BaseUtil.out("TomcatSpecifics: deployCommand urlStr=" + urlstr);
+            BaseUtil.out("TomcatSpecifics: execCommand (deploy) urlStr=" + urlstr);
 
             URL url = new URL(buildUrl(dm) + urlstr);
             connection = (HttpURLConnection) url.openConnection();
@@ -254,7 +258,7 @@ BaseUtil.out("TomcatEmbeddedSpecifics port=" + port);
         InstanceBuilder ib = null;
 
         if ("ant".equals(props.getProperty("project.based.type"))) {
-BaseUtil.out("TomcatSpecifics ANT.BASED");
+//BaseUtil.out("TomcatSpecifics ANT.BASED");
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new TomcatCustomizeInstanceBuilder(props, options);
             } else {
@@ -263,7 +267,7 @@ BaseUtil.out("TomcatSpecifics ANT.BASED");
             ((EmbeddedInstanceBuilder) ib).setMavenbased(false);
 
         } else if ("maven".equals(props.getProperty("project.based.type"))) {
-BaseUtil.out("TomcatSpecifics MAVEB.BASED");            
+//BaseUtil.out("TomcatSpecifics MAVEB.BASED");            
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new TomcatCustomizeInstanceBuilder(props, options);
             } else {
@@ -400,7 +404,7 @@ BaseUtil.out("TomcatSpecifics MAVEB.BASED");
         HttpURLConnection connection = null;
 
         try {
-            BaseUtil.out("DEPLOY COMMAND contetPath = " + oldContextPath + "; newContetPath = " + newContextPath);
+            BaseUtil.out("TomcatEmbeddedSpecifics redeploy command contetPath = " + oldContextPath + "; newContetPath = " + newContextPath);
 
             String encContextPath = oldContextPath;
             if (oldContextPath == null || oldContextPath.trim().isEmpty()) {
@@ -455,8 +459,23 @@ BaseUtil.out("TomcatSpecifics MAVEB.BASED");
     }            
 
     @Override
-    public SupportedApiProvider getSupportedApiProvider() {
-        return null;
+    public SupportedApiProvider getSupportedApiProvider(String actualServerId) {
+        return new TomcatSupportedApiProvider(actualServerId);
+    }
+
+    @Override
+    public void saveFileChangeListener(FileChangeListener l) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void deleteFileChangeListener(FileChangeListener l) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public StartServerPropertiesProvider getStartServerPropertiesProvider(BaseDeploymentManager dm) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -24,10 +24,9 @@ import java.nio.file.Files;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfiguration;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedModuleConfiguration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -35,7 +34,6 @@ import org.openide.xml.XMLUtil;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -97,7 +95,14 @@ public class TomcatModuleConfiguration extends EmbeddedModuleConfiguration {
 
     @Override
     public Properties getContextProperties() {
+
         FileObject c = FileUtil.toFileObject(getContextConfigFile());
+        //
+        // Can be null when a a web project is removed, renamed e t.c.
+        //
+        if (c == null) {
+            return new Properties();
+        }
         return getContextProperties(c);
     }
 
@@ -107,7 +112,7 @@ public class TomcatModuleConfiguration extends EmbeddedModuleConfiguration {
         FileObject contextXml = FileUtil.toFileObject(getContextConfigFile());
         try {
             InputSource source = new InputSource(contextXml.getInputStream());
-            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.embedded.utils.ParseEntityResolver());
+            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver());
             Element el = doc.getDocumentElement();
             result = el.getAttribute("path");
             el.setAttribute("path", cp);
@@ -150,7 +155,7 @@ public class TomcatModuleConfiguration extends EmbeddedModuleConfiguration {
             } catch (IOException ex) {
                 LOG.log(Level.INFO, "TomcatModuleConfiguration.getProjectPropertiesFileObject. {0}", ex.getMessage()); //NOI18N                        
             }
-            Project wp = FileOwnerQuery.getOwner(metainfDirFo.toURI());
+            Project wp = BaseUtil.getOwnerProject(metainfDirFo.toURI());
             changeContext("/" + wp.getProjectDirectory().getNameExt());
         }
     }
@@ -159,7 +164,7 @@ public class TomcatModuleConfiguration extends EmbeddedModuleConfiguration {
         Properties result = new Properties();
         try {
             InputSource source = new InputSource(contextXml.getInputStream());
-            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.embedded.utils.ParseEntityResolver());
+            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver());
             Element el = doc.getDocumentElement();
             if (el.getAttribute("path") != null) {
                 result.setProperty("contextPath", el.getAttribute("path"));

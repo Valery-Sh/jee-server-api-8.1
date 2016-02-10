@@ -26,7 +26,6 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
@@ -48,7 +47,6 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
     private static final Logger LOG = Logger.getLogger(ServerSuiteProjectOpenHook.class.getName());
 
     private final FileObject projectDir;
-    //private final ServerInstanceProperties serverProperties;
 
     public ServerSuiteProjectOpenHook(FileObject projectDir) {
         this.projectDir = projectDir;
@@ -62,13 +60,17 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
         } else {
             updateSuiteLocation(uid);
         }
-        if ( true ) {
-            return;
-        }
-        List<Project> projects = getServerInstances(uid);
+        SuiteRegistry.update(uid,getServerInstances(uid));
+       // if ( true ) {
+       //     return;
+       // }
+       DistributedWebAppManager.refreshSuiteInstances(projectDir);
+/*        List<Project> projects = getServerInstances(uid);
         projects.forEach(p -> {
             DistributedWebAppManager.getInstance(p).refresh();
         });
+*/        
+        
         
     }
     
@@ -106,7 +108,7 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
                 }
                 FileObject projDir = FileUtil.toFileObject(new File(s));
                 if ( projDir != null ) {
-                    Project proj = FileOwnerQuery.getOwner(projDir);
+                    Project proj = BaseUtil.getOwnerProject(projDir);
                     if ( proj != null ) {
                         result.add(proj);
                     }
@@ -155,7 +157,7 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
     }
 
     protected Project getProject() {
-        return FileOwnerQuery.getOwner(projectDir);
+        return BaseUtil.getOwnerProject(projectDir);
     }
 
 }

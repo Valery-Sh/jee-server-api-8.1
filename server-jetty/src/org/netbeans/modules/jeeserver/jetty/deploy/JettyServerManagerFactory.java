@@ -56,7 +56,7 @@ public class JettyServerManagerFactory implements DeploymentFactory, ServerSpeci
     public synchronized static JettyServerManagerFactory getInstance() {
         if (null == instance) {
             instance = new JettyServerManagerFactory();
-            delegateInstance = new FactoryDelegate(SERVER_ID ,((ServerSpecificsProvider)instance).getSpecifics());
+            delegateInstance = new JettyServerFactoryDelegate(SERVER_ID);
             
             DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
         }

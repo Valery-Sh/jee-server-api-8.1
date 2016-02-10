@@ -14,6 +14,7 @@ import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddWebRefAction;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.nodes.WebAppChildFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileChangeAdapter;
@@ -252,7 +253,7 @@ public class WebApplicationsNode extends FilterNode {
         public void fileDeleted(FileEvent ev) {
             
             if (null == project.getProjectDirectory().getFileObject(SuiteConstants.REG_WEB_APPS_FOLDER)) {
-                InstanceProperties.removeInstance(BaseUtil.getServerInstanceId(project.getLookup()));        
+                ServerUtil.removeInstanceProperties(BaseUtil.getServerInstanceId(project.getLookup()));        
             } else {
                 ((WebApplicationsNode.WebAppKeys) node.getChildren()).addNotify();
             }

@@ -170,10 +170,12 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         }
         if (dm != null) {
             for (AppLifeCycle.Binding b : dm.getLifeCycleBindings()) {
+                System.out.println("DeploymentManager binding = " + b.getClass().getName());
                 if ("org.eclipse.jetty.cdi.servlet.WeldDeploymentBinding".equals(b.getClass().getName())) {
                     result = true;
                     break;
                 }
+
             }
         }
 
@@ -184,6 +186,10 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         return getInstance().getJettyConfig().isJSFEnabled();
     }
 
+    public static boolean isJerseyEnabled() {
+        return getInstance().getJettyConfig().isJerseyEnabled();
+    }
+    
     /**
      *
      */
@@ -300,6 +306,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
 
     @Override
     public void lifeCycleStarting(LifeCycle lc) {
+        //isCDIEnabled();
     }
 
     @Override
@@ -312,8 +319,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     }
 
     @Override
-    public void lifeCycleStopping(LifeCycle lc
-    ) {
+    public void lifeCycleStopping(LifeCycle lc) {
     }
 
     @Override
@@ -438,11 +444,13 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
             if (!c.isStopped()) {
                 c.stop();
             }
-            map.get(c).removeHandler(c);
+            //map.get(c).removeHandler(c);
         } catch (Exception ex) {
-            //Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-            error("NB-DEPLOYER: undeploy failed: ");
+            //Logger.getLogger(getClass().getName()).log(Level.INFO, null, ex);
+            error("NB-DEPLOYER: stop failed when undeploy cmd (the procecc will continue without problem ): ");
             return;
+        } finally {
+            map.get(c).removeHandler(c);
         }
 
         out("NB-DEPLOYER: undeploy: success");
@@ -1050,13 +1058,32 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         @Override
         public void lifeCycleStarting(LifeCycle lc) {
             updateServerHandlers();
+
         }
 
         @Override
         public void lifeCycleStarted(LifeCycle lc) {
-            //if (IniModules.isCDIEnabled()) {
+            /*            Collection<DeploymentManager> dms = cm.getServer().getBeans(DeploymentManager.class);
+            DeploymentManager dm = null;
+            int i = 0;
+            if (dms != null && !dms.isEmpty()) {
+                for (DeploymentManager m : dms) {
+                    dm = m;
+                    i++;
+                }
+            }
+             */
             if (cm.getJettyConfig().isCDIEnabled()) {
-                Handler[] hs = cm.getServer().getChildHandlersByClass(CustomWebAppContext.class);
+/*                Collection<DeploymentManager> dms = cm.getServer().getBeans(DeploymentManager.class);
+                DeploymentManager dm = null;
+                int i = 0;
+                if (dms != null && !dms.isEmpty()) {
+                    for (DeploymentManager m : dms) {
+                        m.addLifeCycleBinding(new MyStandardStopper());
+                    }
+                }
+*/                
+/*               Handler[] hs = cm.getServer().getChildHandlersByClass(CustomWebAppContext.class);
                 if (hs.length == 0) {
 
                     WebAppContext ctx = new CustomWebAppContext(cm);
@@ -1068,8 +1095,9 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                         cm.error("NB-DEPLOYER: EXCEPTION server.lifeCycleStarted(): " + ex.getMessage());
                     }
                 }
-
+*/
             }
+
         }
 
         protected void updateServerHandlers() {

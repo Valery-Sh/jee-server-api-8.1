@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
@@ -29,7 +28,9 @@ import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
 
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.actions.PropertiesAction;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
@@ -61,10 +62,11 @@ public class JettyProjectOpenHook extends ProjectOpenedHook {
 //                BaseUtil.out("projectOpened 1");
 
                 Map<String, String> map = getDefaultPropertyMap();
-                ip = InstanceProperties.createInstanceProperties(uri, null, null, projectDir.getNameExt(), map);
+                ip = ServerUtil.createInstanceProperties(uri, projectDir.getNameExt(), map);                
+                //ip = InstanceProperties.createInstanceProperties(uri, null, null, projectDir.getNameExt(), map);
                 // to update with InstanceProperties. 
                 // (The method getLookup() is oveeridden for JettyProject)
-                FileOwnerQuery.getOwner(projectDir).getLookup().lookup(ServerInstanceProperties.class);
+                BaseUtil.getOwnerProject(projectDir).getLookup().lookup(ServerInstanceProperties.class);
                 //Action a = new PropertiesAction().createContextAwareInstance(getProject().getLookup());                
             }
             FileObject fo = null;
@@ -74,11 +76,11 @@ public class JettyProjectOpenHook extends ProjectOpenedHook {
             }
 
             if (fo == null || !fo.isFolder() || fo.getFileObject("bin") == null || fo.getFileObject("lib") == null) {
-                Project p = FileOwnerQuery.getOwner(projectDir);
+                Project p = BaseUtil.getOwnerProject(projectDir);
                 if ( ! PropertiesAction.performAndModify(getProject().getLookup()) ) {
                     
-                    OpenProjects.getDefault().close(new Project[] {FileOwnerQuery.getOwner(projectDir)});
-                    InstanceProperties.removeInstance(uri);
+                    OpenProjects.getDefault().close(new Project[] {BaseUtil.getOwnerProject(projectDir)});
+                    ServerUtil.removeInstanceProperties(uri);
                     ServerInstanceProperties sip = p.getLookup().lookup(ServerInstanceProperties.class);
                     if ( sip != null ) {
                         sip.setValid(false);
@@ -96,7 +98,7 @@ public class JettyProjectOpenHook extends ProjectOpenedHook {
 
         } catch (InstanceCreationException ex) {
             LOG.log(Level.INFO, ex.getMessage());
-            OpenProjects.getDefault().close(new Project[] {FileOwnerQuery.getOwner(projectDir)});            
+            OpenProjects.getDefault().close(new Project[] {BaseUtil.getOwnerProject(projectDir)});            
         }
     }
 
@@ -119,7 +121,7 @@ public class JettyProjectOpenHook extends ProjectOpenedHook {
     }
 
     protected Project getProject() {
-        return FileOwnerQuery.getOwner(projectDir);
+        return BaseUtil.getOwnerProject(projectDir);
     }
 
 }

@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -37,8 +36,7 @@ import static org.netbeans.modules.jeeserver.base.deployment.config.ModulesChang
 import org.netbeans.modules.jeeserver.base.deployment.config.ModulesChangeListener;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.config.WebModuleConfig;
-import static org.netbeans.modules.jeeserver.jetty.project.nodes.Bundle.WebModulesRootNode_availableWebApps;
-import static org.netbeans.modules.jeeserver.jetty.project.nodes.Bundle.WebModulesRootNode_shortDescription;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
@@ -104,17 +102,18 @@ public class WebModulesRootNode extends FilterNode {
         serverProj.getLookup().lookup(ServerInstanceAvailableModules.class)
                 .addModulesChangeListener(modulesChangeListener);
 
-        setShortDescription(WebModulesRootNode_shortDescription());
+        //setShortDescription(WebModulesRootNode_shortDescription());
     }
 
     /**
      * Returns the logical name of the node.
      *
-     * @return the value "Web Application"
+     * @return the value "Web Applications"
      */
     @Override
     public String getDisplayName() {
-        return WebModulesRootNode_availableWebApps();
+        return "Available Web Applications";
+        //return WebModulesRootNode_availableWebApps();
     }
 
     /**
@@ -346,7 +345,7 @@ public class WebModulesRootNode extends FilterNode {
 
             List keyArray = new ArrayList<>(list.length);
             for (WebModuleConfig c : list) {
-                Project webProject = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(c.getWebProjectPath())));
+                Project webProject = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(c.getWebProjectPath())));
 
                 //getSourceRoot(webProject);
                 keyArray.add(c);

@@ -30,6 +30,8 @@ public class JettyServerFindJspServlet extends BaseFindJSPServlet implements Fin
     
     public JettyServerFindJspServlet(BaseDeploymentManager manager) {
         super(manager);
+        //Project p = FileOwnerQuery.getOwner((FileObject)null);
+        
     }
     
     @Override

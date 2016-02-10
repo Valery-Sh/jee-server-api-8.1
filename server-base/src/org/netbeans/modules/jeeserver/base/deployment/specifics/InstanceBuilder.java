@@ -32,14 +32,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
@@ -115,8 +115,7 @@ public abstract class InstanceBuilder {
         if (parent != null && parent.exists()) {
             ProjectChooser.setProjectsFolder(parent); // Last used folder with a new project
         }
-        //Project p = ProjectManager.getDefault().findProject(dir);
-        Project p = FileOwnerQuery.getOwner(dir);
+        Project p = BaseUtil.getOwnerProject(dir);
 
         OpenProjects.getDefault().open(new Project[]{p}, true);
         
@@ -148,7 +147,6 @@ public abstract class InstanceBuilder {
 
         FileUtil.runAtomicAction((Runnable) () -> {
             try {
-BaseUtil.out("InstanceBuilder invoke runInstantiateProjectDir");
                 runInstantiateProjectDir(result);
             } catch (IOException ex) {
                 LOG.log(Level.FINE, ex.getMessage()); //NOI18N
@@ -161,7 +159,8 @@ BaseUtil.out("InstanceBuilder invoke runInstantiateProjectDir");
         String url = ipmap.get(BaseConstants.URL_PROP);
 
         String displayName = ipmap.get(BaseConstants.DISPLAY_NAME_PROP);
-        InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName, ipmap);
+        //InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName, ipmap);
+        InstanceProperties ip = ServerUtil.createInstanceProperties(url, displayName, ipmap);        
         result.add(ip);
     }
 
@@ -352,7 +351,14 @@ BaseUtil.out("InstanceBuilder invoke runInstantiateProjectDir");
             value = (String) getWizardDescriptor().getProperty("artifactVersion");
             
             setMavenElValue(doc, "version", value);
+            
+            PomXmlUtil util = new PomXmlUtil(doc);
 
+            value = (String) getWizardDescriptor().getProperty(BaseConstants.SERVER_VERSION_PROP);
+            if ( value == null ) {
+                value = "0.0.1";
+            }
+            util.getProperties().replace("nb.server.version", value);
 //            value = (String) getWizardDescriptor().getProperty("");
 
             

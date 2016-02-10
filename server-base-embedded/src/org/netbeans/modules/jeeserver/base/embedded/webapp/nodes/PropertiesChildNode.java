@@ -8,7 +8,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.actions.WebAppCommandActions;
 import org.netbeans.modules.jeeserver.base.deployment.actions.WebAppOpenInnerProjectAction;
@@ -67,7 +66,7 @@ public class PropertiesChildNode extends BaseWebAppChildNode {
             webappFo = FileUtil.toFileObject(new File(webappPath));
 //ESUtils.out("4 PropertiesChidNode getWebAppProject " + webappFo);        
             
-            if (webappFo == null || FileOwnerQuery.getOwner(webappFo) == null) {
+            if (webappFo == null || BaseUtil.getOwnerProject(webappFo) == null) {
                 return null;
             }
 //ESUtils.out("5 PropertiesChidNode getWebAppProject " + webappFo.getNameExt());        
@@ -79,7 +78,7 @@ public class PropertiesChildNode extends BaseWebAppChildNode {
         }
 //ESUtils.out("7 PropertiesChidNode getWebAppProject " + FileOwnerQuery.getOwner(webappFo));        
         
-        return FileOwnerQuery.getOwner(webappFo);
+        return BaseUtil.getOwnerProject(webappFo);
     }
 
     /**

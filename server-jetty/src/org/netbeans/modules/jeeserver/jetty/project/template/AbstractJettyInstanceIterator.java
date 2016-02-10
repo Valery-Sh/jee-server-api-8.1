@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyProject;
@@ -195,7 +196,8 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
         String displayName = ipmap.get(BaseConstants.DISPLAY_NAME_PROP);
 
         try {
-            InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName, ipmap);
+            InstanceProperties ip = ServerUtil.createInstanceProperties(url, displayName, ipmap);            
+            //InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName, ipmap);
             result.add(ip);
         } catch (InstanceCreationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage()); //NOI18N

@@ -30,7 +30,7 @@ public class ServerSuiteProjectFactory implements ProjectFactory{
     }
 
     /**
-     * Specifies when a project is a project, i.e., if the following
+     * Specifies when a project is a suite project, i.e., if the following
      * files are present in a folder:
      * <ul>
      *  <li>start.ini file;</li>

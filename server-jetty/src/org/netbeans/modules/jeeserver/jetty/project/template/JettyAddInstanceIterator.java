@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -53,7 +54,7 @@ public class JettyAddInstanceIterator extends AbstractJettyInstanceIterator {
             fo = it.next();
             break;
         }
-        Project p = FileOwnerQuery.getOwner(fo);
+        Project p = BaseUtil.getOwnerProject(fo);
 
         final Set<InstanceProperties> ipSet = instantiateServerProperties();
         return ipSet;

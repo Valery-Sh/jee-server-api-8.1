@@ -20,6 +20,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator;
 import org.netbeans.modules.jeeserver.jetty.deploy.config.JettyStartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
@@ -86,7 +87,7 @@ public class JettyProject implements Project {
     }
 
     protected Project getProject() {
-        return FileOwnerQuery.getOwner(projectDir);
+        return BaseUtil.getOwnerProject(projectDir);
     }
 
     @Override

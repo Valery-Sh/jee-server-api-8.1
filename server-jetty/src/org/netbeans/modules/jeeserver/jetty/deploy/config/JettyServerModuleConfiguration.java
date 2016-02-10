@@ -29,6 +29,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfiguration;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.util.ParseEntityResolver;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -101,6 +102,12 @@ public class JettyServerModuleConfiguration  extends AbstractModuleConfiguration
     @Override
     public Properties getContextProperties() {
         FileObject c = FileUtil.toFileObject(getContextConfigFile());
+        //
+        // Can be null when a a web project is removed, renamed e t.c.
+        //
+        if ( c == null ) {
+            return new Properties();
+        }        
         return getContextProperties(c);
     }
 
@@ -165,7 +172,7 @@ public class JettyServerModuleConfiguration  extends AbstractModuleConfiguration
                 LOG.log(Level.INFO, "JettyModuleConfiguration.getProjectPropertiesFileObject. {0}", ex.getMessage()); //NOI18N                        
             }
 
-            Project wp = FileOwnerQuery.getOwner(webinfDirFo.toURI());
+            Project wp = BaseUtil.getOwnerProject(webinfDirFo.toURI());
             String cp = "/" + wp.getProjectDirectory().getNameExt();
             changeContext("/" + wp.getProjectDirectory().getNameExt());
         }
@@ -207,6 +214,10 @@ public class JettyServerModuleConfiguration  extends AbstractModuleConfiguration
 
         }
         return result;
+    }
+
+    @Override
+    protected void addListeners() {
     }
 
 }

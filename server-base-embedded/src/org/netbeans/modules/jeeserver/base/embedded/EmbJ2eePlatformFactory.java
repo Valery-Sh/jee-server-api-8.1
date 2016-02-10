@@ -21,6 +21,7 @@ public class EmbJ2eePlatformFactory extends J2eePlatformFactory {
     
     @Override
     public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager manager) {
+
         return new BaseJ2eePlatformImpl((BaseDeploymentManager) manager);
     }
 }

@@ -19,11 +19,17 @@ package org.netbeans.modules.jeeserver.base.embedded.project.nodes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProject;
+import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProject.Info;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.NodeList;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.Node;
 
 /**
  * Factory class for distributed creation of project node's children. The
@@ -50,40 +56,35 @@ public class ServerInstancesNodeFactory implements NodeFactory {
      */
     @Override
     public NodeList createNodes(Project suiteProject) {
-       // PackageView p;
-/*        if (!EmbUtils.isEmbeddedServer(suiteProject)) {
-            return NodeFactorySupport.fixedNodeList();
-        }
-*/       
-        
+       // if (true) return null;
+        NodeList nodeList  = NodeFactorySupport.fixedNodeList();
         try {
             ServerInstancesRootNode node = new ServerInstancesRootNode(suiteProject);
-            //node.init(suiteProject);
-            return NodeFactorySupport.fixedNodeList(node);
+            ((Info)suiteProject.getLookup().lookup(ProjectInformation.class))
+                    .setInstancesRootNode(node);
+            nodeList =  NodeFactorySupport.fixedNodeList(node);
         } catch (DataObjectNotFoundException ex) {
             LOG.log(Level.INFO, ex.getMessage());
         }
-//        }
         //If the above try/catch fails, e.g.,
         //our item isn't in the lookup,
         //then return an empty list of nodes:
-        return NodeFactorySupport.fixedNodeList();
+        return nodeList;
 
     }
-    /*
-     public static Node getNode(Project server, Object key) {
-     Node node = null;
-     WebModuleRegisteredNode wfn = null;        
-     try {
-     WebModuleConfig c = (WebModuleConfig) key;
-
-     Project webProject = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(c.getWebProjectPath())));
-     LogicalViewProvider lvp = webProject.getLookup().lookup(LogicalViewProvider.class);
-     node = lvp.createLogicalView();
-     } catch (Exception ex) {
-     LOG.log(Level.INFO, ex.getMessage());
-     }
-     return node;
-     }
-     */
+    
+    public static Node getNode(String key, Project suiteProj) {
+        Node node = null;
+        try {
+            //FileObject fo = suiteProj.getProjectDirectory().getFileObject(SuiteConstants.SERVER_INSTANCES_FOLDER);
+            FileObject fo = SuiteManager.getManager(key).getServerProject().getProjectDirectory();
+            node = new InstanceNode(DataObject.find(fo).getNodeDelegate(), key);
+//                    ,suiteProj.getLookup().lookup(NodeModel.class));
+            
+        } catch (Exception ex) {
+            LOG.log(Level.INFO, ex.getMessage());
+        }
+        return node;
+    }
+    
 }//class

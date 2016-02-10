@@ -23,10 +23,8 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
@@ -95,7 +93,7 @@ public final class AddListenerAction extends AbstractAction implements ContextAw
             if (p != null && id.startsWith("jettystandalone:deploy:server") && p.getInstanceProperties() != null) {
                 File file = new File(BaseUtil.getServerLocation(p.getInstanceProperties()));
                 FileObject fo = FileUtil.toFileObject(file);
-                serverProject = FileOwnerQuery.getOwner(fo);
+                serverProject = BaseUtil.getOwnerProject(fo);
             } else {
                 serverProject = null;
             }
@@ -106,7 +104,7 @@ public final class AddListenerAction extends AbstractAction implements ContextAw
 
                 File f = Paths.get(serverProject.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();                
                 String jsfListener = JettyConfig.getInstance(serverProject).getJsfListener();
-BaseUtil.out("@@@@@@@@@@@@@@@@@ AddListenerAction listener=" + jsfListener);
+//BaseUtil.out("@@@@@@@@@@@@@@@@@ AddListenerAction listener=" + jsfListener);
                 String jsfModule = JettyConfig.getInstance(serverProject).getJSFModuleName();
                 
                 enabled = jsfModule != null && ! DDHelper.hasJsfListener(serverProject, webProject);

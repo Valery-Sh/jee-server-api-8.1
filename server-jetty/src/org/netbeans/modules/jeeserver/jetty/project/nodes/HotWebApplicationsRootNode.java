@@ -26,10 +26,9 @@ import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyProjectLogicalView;
-import static org.netbeans.modules.jeeserver.jetty.project.nodes.Bundle.HotWebApplicationsNode_shortDescription;
-import static org.netbeans.modules.jeeserver.jetty.project.nodes.Bundle.HotWebApplicationsNode_webApps;
+
 import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.HotDeployedWebAppsNodeActionFactory;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
@@ -44,7 +43,6 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -54,11 +52,11 @@ import org.openide.util.NbBundle;
  *
  * @author V. Shyshkin
  */
-@NbBundle.Messages({
+/*@NbBundle.Messages({
     "HotWebApplicationsNode.shortDescription=Hod deployed applications for this server.",
     "HotWebApplicationsNode.webApps=Hot Deployed Applications"    
 })
-
+*/
 public class HotWebApplicationsRootNode extends FilterNode {
 
     private FileChangeHandler fileChangeHandler;
@@ -93,7 +91,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
         serverProj.getLookup().lookup(JettyProjectLogicalView.class)
                 .setWebApplicationsNode(this);
         
-        this.setShortDescription(HotWebApplicationsNode_shortDescription());
+//        this.setShortDescription(HotWebApplicationsNode_shortDescription());
     }
 //!! 29.06
     public static Node getNode(Project project, Object key) {
@@ -121,7 +119,8 @@ public class HotWebApplicationsRootNode extends FilterNode {
      */
     @Override
     public String getDisplayName() {
-        return HotWebApplicationsNode_webApps();
+        return "Hot Deployed Application";
+        //return HotWebApplicationsNode_webApps();
     }
 
     /**
@@ -299,7 +298,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
         public void fileDeleted(FileEvent ev) {
 
             if (null == project.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER)) {
-                InstanceProperties.removeInstance(Utils.getServerInstanceId(project));
+                ServerUtil.removeInstanceProperties(Utils.getServerInstanceId(project));
             } else {
                 ((HotWebApplicationsRootNode.WebAppKeys) node.getChildren()).addNotify();
             }

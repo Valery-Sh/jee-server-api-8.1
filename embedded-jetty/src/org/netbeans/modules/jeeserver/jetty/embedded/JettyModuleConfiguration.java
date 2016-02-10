@@ -24,9 +24,7 @@ import java.nio.file.Files;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfiguration;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedModuleConfiguration;
@@ -94,6 +92,12 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
     @Override
     public Properties getContextProperties() {
         FileObject c = FileUtil.toFileObject(getContextConfigFile());
+        //
+        // Can be null when a a web project is removed, renamed e t.c.
+        //
+        if ( c == null ) {
+            return new Properties();
+        }
         return getContextProperties(c);
     }
 
@@ -103,7 +107,7 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
         FileObject jettyXml = FileUtil.toFileObject(getContextConfigFile());
         try {
             InputSource source = new InputSource(jettyXml.getInputStream());
-            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.embedded.utils.ParseEntityResolver());
+            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver());
             NodeList nl = doc.getDocumentElement().getElementsByTagName("Set");
             if (nl != null) {
                 for (int i = 0; i < nl.getLength(); i++) {
@@ -121,7 +125,7 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
             }
 
         } catch (IOException | DOMException | SAXException ex) {
-            BaseUtil.out("EXCEPTION " + ex.getMessage());
+            BaseUtil.out("JettyModuleConfiguration changeContext() EXCEPTION " + ex.getMessage());
         }
         return result;
     }
@@ -152,12 +156,12 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
                 os.close();
 
             } catch (IOException ex) {
-                BaseUtil.out("getProjectJettyWebXmlFileObject EXCEPTION " + ex.getMessage());
+                BaseUtil.out("JettyModuleConfiguration getProjectJettyWebXmlFileObject EXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, "JettyModuleConfiguration.getProjectPropertiesFileObject. {0}", ex.getMessage()); //NOI18N                        
             }
 
            // jettyWebXmlFile = module.getDeploymentConfigurationFile("WEB-INF/jetty-web.xml");
-            Project wp = FileOwnerQuery.getOwner(webinfDirFo.toURI());
+            Project wp = BaseUtil.getOwnerProject(webinfDirFo.toURI());
             String cp = "/" + wp.getProjectDirectory().getNameExt();
             changeContext("/" + wp.getProjectDirectory().getNameExt());
         }
@@ -169,7 +173,7 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
         Properties result = new Properties();
         try {
             InputSource source = new InputSource(jettyXml.getInputStream());
-            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.embedded.utils.ParseEntityResolver());
+            Document doc = XMLUtil.parse(source, false, false, null, new org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver());
             NodeList nl = doc.getDocumentElement().getElementsByTagName("Set");
             
             if (nl != null) {
@@ -198,7 +202,7 @@ public class JettyModuleConfiguration  extends EmbeddedModuleConfiguration {
             }
 
         } catch (IOException | DOMException | SAXException ex) {
-            BaseUtil.out("Utils: getContextProperties EXCEPTION " + ex.getMessage());
+            BaseUtil.out("JettyModuleConfiguration : getContextProperties EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, ex.getMessage()); //NOI18N                        
 
         }

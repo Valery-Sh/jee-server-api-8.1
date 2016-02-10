@@ -557,8 +557,6 @@ public class Copier {
                 }
                 String srcPath = srcfs.getPath("/").toString();
                 copyFile(copier, srcfs, targetfs, srcPath, targetPathInZip);
-                srcfs.close();
-                targetfs.close();
             } catch (FileAlreadyExistsException ex) {
                 LOG.log(Level.INFO, ex.getMessage());
                 result = false;

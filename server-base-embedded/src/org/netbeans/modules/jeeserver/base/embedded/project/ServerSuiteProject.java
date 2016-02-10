@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ServerInstancesRootNode;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.spi.project.ActionProvider;
@@ -51,7 +52,7 @@ public class ServerSuiteProject implements Project {
     }
 
     protected Project getProject() {
-        return FileOwnerQuery.getOwner(projectDir);
+        return BaseUtil.getOwnerProject(projectDir);
     }
 
     //protected abstract String getServerId();
@@ -166,7 +167,9 @@ public class ServerSuiteProject implements Project {
     }
 
     public final class Info implements ProjectInformation {
-
+        
+        private ServerInstancesRootNode instancesRootNode;
+        
         @Override
         public Icon getIcon() {
             return new ImageIcon(ImageUtilities.loadImage(SuiteConstants.SERVER_PROJECT_ICON));
@@ -197,6 +200,15 @@ public class ServerSuiteProject implements Project {
             return ServerSuiteProject.this;
         }
 
+        public ServerInstancesRootNode getInstancesRootNode() {
+            return instancesRootNode;
+        }
+
+        public void setInstancesRootNode(ServerInstancesRootNode instancesRootNode) {
+            this.instancesRootNode = instancesRootNode;
+        }
+        
+        
     }//class Info
 
 }

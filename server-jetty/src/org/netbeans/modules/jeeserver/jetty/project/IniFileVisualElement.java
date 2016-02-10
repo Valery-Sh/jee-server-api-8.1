@@ -20,7 +20,7 @@ import org.openide.windows.TopComponent;
 @MultiViewElement.Registration(
         displayName = "#LBL_IniFile_VISUAL",
         iconBase = "org/netbeans/modules/jeeserver/jetty/resources/properties-16x16.gif",
-        mimeType = "text/x-fileini",
+        mimeType = "text/x-jettyini+ini",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "IniFileVisual",
         position = 2000

@@ -10,17 +10,22 @@ import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.DistributedWebAppRootNode;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.InstanceNode;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ServerInstancesRootNode;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.nodes.Node;
 
 /**
  *
@@ -55,7 +60,30 @@ public class SuiteManager {
         return dm;
 
     }
-
+    public static DistributedWebAppRootNode findDistributedWebAppRootNode(Project serverInstance) {
+        InstanceNode node = findInstanceNode(serverInstance);
+        if ( node == null ){
+            return null;
+        }
+        return node.findDistributedWebAppRootNode();
+    }    
+    public static InstanceNode findInstanceNode(Project serverInstance) {
+        ServerInstancesRootNode node = findInstancesRootNode(serverInstance);
+        if ( node == null ) {
+            return null;
+        }
+        return node.findInstanceNode(serverInstance);
+    } 
+    
+    public static ServerInstancesRootNode findInstancesRootNode(Project serverInstance) {
+        Project suite = getServerSuiteProject(serverInstance);
+        if ( suite == null) {
+            return null;
+        }
+        return ((ServerSuiteProject.Info)suite.getLookup().lookup(ProjectInformation.class))
+                    .getInstancesRootNode();        
+        
+    }
     public static boolean isEmbeddedServer(String uri) {
         boolean b = false;
         if (uri == null) {
@@ -74,17 +102,14 @@ public class SuiteManager {
     }
 
     public static BaseDeploymentManager getManager(Project serverInstance) {
+
         return BaseUtil.managerOf(serverInstance);
     }
-
-    public static List<String> getServerInstanceIds(Project serverSuite) {
-
-        //BaseDeploymentManager dm = null;
-
-        if (serverSuite == null || serverSuite.getProjectDirectory() == null) {
+    public synchronized static List<String> getLiveServerInstanceIds(FileObject suiteDir) {
+        if (suiteDir == null) {
             return null;
         }
-        Path suitePath = Paths.get(serverSuite.getProjectDirectory().getPath());
+        Path suitePath = Paths.get(suiteDir.getPath());
         Deployment d = Deployment.getDefault();
 
         if (d == null || d.getServerInstanceIDs() == null) {
@@ -99,7 +124,62 @@ public class SuiteManager {
                 // May be not a native plugin server
                 continue;
             }
-            Project foundSuite = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(foundSuiteLocation)));
+            Project foundSuite = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(foundSuiteLocation)));
+
+            if (foundSuite == null) {
+                continue;
+            }
+            Path p = Paths.get(foundSuiteLocation);
+
+            if (suitePath.equals(p)) {
+                String instanceLocation = SuiteUtil.getServerLocation(ip);
+                FileObject fo = FileUtil.toFileObject(new File(instanceLocation));
+                if ( fo != null && BaseUtil.getOwnerProject(fo) != null ) {
+                    result.add(uri);
+                }
+            }
+        }
+        return result;
+    }    
+    public synchronized static List<String> getLiveServerInstanceIds(Project serverSuite) {
+
+        //BaseDeploymentManager dm = null;
+
+        if (serverSuite == null) {
+            return null;
+        }
+        
+        return getLiveServerInstanceIds(serverSuite.getProjectDirectory());
+    }
+
+    public synchronized static List<String> getServerInstanceIds(Project serverSuite) {
+        if (serverSuite == null || serverSuite.getProjectDirectory() == null) {
+            return null;
+        }
+        return getServerInstanceIds(serverSuite.getProjectDirectory());
+    }
+    
+    public synchronized static List<String> getServerInstanceIds(FileObject suiteDir) {
+
+        if (suiteDir == null) {
+            return null;
+        }
+        Path suitePath = Paths.get(suiteDir.getPath());
+        Deployment d = Deployment.getDefault();
+
+        if (d == null || d.getServerInstanceIDs() == null) {
+            return null;
+        }
+        List<String> result = new ArrayList<>();
+        for (String uri : d.getServerInstanceIDs()) {
+            InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
+
+            String foundSuiteLocation = SuiteUtil.getSuiteProjectLocation(ip);
+            if (foundSuiteLocation == null || !new File(foundSuiteLocation).exists()) {
+                // May be not a native plugin server
+                continue;
+            }
+            Project foundSuite = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(foundSuiteLocation)));
 
             if (foundSuite == null) {
                 continue;
@@ -139,17 +219,19 @@ public class SuiteManager {
             // May be not a native plugin server
             return null;
         }
-        return FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(suiteLocation)));
-
+        return BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(suiteLocation)));
     }
-
-    public static void removeInstance(String uri) {
+    
+    public static Project getServerSuiteProject(Project serverInstance) {
+        return getServerSuiteProject(getManager(serverInstance).getUri());
+    }    
+    public synchronized static void removeInstance(String uri) {
 
         SuiteNotifier notif = SuiteManager.getServerSuiteProject(uri)
                 .getLookup()
                 .lookup(SuiteNotifier.class);
 
-        InstanceProperties.removeInstance(uri);
+        ServerUtil.removeInstanceProperties(uri);
         notif.instancesChanged();
     }
 

@@ -10,7 +10,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
 import javax.swing.JFileChooser;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
@@ -262,7 +261,7 @@ public final class AddHtmRefAction extends AbstractAction implements ContextAwar
                 return "Cannot be null";
             }
 
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             if (webProj == null) {
                 result = "The selected file '" + webappFo.getNameExt() + "' is not a Project file";
             } else if (webappFo.getFileObject("nbproject/project.xml") != null) {

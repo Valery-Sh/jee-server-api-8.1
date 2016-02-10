@@ -14,15 +14,13 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
-import javax.xml.transform.TransformerException;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.deployment.actions.WebAppCommandActions;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.PomXmlUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -32,7 +30,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.EditableProperties;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
@@ -143,7 +140,7 @@ public class Html5RefActions {
                 if ( ! assignHtml5ExternalServer(dm, html5ProjFo)){
                     return;
                 }                
-                html5Project = FileOwnerQuery.getOwner(html5ProjFo);
+                html5Project = BaseUtil.getOwnerProject(html5ProjFo);
                 Properties html5ProjProps = BaseUtil.loadProperties(html5ProjFo.getFileObject("nbproject/project.properties"));
                 contextPath = html5ProjProps.getProperty("web.context.root");
                 if (contextPath == null) {
@@ -224,7 +221,7 @@ public class Html5RefActions {
 
                 DataObject wardo = context.lookup(DataObject.class);
                 refFo = wardo.getPrimaryFile();
-                serverProject = FileOwnerQuery.getOwner(refFo);
+                serverProject = BaseUtil.getOwnerProject(refFo);
                 dm = BaseUtil.managerOf(context);
                 putValue(NAME, "&Deploy");
             }
@@ -248,7 +245,7 @@ public class Html5RefActions {
                     return;
                 }                
                 
-                html5Project = FileOwnerQuery.getOwner(html5ProjFo);
+                html5Project = BaseUtil.getOwnerProject(html5ProjFo);
                 Properties html5ProjProps = BaseUtil.loadProperties(html5ProjFo.getFileObject("nbproject/project.properties"));
                 contextPath = html5ProjProps.getProperty("web.context.root");
                 if (contextPath == null) {
@@ -328,7 +325,7 @@ public class Html5RefActions {
 
                 DataObject dataObj = context.lookup(DataObject.class);
                 refFo = dataObj.getPrimaryFile();
-                serverProject = FileOwnerQuery.getOwner(refFo);
+                serverProject = BaseUtil.getOwnerProject(refFo);
                 dm = BaseUtil.managerOf(context);
                 putValue(NAME, "&Undeploy");
             }
@@ -351,7 +348,7 @@ public class Html5RefActions {
                 }
 
                 FileObject html5ProjFo = FileUtil.toFileObject(new File(webAppLocation));
-                html5Project = FileOwnerQuery.getOwner(html5ProjFo);
+                html5Project = BaseUtil.getOwnerProject(html5ProjFo);
                 Properties html5ProjProps = BaseUtil.loadProperties(html5ProjFo.getFileObject("nbproject/project.properties"));
                 contextPath = html5ProjProps.getProperty("web.context.root");
                 if (contextPath == null) {
@@ -415,7 +412,7 @@ public class Html5RefActions {
             public ContextAction(Lookup context) {
                 DataObject dataObj = context.lookup(DataObject.class);
                 htmrefFo = dataObj.getPrimaryFile();
-                project = FileOwnerQuery.getOwner(htmrefFo);
+                project = BaseUtil.getOwnerProject(htmrefFo);
                 putValue(NAME, "&Show in browser");
                 dm = BaseUtil.managerOf(context);
 

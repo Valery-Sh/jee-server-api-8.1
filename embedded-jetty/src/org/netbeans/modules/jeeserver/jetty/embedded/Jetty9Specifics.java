@@ -23,7 +23,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -32,11 +36,13 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
+import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
 
@@ -59,7 +65,14 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
     
 //    public static final String JETTY_JAR_POSTFIX = "-command-manager";
     
-
+    private List<FileChangeListener> fileListeners = new ArrayList<>();
+     
+    private final String uid;
+    
+    public Jetty9Specifics() {
+         uid = UUID.randomUUID().toString();
+    }
+    
     @Override
     public boolean shutdownCommand(BaseDeploymentManager dm) {
         String urlString = dm.buildUrl();
@@ -279,8 +292,48 @@ BaseUtil.out("Jetty9Specifics MAVEB.BASED");
     }
 
     @Override
-    public SupportedApiProvider getSupportedApiProvider() {
-        return new JettySupportedApiProvider();
+    public SupportedApiProvider getSupportedApiProvider(String actualServerId) {
+        return new JettySupportedApiProvider(actualServerId);
+    }
+
+    @Override
+    public synchronized void saveFileChangeListener(FileChangeListener l) {
+        BaseUtil.out("&&&& Jetty9Specifics ADD LISTENER list.size = " + fileListeners.size());
+        fileListeners.add(l);
+        BaseUtil.out("&&&& Jetty9Specifics ADD LISTENER list.size = " + fileListeners.size());
+    }
+
+    @Override
+    public void deleteFileChangeListener(FileChangeListener l) {
+        fileListeners.remove(l);
+        BaseUtil.out("&&&& Jetty9Specifics DELETE LISTENER list.size = " + fileListeners.size());
+        
+    }
+
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 13 * hash + Objects.hashCode(this.uid);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Jetty9Specifics other = (Jetty9Specifics) obj;
+        if (!Objects.equals(this.uid, other.uid)) {
+            return false;
+        }
+        return true;
     }
 
 }

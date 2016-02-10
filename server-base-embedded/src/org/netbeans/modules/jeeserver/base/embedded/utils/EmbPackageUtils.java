@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.actions.CommandActionProgress;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
@@ -423,7 +422,7 @@ public class EmbPackageUtils {
     public static FileObject getWarFile(FileObject webProjDir) {
         FileObject war = null;
         if (webProjDir.isFolder()) {
-            war = BaseUtil.getWar(FileOwnerQuery.getOwner(webProjDir));
+            war = BaseUtil.getWar(BaseUtil.getOwnerProject(webProjDir));
         }
         return war;
     }
@@ -485,13 +484,13 @@ public class EmbPackageUtils {
         FileObject appsFo = serverProject.getProjectDirectory().getFileObject(SuiteConstants.REG_WEB_APPS_FOLDER);
         for (FileObject fo : appsFo.getChildren()) {
             if (fo.isFolder()) {
-                list.add(FileOwnerQuery.getOwner(fo));
+                list.add(BaseUtil.getOwnerProject(fo));
             }
             if (SuiteConstants.WEB_REF.equals(fo.getExt())) {
                 Properties props = BaseUtil.loadProperties(fo);
                 String location = props.getProperty(SuiteConstants.WEB_APP_LOCATION_PROP);
                 FileObject webref = FileUtil.toFileObject(new File(location));
-                list.add(FileOwnerQuery.getOwner(webref));
+                list.add(BaseUtil.getOwnerProject(webref));
             }
         }
         return list;
@@ -514,7 +513,7 @@ public class EmbPackageUtils {
                 Properties props = BaseUtil.loadProperties(fo);
                 String location = props.getProperty(SuiteConstants.WEB_APP_LOCATION_PROP);
                 FileObject ref = FileUtil.toFileObject(new File(location));
-                list.add(FileOwnerQuery.getOwner(ref));
+                list.add(BaseUtil.getOwnerProject(ref));
             }
         }
         return list;

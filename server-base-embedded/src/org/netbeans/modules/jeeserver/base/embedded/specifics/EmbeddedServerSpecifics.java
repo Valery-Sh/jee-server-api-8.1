@@ -3,8 +3,8 @@ package org.netbeans.modules.jeeserver.base.embedded.specifics;
 import java.io.InputStream;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
@@ -29,10 +29,10 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
     default InputStream getPomFileTemplate() {
         return null;
     }
-    
+
 //    SupportedApiProvider getSupportedApiProvider(BaseDeploymentManager dm);
-    SupportedApiProvider getSupportedApiProvider();
-    
+    SupportedApiProvider getSupportedApiProvider(String actualServerId);
+
     @Override
     default void iconChange(String uri, boolean newValue) {
         SuiteManager.getServerSuiteProject(uri)
@@ -48,6 +48,7 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
                 .lookup(SuiteNotifier.class)
                 .displayNameChange(uri, newValue);
     }
+
     /*
      @Override
      default void propertyChange(PropertyChangeEvent evt) {
@@ -66,17 +67,19 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
 
      }
      */
-    /*    @Override
+ /*    @Override
      default Lookup getServerLookup(BaseDeploymentManager dm) {
      return SuiteManager.getServerInstanceLookup(dm.getUri());
      }
      */
-
+    void saveFileChangeListener(FileChangeListener l);
+    void deleteFileChangeListener(FileChangeListener l);
+    
     @Override
     default void register(final BaseDeploymentManager dm) {
 
         FileObject fo = dm.getServerProjectDirectory();
-        fo.addFileChangeListener(new FileChangeListener() {
+        FileChangeListener listener = new FileChangeListener() {
 
             @Override
             public void fileFolderCreated(FileEvent fe) {
@@ -91,17 +94,17 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
             }
 
             @Override
-            public void fileDeleted(FileEvent fe) {
-                FileObject fo = fe.getFile();
+            public synchronized void fileDeleted(FileEvent fe) {
                 FileObject source = (FileObject) fe.getSource();
+
                 if (!ProjectManager.getDefault().isProject(source)) {
                     String uri = dm.getUri();
                     Project suite = SuiteManager.getServerSuiteProject(dm.getUri());
-                    
-                    source.removeFileChangeListener(this);
 
+                    source.removeFileChangeListener(this);
+                    deleteFileChangeListener(this);
                     if (suite != null) {
-                        InstanceProperties.removeInstance(uri);
+                        ServerUtil.removeInstanceProperties(uri);
                         SuiteNotifier suiteNotifier = suite.getLookup().lookup(SuiteNotifier.class);
                         suiteNotifier.instancesChanged();
                     }
@@ -118,7 +121,10 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
             public void fileAttributeChanged(FileAttributeEvent fe) {
 
             }
-        });
+        };
+                
+        fo.addFileChangeListener(listener);
+        saveFileChangeListener(listener);
     }
 
     @Override
@@ -127,8 +133,9 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
     }
 
     public static class ServerProjectFileChangeListener {
+
         public ServerProjectFileChangeListener(Project suite, String uri) {
-            
+
         }
     }
 }

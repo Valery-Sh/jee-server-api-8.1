@@ -19,7 +19,6 @@ package org.netbeans.modules.jeeserver.jetty.project.nodes;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.config.WebModuleConfig;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
@@ -30,9 +29,7 @@ import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.NodeList;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 
@@ -87,7 +84,7 @@ public class WebModulesNodeFactory implements NodeFactory {
         try {
             WebModuleConfig c = (WebModuleConfig) key;
 
-            Project webProject = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(c.getWebProjectPath())));
+            Project webProject = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(c.getWebProjectPath())));
             LogicalViewProvider lvp = webProject.getLookup().lookup(LogicalViewProvider.class);
             node = lvp.createLogicalView();
         } catch (Exception ex) {

@@ -13,13 +13,4 @@ public interface ProjectWizardBuilder {
     default FileObject unzipMavenProjectTemplate(FileObject targetDir) {
         return null;
     }
-    
-/*    default WizardDescriptor createInstanceProperties(WizardDescriptor wiz) {
-        return null;
-    }
-*/    
-/*    default InputStream getTemplateInputStream() {
-        return null;
-    }
-*/    
 }

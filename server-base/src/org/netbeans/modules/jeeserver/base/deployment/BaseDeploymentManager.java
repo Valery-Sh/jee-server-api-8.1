@@ -36,7 +36,6 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.progress.BaseDeployProgressObject;
@@ -51,7 +50,6 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.LogicalViewNotifier;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -126,6 +124,7 @@ public class BaseDeploymentManager implements DeploymentManager2 {
      * @param specifics
      */
     public BaseDeploymentManager(String serverId, String uri, ServerSpecifics specifics) {
+        BaseUtil.out("BaseDeploymentManager uri = " + uri);
         LOG.log(Level.FINE, "Creating  DeploymentManager uri={0}", uri); //NOI18N
         this.serverId = serverId;
         this.uri = uri;
@@ -207,7 +206,8 @@ public class BaseDeploymentManager implements DeploymentManager2 {
      * @return an object of type {@literal org.netbeans.api.project.Project}
      */
     public Project getServerProject() {
-        return FileOwnerQuery.getOwner(getServerProjectDirectory());
+        return BaseUtil.getOwnerProject(getServerProjectDirectory());        
+        //return FileOwnerQuery.getOwner(getServerProjectDirectory());
     }
     
     public FileObject getServerProjectDirectory() {
@@ -588,9 +588,12 @@ public class BaseDeploymentManager implements DeploymentManager2 {
      * @throws IllegalStateException
      */
     public BaseTargetModuleID getModule(FileObject fo) {
-        String cp = WebModule.getWebModule(fo).getContextPath();
-        FileObject projectDir = FileOwnerQuery.getOwner(fo).getProjectDirectory();
-        return BaseTargetModuleID.getInstance(this, defaultTarget, cp, projectDir.getPath());
+        String cp = BaseUtil.getWebModule(fo).getContextPath();
+
+        FileObject projectDir = BaseUtil.getOwnerProject(fo).getProjectDirectory();
+        BaseTargetModuleID btm = BaseTargetModuleID.getInstance(this, defaultTarget, cp, projectDir.getPath());        
+        return btm;
+        //return BaseTargetModuleID.getInstance(this, defaultTarget, cp, projectDir.getPath());
     }
 
     /**

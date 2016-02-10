@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileAttributeEvent;
@@ -198,7 +197,8 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
             Project proj = null;
             if (Files.exists(p2)) {
                 FileObject fo = FileUtil.toFileObject(p2.toFile());
-                proj = FileOwnerQuery.getOwner(fo);
+                //proj = FileOwnerQuery.getOwner(fo);
+                proj = BaseUtil.getOwnerProject(fo);
             }
             boolean remove = p1.equals(p2);
             if (proj != null && !remove) {

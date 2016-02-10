@@ -44,10 +44,10 @@ public class JettyInstanceBuilder extends EmbeddedInstanceBuilder {
     @Override
     public Set instantiate() {
         Set set = new HashSet();
-BaseUtil.out("JettInstanceBuilder instantiate " + getOptions());                        
+//BaseUtil.out("JettInstanceBuilder instantiate " + getOptions());                        
         try {
             if (getOptions().equals(InstanceBuilder.Options.NEW)) {
-BaseUtil.out("JettInstanceBuilder nvoke instantiateProjectDir");                
+//BaseUtil.out("JettInstanceBuilder nvoke instantiateProjectDir");                
                 
                 instantiateProjectDir(set);
             } else {
@@ -55,9 +55,9 @@ BaseUtil.out("JettInstanceBuilder nvoke instantiateProjectDir");
 //                String name = (String) getWizardDescriptor().getProperty("name");                
 //                dirF = new File( dirF.getPath() + "/" + name);
                 FileObject dir = FileUtil.toFileObject(dirF);
-                Project p = ProjectManager.getDefault().findProject(dir);
+                Project p = BaseUtil.findOwnerProject(dir);
                 set.add(p);
-BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");                
+//BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");                
                 updateWithTemplates(set);
             }
             instantiateServerProperties(set);
@@ -86,13 +86,13 @@ BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");
     }
 
     protected FileObject getSrcDir(Project p) {
-        BaseUtil.out("JettyInstanceBuilder.getSrcDir project = " + p);
-        if ( p != null ) {
-            BaseUtil.out("JettyInstanceBuilder.getSrcDir project.getDir = " + p.getProjectDirectory());
+//        BaseUtil.out("JettyInstanceBuilder.getSrcDir project = " + p);
+//        if ( p != null ) {
+//            BaseUtil.out("JettyInstanceBuilder.getSrcDir project.getDir = " + p.getProjectDirectory());
             
-        }
+//        }
         FileObject fo = p.getProjectDirectory().getFileObject("src");
-        BaseUtil.out("JettyInstanceBuilder.getSrcDir fo = " + fo);
+//        BaseUtil.out("JettyInstanceBuilder.getSrcDir fo = " + fo);
         
         return fo;
     }
@@ -151,18 +151,18 @@ BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");
             }
 
             outputFolder = DataFolder.findFolder(targetFo);
-BaseUtil.out("JettInstanceBuilder outputFolder=" + outputFolder);
+//BaseUtil.out("JettInstanceBuilder outputFolder=" + outputFolder);
             template = DataObject.find(
                     FileUtil.getConfigFile("Templates/jetty9/JettyEmbeddedServer"));
-BaseUtil.out("JettInstanceBuilder template isNull=" + (template == null));
+//BaseUtil.out("JettInstanceBuilder template isNull=" + (template == null));
             
             templateParams.put("port", getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
-BaseUtil.out("JettInstanceBuilder template port=" + getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
+//BaseUtil.out("JettInstanceBuilder template port=" + getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
             
             //templateParams.put("comStart", "");
             //templateParams.put("comEnd", "");
             templateParams.put("classpackage", classpackage);
-BaseUtil.out("JettInstanceBuilder classpackage=" + classpackage);
+//BaseUtil.out("JettInstanceBuilder classpackage=" + classpackage);
             
 //            templateParams.put("command.manager.param", getCommandManagerJarTemplateName());
 
@@ -172,82 +172,11 @@ BaseUtil.out("JettInstanceBuilder classpackage=" + classpackage);
                     templateParams);
             //setMainClass(projectDir);
         } catch (IOException ex) {
-BaseUtil.out("JettInstanceBuilder EXCEPTION " + ex.getMessage());
-            
+            BaseUtil.out("JettInstanceBuilder EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, ex.getMessage()); //NOI18N
         }
     }
 
-    /*    protected void addCommandManagerJar(FileObject targetFolder) {
-     BaseUtil.out("1 JettyInstanceBulder addCommandManagerJar targetFo=" + targetFolder);                    
-     String cmJarPath = getCommandManagerJarTemplateName();
-        
-     if (cmJarPath == null || targetFolder.getFileObject(cmJarPath + ".jar") != null) {
-     return;
-     }
-
-     String cmIn = "/org/netbeans/modules/jeeserver/jetty/embedded/resources/" + cmJarPath + ".jar";
-     BaseUtil.out("2 JettyInstanceBulder addCommandManagerJar targetFo=" + targetFolder);            
-     FileObject cmFo;
-     try (InputStream is = getClass().getClassLoader().getResourceAsStream(cmIn)) {
-     //cmFo = targetFolder.createData(cmJarPath, "jar");
-     Path targetPath = Paths.get(targetFolder.getPath(), cmJarPath + ".jar");
-     BaseUtil.out("JettyInstanceBulder addCommandManagerJar targetPath=" + targetPath);            
-     //            try (OutputStream os = cmFo.getOutputStream(); InputStream is = getClass().getClassLoader().getResourceAsStream(cmIn)) {
-     //FileUtil.copy(is, os); // Not close files sometimes
-     Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
-     cmFo = FileUtil.toFileObject(targetPath.toFile());
-
-     } catch (IOException ex) {
-     BaseUtil.out("JettyInstanceBulder addCommandManagerJar EXCEPTION ex=" + ex.getMessage());
-     LOG.log(Level.INFO, ex.getMessage()); //NOI18N
-     return;
-     }
-     Project proj = FileOwnerQuery.getOwner(targetFolder);
-
-     FileLock lock;
-     try {
-     lock = cmFo.lock();
-     } catch (IOException ex) {
-     BaseUtil.out("Try again later; perhaps display a warning dialog");
-     return;
-     }
-     String newName = cmFo.getName() + "-"
-     + getCommandManagerVersion(proj);
-     BaseUtil.out("JettyInstanceBulder addCommandManagerJar newName=" + newName);
-     try {
-     cmFo.rename(lock, newName, "jar");
-     } catch (IOException ex) {
-     LOG.log(Level.INFO, ex.getMessage()); //NOI18N
-     } finally {
-     // Always put this in a finally block!
-     lock.releaseLock();
-     }
-     BaseUtil.out("JettyInstanceBulder addCommandManagerJar cmFo=" + cmFo);
-
-     }
-
-     protected Properties getPomProperties(Project project) {
-     FileObject jarFo = getLibDir(project).getFileObject(getCommandManagerJarTemplateName() + ".jar");
-     if (jarFo == null) {
-     return null;
-     }
-     Properties props = BaseUtil.getPomProperties(jarFo);
-
-     return props;
-     }
-
-     /*    protected String getCommandManagerVersion(Project project) {
-     String v = null;
-     //Properties p = getPomProperties(project);
-     Properties p = null;
-     if (p == null || p.getProperty("version") == null) {
-     return "1.3.0";
-     }
-     return p.getProperty("version");
-
-     }
-     */
     public void createLib(Project project) {
         FileObject libFo = null;
 

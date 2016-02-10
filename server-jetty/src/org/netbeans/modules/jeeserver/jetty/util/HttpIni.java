@@ -19,7 +19,6 @@ package org.netbeans.modules.jeeserver.jetty.util;
 import java.io.File;
 import java.util.Properties;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
@@ -39,7 +38,7 @@ public class HttpIni  extends AbsractJettyConfig {
     
     public HttpIni(File file) {
         setFile(file);
-        Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(file));
+        Project p = BaseUtil.getOwnerProject(FileUtil.toFileObject(file));
         jvs = JettyProperties.getInstance(p);
     }
     public int propertyLine(String propName) {

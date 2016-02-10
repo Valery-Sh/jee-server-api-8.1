@@ -21,16 +21,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 
 /**
  * Factory to create {@literal DeploymentManager } that can deploy to
@@ -43,25 +46,36 @@ import org.openide.filesystems.FileUtil;
  * @author V.Shyshkin
  * @see ProjectDeploymentManager
  */
-public class FactoryDelegate {
+public abstract class FactoryDelegate {
 
-    private final Map<String, BaseDeploymentManager> managers = new ConcurrentHashMap<>();
+    private static final Logger LOG = Logger.getLogger(FactoryDelegate.class.getName());
 
-    private final ServerSpecifics specifics;
+    private final static Map<String, BaseDeploymentManager> managers = new ConcurrentHashMap<>();
+
     private final String serverId;
     protected String uriPrefix;
     protected List<String> toDelete;
 
-    public FactoryDelegate(String serverId, ServerSpecifics specifics) {
-        this.specifics = specifics;
+    public FactoryDelegate(String serverId) {
+        //this.specifics = specifics;
         this.serverId = serverId;
         uriPrefix = serverId + ":" + BaseConstants.URIPREFIX_NO_ID + ":";
         toDelete = new ArrayList<>();
         registerUnusedInstances();
     }
 
-    public ServerSpecifics getSpecifics() {
-        return specifics;
+    public abstract ServerSpecifics newServerSpecifics();
+
+    public synchronized void removeUnusedManagers() {
+        List<String> toRemove = new ArrayList<>();
+        managers.forEach((u, m) -> {
+            if (InstanceProperties.getInstanceProperties(u) == null) {
+                toRemove.add(u);
+            }
+        });
+        toRemove.forEach(u -> {
+            managers.remove(u);
+        });
     }
 
     public void deleteUnusedInstances() {
@@ -75,7 +89,7 @@ public class FactoryDelegate {
         for (String uri : ar) {
             InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
             if (ip != null) {
-                InstanceProperties.removeInstance(uri);
+                ServerUtil.removeInstanceProperties(uri);
                 toDelete.remove(uri);
             }
             InstanceProperties.getInstanceProperties(uri);
@@ -152,7 +166,8 @@ public class FactoryDelegate {
 
         FileObject fo = FileUtil.toFileObject(f);
 
-        Project p = FileOwnerQuery.getOwner(fo);
+        //Project p = FileOwnerQuery.getOwner(fo);
+        Project p = BaseUtil.getOwnerProject(fo);
         if (p == null) {
             return false;
         }
@@ -163,12 +178,12 @@ public class FactoryDelegate {
         return true;
     }
 
-    public  synchronized void registerUnusedInstances() {
+    public synchronized void registerUnusedInstances() {
 
         FileObject dir = FileUtil.getConfigFile("/J2EE/InstalledServers");
         FileObject instanceFOs[] = dir.getChildren();
         for (FileObject instanceFO : instanceFOs) {
-            
+
             String url = (String) instanceFO.getAttribute(InstanceProperties.URL_ATTR);
             if (!url.startsWith(uriPrefix)) {
                 continue;
@@ -209,7 +224,10 @@ public class FactoryDelegate {
      * @throws DeploymentManagerCreationException
      */
     public synchronized BaseDeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
+        //BaseUtil.out("+++ FactoryDelegate getDeploymentManager uri = " + uri);
+
         deleteUnusedInstances();
+        removeUnusedManagers();
 
         if (InstanceProperties.getInstanceProperties(uri) == null) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri);
@@ -220,14 +238,17 @@ public class FactoryDelegate {
         BaseDeploymentManager manager = managers.get(uri);
 
         if (null == manager) {
-            manager = new BaseDeploymentManager(serverId, uri,specifics);
+            ServerSpecifics ss = newServerSpecifics();
+            manager = new BaseDeploymentManager(serverId, uri,
+                    newServerSpecifics());
             managers.put(uri, manager);
-            specifics.register( manager);
+            BaseUtil.out("+++ FactoryDelegate getDeploymentManager call register " + uri);
+
+            ss.register(manager);
         }
 
         return manager;
     }
-
 
     /**
      *
@@ -261,4 +282,13 @@ public class FactoryDelegate {
     public String getProductVersion() {
         return "Server 1.0";
     }
+
+    public static Map<String, BaseDeploymentManager> getManagers() {
+        return managers;
+    }
+
+    public static BaseDeploymentManager getManager(String uri) {
+        return managers.get(uri);
+    }
+
 }

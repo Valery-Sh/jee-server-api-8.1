@@ -54,25 +54,30 @@ public class BaseIncrementalDeployment extends IncrementalDeployment implements 
     public BaseIncrementalDeployment(DeploymentManager manager) {
         this.manager = (BaseDeploymentManager) manager;
         deployOnSaveSupported = true;
+//        BaseUtil.out("BaseIncrementalDeployment CONSTRUCTOR");
     }
 
     @Override
     public boolean canFileDeploy(Target target, J2eeModule j2eeModule) {
+//        BaseUtil.out("BaseIncrementalDeployment canFileDeploy j2eeModule = " + j2eeModule.getUrl() + "; TYPE= " + j2eeModule.getType().equals(J2eeModule.Type.WAR));
+        
         return j2eeModule.getType().equals(J2eeModule.Type.WAR);
     }
 
     protected String execServerCommand(String cmd) {
         if (!manager.pingServer()) {
+//        BaseUtil.out(" BaseIncrementalDeployment execServerCommand cmd=" + cmd + "; snot ping server ");
+            
             return null;
         }
 
-        BaseUtil.out("BaseIncrementalDeployment execServerCommand cmd=" + cmd);
+//        BaseUtil.out("BaseIncrementalDeployment execServerCommand cmd=" + cmd);
         return manager.getSpecifics().execCommand(manager, cmd);
     }
 
     @Override
     public synchronized File getDirectoryForModule(TargetModuleID module) {
-        //BaseUtils.out(" getDirectoryForModule module=" + module);
+//        BaseUtil.out(" BaseIncrementalDeployment getDirectoryForModule module=" + module);
         //if ( true ) return null;
         if (module == null) {
             return null;
@@ -91,7 +96,7 @@ public class BaseIncrementalDeployment extends IncrementalDeployment implements 
 
     @Override
     public File getDirectoryForNewApplication(Target target, J2eeModule module, ModuleConfiguration configuration) {
-//BaseUtils.out(" getDirectoryForNewApplication");                        
+
         if (module != null && module.getType().equals(J2eeModule.Type.WAR)) {
             return null;
         }
@@ -105,8 +110,12 @@ public class BaseIncrementalDeployment extends IncrementalDeployment implements 
 
     @Override
     public ProgressObject initialDeploy(Target target, DeploymentContext context) {
-        BaseUtil.out(" initialDeploy");
+//        BaseUtil.out(" initialDeploy");
+//        BaseUtil.out(" BaseIncrementalDeployment initialDeploy dcontext" + context);
+        
         BaseIncrementalProgressObject deployer = new BaseIncrementalProgressObject(manager);
+//        BaseUtil.out(" BaseIncrementalDeployment before deployer.initialDeploy dcontext" + context);
+        
         return deployer.initialDeploy(target, context);
     }
 

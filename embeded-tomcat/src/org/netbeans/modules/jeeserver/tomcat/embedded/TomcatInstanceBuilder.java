@@ -44,20 +44,15 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
     @Override
     public Set instantiate() {
         Set set = new HashSet();
-BaseUtil.out("JettInstanceBuilder instantiate " + getOptions());                        
+//BaseUtil.out("JettInstanceBuilder instantiate " + getOptions());                        
         try {
             if (getOptions().equals(InstanceBuilder.Options.NEW)) {
-BaseUtil.out("JettInstanceBuilder nvoke instantiateProjectDir");                
-                
                 instantiateProjectDir(set);
             } else {
                 File dirF = FileUtil.normalizeFile((File) getWizardDescriptor().getProperty("projdir"));
-//                String name = (String) getWizardDescriptor().getProperty("name");                
-//                dirF = new File( dirF.getPath() + "/" + name);
                 FileObject dir = FileUtil.toFileObject(dirF);
-                Project p = ProjectManager.getDefault().findProject(dir);
+                Project p = BaseUtil.findOwnerProject(dir);
                 set.add(p);
-BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");                
                 updateWithTemplates(set);
             }
             instantiateServerProperties(set);
@@ -151,18 +146,18 @@ BaseUtil.out("JettInstanceBuilder nvoke updateWithTemplates");
             }
 
             outputFolder = DataFolder.findFolder(targetFo);
-BaseUtil.out("TomcatInstanceBuilder outputFolder=" + outputFolder);
+//BaseUtil.out("TomcatInstanceBuilder outputFolder=" + outputFolder);
             template = DataObject.find(
                     FileUtil.getConfigFile("Templates/tomcat7/TomcatEmbeddedServer"));
-BaseUtil.out("TomcatInstanceBuilder template isNull=" + (template == null));
+//BaseUtil.out("TomcatInstanceBuilder template isNull=" + (template == null));
             
             templateParams.put("port", getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
-BaseUtil.out("TomcatInstanceBuilder template port=" + getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
+//BaseUtil.out("TomcatInstanceBuilder template port=" + getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
             
             //templateParams.put("comStart", "");
             //templateParams.put("comEnd", "");
             templateParams.put("classpackage", classpackage);
-BaseUtil.out("TomcatInstanceBuilder classpackage=" + classpackage);
+//BaseUtil.out("TomcatInstanceBuilder classpackage=" + classpackage);
             
 //            templateParams.put("command.manager.param", getCommandManagerJarTemplateName());
 
@@ -172,7 +167,7 @@ BaseUtil.out("TomcatInstanceBuilder classpackage=" + classpackage);
                     templateParams);
             //setMainClass(projectDir);
         } catch (IOException ex) {
-BaseUtil.out("TomcatInstanceBuilder EXCEPTION " + ex.getMessage());
+//BaseUtil.out("TomcatInstanceBuilder EXCEPTION " + ex.getMessage());
             
             LOG.log(Level.INFO, ex.getMessage()); //NOI18N
         }

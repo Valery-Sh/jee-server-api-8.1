@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileObject;
@@ -51,7 +50,7 @@ public class AbsractJettyConfig {
     }
     private void init() {
         try {
-            Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(file));
+            Project p = BaseUtil.getOwnerProject(FileUtil.toFileObject(file));
             baseDir = FileUtil.toFile(
                    p.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER))
                     .toPath();

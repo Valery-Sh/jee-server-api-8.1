@@ -55,6 +55,17 @@ public class JettyConfig {
     public boolean isCDIEnabled() {
         return configBuilder.getModuleNames().contains("cdi");
     }
+    public boolean isJerseyEnabled() {
+        boolean yes = false;
+        for (String m : getModuleNames()) {
+            if (m.toLowerCase().startsWith("jersey")) {
+                yes = true;
+                break;
+            }
+        }
+        return yes;
+
+    }
 
     public boolean isJSFEnabled() {
         boolean yes = false;

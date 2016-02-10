@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
@@ -205,7 +204,6 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
     @Override
     public void childrenChanged() {
         childKeys.addNotify();
-
     }
 
     @Override
@@ -215,14 +213,18 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
         }
 
         if (source instanceof DistributedWebAppManager) {
-            BaseUtil.out("InstanceNode childrenChanged");
             DistributedWebAppRootNode distNode = childKeys.getDistributedWebAppRootNode();
             if (distNode != null) {
                 distNode.childrenChanged(source, params);
             }
         }
     }
-
+    public DistributedWebAppRootNode findDistributedWebAppRootNode() {
+        if ( childKeys == null ) {
+            return null;
+        }
+        return childKeys.getDistributedWebAppRootNode();
+    } 
     /**
      * The implementation of the Children.Key of the {@literal Server Libraries}
      * node.
@@ -256,8 +258,9 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
             InstanceProperties ip = InstanceProperties.getInstanceProperties(key);
             Project serverSuite = SuiteManager.getServerSuiteProject(uri);
             String projDir = BaseUtil.getServerLocation(ip);
-            Project instProj = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(projDir)));
+            Project instProj = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(projDir)));
             Node instProjView = InstanceChildNode.InstanceProjectLogicalView.create(instProj);
+
             Node distNode = null;
             try {
                 distNode = new DistributedWebAppRootNode(serverSuite, instProj);
@@ -265,10 +268,7 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
                 LOG.log(Level.INFO, ex.getMessage());
 
             }
-//            return new Node[]{distNode};
             return new Node[]{distNode, instProjView};
-
-            //return new Node[]{};
         }
 
         public DistributedWebAppRootNode getDistributedWebAppRootNode() {

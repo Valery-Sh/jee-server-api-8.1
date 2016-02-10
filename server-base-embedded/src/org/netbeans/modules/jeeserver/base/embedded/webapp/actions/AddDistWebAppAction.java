@@ -7,7 +7,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
 import javax.swing.JFileChooser;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
@@ -87,7 +86,7 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
                     }
                     File selectedFile = fc.getSelectedFile();
                     FileObject webappFo = FileUtil.toFileObject(selectedFile);
-                    Project webProj = FileOwnerQuery.getOwner(webappFo);
+                    Project webProj = BaseUtil.getOwnerProject(webappFo);
                     String msg = ProjectFilter.check(context, webappFo);
                     if (msg != null) {
                         NotifyDescriptor d
@@ -146,7 +145,7 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
                 return "Cannot be null";
             }
             String msg = "The selected project is not a Web Project ";
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             if (webProj == null) {
                 return msg + "(not a project)";
             }
@@ -161,7 +160,7 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
 
         public static int accept(Lookup context, FileObject webappFo) {
 
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             J2eeModuleProvider provider = SuiteUtil.getJ2eeModuleProvider(webProj);
 
             if (provider == null) {
@@ -177,7 +176,7 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
 
         public static String changeServer(Lookup context, FileObject webappFo) {
 
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             J2eeModuleProvider provider = SuiteUtil.getJ2eeModuleProvider(webProj);
             if (provider == null) {
                 return null;

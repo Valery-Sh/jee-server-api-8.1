@@ -1,7 +1,7 @@
 package org.netbeans.modules.jeeserver.base.embedded.webapp.nodes;
 
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -105,7 +105,7 @@ public class BaseWebAppChildNode extends FilterNode {
      */
     public Project getWebAppProject() {
         FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(getWebAppKey()));
-        return FileOwnerQuery.getOwner(webappFo);
+        return BaseUtil.getOwnerProject(webappFo);
     }
 
 /*    public class ProfileActionPerformer implements ProjectActionPerformer {

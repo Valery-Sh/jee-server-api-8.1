@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +21,7 @@ import org.netbeans.modules.j2ee.dd.api.common.CreateCapability;
 import org.netbeans.modules.j2ee.dd.api.web.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.web.Listener;
 import org.netbeans.modules.j2ee.dd.api.web.WebApp;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
 import org.netbeans.modules.jeeserver.jetty.project.nodes.JettyBaseRootNode;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
@@ -41,7 +41,7 @@ public class DDHelper  {
     public static boolean needsBeansXml(Project serverProj, Project webProj) {
         FileObject webFo = webProj.getProjectDirectory();
 
-        WebModule wm = WebModule.getWebModule(webFo);
+        WebModule wm = BaseUtil.getWebModule(webFo);
 
         File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTY_START_INI).toFile();
 
@@ -66,7 +66,7 @@ public class DDHelper  {
         if (webFo == null) {
             return;
         }
-        WebModule wm = WebModule.getWebModule(webFo);
+        WebModule wm = BaseUtil.getWebModule(webFo);
 
         if (wm == null) {
             return;
@@ -114,7 +114,7 @@ public class DDHelper  {
             return;
         }
 
-        WebModule wm = WebModule.getWebModule(webFo);
+        WebModule wm = BaseUtil.getWebModule(webFo);
 
         if (wm == null) {
             return;
@@ -178,7 +178,7 @@ public class DDHelper  {
             return true;
         }
 
-        WebModule wm = WebModule.getWebModule(webFo);
+        WebModule wm = BaseUtil.getWebModule(webFo);
 
         if (wm == null) {
             return true;

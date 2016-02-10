@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.modules.jeeserver.base.embedded.webapp;
 
 import java.io.File;
@@ -11,12 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
@@ -31,7 +27,7 @@ import org.openide.filesystems.FileUtil;
 
 /**
  *
- * @author Valery
+ * @author V. Shyshkn
  */
 public class DistributedWebAppManager implements FileChangeListener {
 
@@ -46,9 +42,8 @@ public class DistributedWebAppManager implements FileChangeListener {
     public static final int NOT_FOUND = 6;
 
     public static final int CONTEXTPATH_NOT_FOUND = 8;
-    
-    public static final int NOT_A_SUITE = 10;
 
+    public static final int NOT_A_SUITE = 10;
 
     private final Project serverInstance;
 
@@ -100,12 +95,11 @@ public class DistributedWebAppManager implements FileChangeListener {
         return target;
 
     }
-    
-    
+
     public FileObject copyFile(FileObject source) {
         FileObject result = null;
         Path target = createRegistry().resolve(source.getNameExt());
-        if ( Files.exists(target)) {
+        if (Files.exists(target)) {
             result = FileUtil.toFileObject(target.toFile());
         } else {
             Path sourcePath = FileUtil.toFile(source).toPath();
@@ -113,11 +107,12 @@ public class DistributedWebAppManager implements FileChangeListener {
                 Path p = Files.copy(sourcePath, target);
                 result = FileUtil.toFileObject(p.toFile());
             } catch (IOException ex) {
-                LOG.log(Level.INFO, ex.getMessage());                
+                LOG.log(Level.INFO, ex.getMessage());
             }
         }
         return result;
     }
+
     public String getServerInstanceProperty(String name) {
         Properties props = new Properties();
         Path target = createRegistry();
@@ -150,7 +145,7 @@ public class DistributedWebAppManager implements FileChangeListener {
         }
         props.setProperty(name, value);
         BaseUtil.storeProperties(props, FileUtil.toFileObject(target.toFile()), SuiteConstants.SERVER_INSTANCE_PROPERTIES_FILE);
-        
+
     }
 
     public void register(Project webApp) {
@@ -238,7 +233,7 @@ public class DistributedWebAppManager implements FileChangeListener {
             BaseUtil.storeProperties(props, FileUtil.toFileObject(target.toFile()), SuiteConstants.SERVER_INSTANCE_WEB_APPS_PROPS);
             String uri = SuiteManager.getManager(serverInstance).getUri();
             Project suite = SuiteManager.getServerSuiteProject(uri);
-            if ( suite == null ) {
+            if (suite == null) {
                 result = NOT_A_SUITE;
             } else {
                 SuiteNotifier sn = suite.getLookup().lookup(SuiteNotifier.class);
@@ -268,7 +263,7 @@ public class DistributedWebAppManager implements FileChangeListener {
         props.forEach((k, v) -> {
             FileObject fo = FileUtil.toFileObject(new File((String) v));
             if (fo != null) {
-                Project p = FileOwnerQuery.getOwner(fo);
+                Project p = BaseUtil.getOwnerProject(fo);
                 if (p != null) {
                     list.add(fo);
                 }
@@ -296,28 +291,110 @@ public class DistributedWebAppManager implements FileChangeListener {
      *
      */
     public void refresh() {
+        BaseUtil.out("DistributedWebAppManager REFRESH() SERVER INSTANCE  = " + serverInstance);
+        Properties props = getWebAppsProperties();
+        Properties updates = new Properties();
+
+        final List<Object> toDeleteList = new ArrayList<>();
+        Enumeration en = props.propertyNames();
+        
+        boolean cpUpdated = false;
+        
+        while (en.hasMoreElements()) {
+            Object k = en.nextElement();
+            Object v = props.get(k);
+            updates.put(k, v);
+
+            final FileObject fo = FileUtil.toFileObject(new File((String) v));
+
+            Project p = BaseUtil.getOwnerProject(fo);
+            WebModule wm = getWebModule(p);
+            
+            if (p == null || wm == null) {
+                toDeleteList.add(k);
+                continue;
+            }
+
+            J2eeModuleProvider provider = p.getLookup().lookup(J2eeModuleProvider.class);
+            
+            String uri = provider.getServerInstanceID();
+            if (uri == null || ! uri.equals(SuiteManager.getManager(serverInstance).getUri())) {
+                toDeleteList.add(k);
+                continue;
+            }
+
+            String cp = wm.getContextPath();
+            if (!cp.equals(k)) {
+                updates.remove(k);
+                updates.setProperty(cp, (String) v);
+                cpUpdated = true;
+            }
+        }
+
+//        BaseUtil.out(" 8) -- DistributedWebAppManager toDeleteList.size = " + toDeleteList.size());
+
+        if (!toDeleteList.isEmpty()) {
+            toDeleteList.forEach(d -> {
+                updates.remove(d);
+            });
+        }
+        updates.forEach((k,v) -> {
+//            BaseUtil.out(" 10) -- DistributedWebAppManager updates k = " + k + "; v="+ v);
+            
+        });
+        if (cpUpdated || !toDeleteList.isEmpty() ) {
+//        BaseUtil.out(" 11) -- DistributedWebAppManager store updates");
+//        BaseUtil.out(" 12) -- DistributedWebAppManager getRegistry() = " + getRegistry());
+            
+            BaseUtil.replaceProperties(updates, getRegistry(), SuiteConstants.SERVER_INSTANCE_WEB_APPS_PROPS);
+        }
+    }
+
+    public static void refreshSuiteInstances(Project suite) {
+        refreshSuiteInstances(suite.getProjectDirectory());
+    }
+
+    public static void refreshSuiteInstances(FileObject suiteDir) {
+        List<String> all = SuiteManager.getLiveServerInstanceIds(suiteDir);
+//        BaseUtil.out("1) -- DistributedWebAppManager all.size() =  " + all.size());
+        all.forEach(uri -> {
+            DistributedWebAppManager dm = DistributedWebAppManager.getInstance(SuiteManager.getManager(uri).getServerProject());
+            dm.refresh();
+        });
+
+    }
+
+    private WebModule getWebModule(Project p) {
+        WebModule wm = null;
+        if (p != null && p.getProjectDirectory() != null) {
+            wm = WebModule.getWebModule(p.getProjectDirectory());
+        }
+        return wm;
+    }
+
+    public void refresh_old() {
 
         Properties props = getWebAppsProperties();
         props.forEach((k, v) -> {
             File f = new File((String) v);
-            Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(f));
+            Project p = BaseUtil.getOwnerProject(FileUtil.toFileObject(f));
             WebModule wm = WebModule.getWebModule(p.getProjectDirectory());
             String cp = wm.getContextPath();
         });
 
     }
 
-/*    public boolean exists(Project webApp) {
+    /*    public boolean exists(Project webApp) {
         boolean result = false;
         return result;
     }
-*/
-/*    public FileObject findByContextpath(String cp) {
+     */
+ /*    public FileObject findByContextpath(String cp) {
         FileObject result = null;
 
         return result;
     }
-*/
+     */
     @Override
     public void fileFolderCreated(FileEvent fe) {
     }

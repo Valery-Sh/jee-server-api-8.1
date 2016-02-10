@@ -34,7 +34,6 @@ import static javax.swing.Action.NAME;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
@@ -160,8 +159,8 @@ public class HotDeployedWebAppsNodeActionFactory {
 
             FileObject fo = context.lookup(FileObject.class);
 
-            if (fo != null && FileOwnerQuery.getOwner(fo) != null) {
-                server = FileOwnerQuery.getOwner(fo);
+            if (fo != null && BaseUtil.getOwnerProject(fo) != null) {
+                server = BaseUtil.getOwnerProject(fo);
             } else {
                 server = null;
             }
@@ -207,7 +206,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                     return;
                 }//if
 
-                Project webapp = FileOwnerQuery.getOwner(selectedFo);
+                Project webapp = BaseUtil.getOwnerProject(selectedFo);
                 if (HTML5.equals(actionType)) {
                     if (webapp == null) {
                         return;
@@ -302,7 +301,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                 Copier.mkdirs(tmpPath);
                 Files.copy(is, tmpJettyxmlPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
-                BaseUtil.out("createWarForHtml5: create jetty-web.xmlEXCEPTION " + ex.getMessage());
+                BaseUtil.out("HotDeployedWebAppsNodeActionFactory: createWarForHtml5: create jetty-web.xmlEXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, ex.getMessage());
             }
 
@@ -313,7 +312,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                 FileUtil.copyFile(FileUtil.toFileObject(tmpWar), targetFolder, fileName, "war");
                 targetFolder.refresh();
             } catch (Exception ex) {
-                BaseUtil.out("createWarForHtml5: EXCEPTION " + ex.getMessage());
+                BaseUtil.out("HotDeployedWebAppsNodeActionFactory: createWarForHtml5: EXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, ex.getMessage());
             }
 
@@ -355,7 +354,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                     Files.copy(is, toPath, StandardCopyOption.REPLACE_EXISTING);
                     targetFolder.refresh();
                 } catch (IOException ex) {
-                    BaseUtil.out("createJettyXmlForHtml5: EXCEPTION " + ex.getMessage());
+                    BaseUtil.out("HotDeployedWebAppsNodeActionFactory: createJettyXmlForHtml5: EXCEPTION " + ex.getMessage());
                     LOG.log(Level.INFO, ex.getMessage());
                 }
             });
@@ -378,12 +377,12 @@ public class HotDeployedWebAppsNodeActionFactory {
                         }
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
-                        BaseUtil.out("COPY : EXCEPTION " + ex.getMessage());
+                        BaseUtil.out("HotDeployedWebAppsNodeActionFactory: COPY : EXCEPTION " + ex.getMessage());
                     }
                 });
                 target.refresh();
             } catch (Exception ex) {
-                BaseUtil.out("NEW FILE : EXCEPTION " + ex.getMessage());
+                BaseUtil.out("HotDeployedWebAppsNodeActionFactory: NEW FILE : EXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, ex.getMessage());
             }
         }
@@ -402,7 +401,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                             Copier.ZipUtil.unzip(zipFile, "/", targetFolder);
                         } catch (Exception ex) {
                             Exceptions.printStackTrace(ex);
-                            BaseUtil.out("tryCopyUnpackedWar : EXCEPTION " + ex.getMessage());
+                            BaseUtil.out("HotDeployedWebAppsNodeActionFactory: tryCopyUnpackedWar : EXCEPTION " + ex.getMessage());
                         }
                     }
                 });
@@ -410,7 +409,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                 target.refresh();
 
             } catch (Exception ex) {
-                BaseUtil.out("NEW FILE : EXCEPTION " + ex.getMessage());
+                BaseUtil.out("HotDeployedWebAppsNodeActionFactory: NEW FILE : EXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, ex.getMessage());
             }
         }

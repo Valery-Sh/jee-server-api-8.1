@@ -16,7 +16,6 @@
  */
 package org.netbeans.modules.jeeserver.base.deployment.utils;
 
-import org.netbeans.modules.jeeserver.base.deployment.maven.MavenAuxConfig;
 import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -28,7 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,11 +69,14 @@ import org.netbeans.modules.jeeserver.base.deployment.BaseTargetModuleID;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecificsProvider;
+import org.netbeans.modules.web.api.webmodule.WebModule;
+import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.EditableProperties;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -96,31 +98,80 @@ import org.xml.sax.SAXException;
 public class BaseUtil {
 
     private static final Logger LOG = Logger.getLogger(BaseUtil.class.getName());
-    
+
     @StaticResource
     public static final String MAVEN2_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/maven2-icon.gif";
     @StaticResource
     public static final String J2SE_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/j2seproject-icon.png";
 
+    public static WebModule getWebModule(FileObject fo) {
+        if (fo == null) {
+            return null;
+        }
+
+        Project p = getOwnerProject(fo);
+        if (p == null) {
+            return null;
+        }
+        FileObject projDir = p.getProjectDirectory();
+        return WebModule.getWebModule(projDir);
+    }
+
+    public static Project findOwnerProject(FileObject fo) throws IllegalArgumentException, IOException {
+        if (fo == null) {
+            return null;
+        }
+
+        Project p = FileOwnerQuery.getOwner(fo);
+        p = ProjectManager.getDefault().findProject(fo);
+        if (p != null && ProjectConvertors.isConvertorProject(p)) {
+            p = ProjectConvertors.getNonConvertorOwner(fo);
+        }
+        return p;
+    }
+
+    public static Project getOwnerProject(FileObject fo) {
+        if (fo == null) {
+            return null;
+        }
+        Project p = FileOwnerQuery.getOwner(fo);
+
+        if (p != null && ProjectConvertors.isConvertorProject(p)) {
+            p = ProjectConvertors.getNonConvertorOwner(fo);
+        }
+        return p;
+    }
+
+    public static Project getOwnerProject(URI uri) {
+        if (uri == null) {
+            return null;
+        }
+
+        Project p = FileOwnerQuery.getOwner(uri);
+        if (p != null && ProjectConvertors.isConvertorProject(p)) {
+            p = ProjectConvertors.getNonConvertorOwner(p.getProjectDirectory());
+        }
+        return p;
+    }
+
     public static Image getProjectImage(Project serverProject) {
         Image img = null;
-        if ( isAntProject(serverProject) || isMavenProject(serverProject)) {
-            ProjectInformation p = serverProject.getLookup().lookup(ProjectInformation.class); 
+        if (isAntProject(serverProject) || isMavenProject(serverProject)) {
+            ProjectInformation p = serverProject.getLookup().lookup(ProjectInformation.class);
             img = ImageUtilities.icon2Image(p.getIcon());
             p.getIcon();
         }
-        
-/*        
+
+        /*        
         if ( isAntProject(serverProject)) {
             img = ImageUtilities.loadImage(J2SE_ICON);
         } else {
             img = ImageUtilities.loadImage(MAVEN2_ICON);
         }
-*/        
+         */
         return img;
-    }   
+    }
 
-    
     public static String getClassPath(BaseDeploymentManager manager) {
         StringBuilder sb = new StringBuilder();
 
@@ -240,7 +291,8 @@ public class BaseUtil {
 
         return result;
     }
-/*    public static String getMavenMainClass(Project project) {
+
+    /*    public static String getMavenMainClass(Project project) {
         
         String mainClass = null;
 
@@ -251,14 +303,13 @@ public class BaseUtil {
         return mainClass;
         
     }
-*/    
+     */
     public static boolean isMavenMainClass(Project project, String className) {
         String[] classes = BaseUtil.getMavenMainClasses(project);
         return Arrays.asList(classes).contains(className);
-        
+
     }
 
-    
     public static String[] getMavenMainClasses(Project project) {
         String[] result = new String[0];
         FileObject[] sourceRoots = getMavenSourceRoots(project);
@@ -484,7 +535,6 @@ public class BaseUtil {
         final EditableProperties props = new EditableProperties(false);
         try (FileInputStream fis = new FileInputStream(fo.getPath())) {
             props.load(fis);
-            fis.close();
             return props;
         } catch (IOException ioe) {
             LOG.log(Level.INFO, "loadEditableProperties() of " + fo.getNameExt(), ioe);
@@ -502,7 +552,6 @@ public class BaseUtil {
     public static void storeEditableProperties(EditableProperties props, FileObject fo) {
         try (FileOutputStream fos = new FileOutputStream(fo.getPath())) {
             props.store(fos);
-            fos.close();
         } catch (IOException ioe) {
             LOG.log(Level.INFO, "loadEditableProperties() of " + fo.getNameExt(), ioe);
         }
@@ -532,18 +581,64 @@ public class BaseUtil {
                     //OutputStream out = toDir.createAndOpen(toFileName);
                     try (OutputStream out = toDir.createAndOpen(toFileName);) {
                         props.store(out, "");
-                        out.close();
-
                     } catch (IOException e) {
+                        BaseUtil.out("BaseUtil.storeProperties props.store EXCEPTION " + e.getMessage());
                         LOG.log(Level.INFO, "ESUtils storeProperties() run()", e);
                     }
                 }
             });
-            return true;
         } catch (IOException ex) {
+            BaseUtil.out("BaseUtil.storeProperties EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, "ESUtils storeProperties()", ex);
+            return false;
         }
-        return false;
+        return true;
+    }
+
+    /**
+     * Replaces {@literal Properties} content of the file specified by the second
+     * as a directory and third parameter as a file name.
+     * parameter. If the properties file already exists it is deleted
+     *
+     *
+     * @param props an object to be stored
+     * @param toDir the file parent directory
+     * @param toFileName the file name
+     * @return
+     */
+    public static boolean replaceProperties(final Properties props, final FileObject toDir, final String toFileName) {
+        final FileObject fo = toDir.getFileObject(toFileName);
+        if (fo != null) {
+            try {
+                Files.deleteIfExists(FileUtil.toFile(fo).toPath());
+            } catch (IOException ex) {
+                BaseUtil.out("BaseUtil.replaceProperties delete EXCEPTION " + ex.getMessage());
+                LOG.log(Level.INFO, "BaseUtil replaceProperties() run()", ex);
+                return false;
+            }
+            //deleteFile(fo);
+        }
+        try {
+            FileUtil.runAtomicAction(new FileSystem.AtomicAction() {
+                @Override
+                public void run() throws IOException {
+
+                    //OutputStream out = toDir.createAndOpen(toFileName);
+                    try (OutputStream out = toDir.createAndOpen(toFileName);) {
+                        props.store(out, "");
+                    } catch (IOException e) {
+                        BaseUtil.out("BaseUtil.storeProperties props.store EXCEPTION " + e.getMessage());
+                        LOG.log(Level.INFO, "BaseUtil store run()", e);
+                    }
+                }
+            });
+        } catch (IOException ex) {
+            BaseUtil.out("BaseUtil.storeProperties EXCEPTION " + ex.getMessage());
+            LOG.log(Level.INFO, "ESUtils storeProperties()", ex);
+            return false;
+        }
+        return true;
+
     }
 
     /**
@@ -637,14 +732,14 @@ public class BaseUtil {
         return null;
     }
 
-    public static  String getServerLocation(InstanceProperties ip) {
+    public static String getServerLocation(InstanceProperties ip) {
         return ip.getProperty(BaseConstants.SERVER_LOCATION_PROP);
-    }    
-    
-    public static  void setServerLocation(Map<String,String> ip, String location) {
+    }
+
+    public static void setServerLocation(Map<String, String> ip, String location) {
         ip.put(BaseConstants.SERVER_LOCATION_PROP, location);
-    }    
-    
+    }
+
     public static BaseDeploymentManager managerOf(Project p) {
 
         BaseDeploymentManager dm = null;
@@ -682,7 +777,7 @@ public class BaseUtil {
                 return null;
             }
 
-            Project serverProj = FileOwnerQuery.getOwner(foundServerFo);
+            Project serverProj = BaseUtil.getOwnerProject(foundServerFo);
 
             if (serverProj == null) {
                 continue;
@@ -729,7 +824,7 @@ public class BaseUtil {
      *   {@link ServerSpecificsProvider }
      * @return an {@literal Image} instance for the specified server id.
      */
-/*    public static Image getServerImage(String serverId) {
+    /*    public static Image getServerImage(String serverId) {
         if (serverId == null) {
             return null;
         }
@@ -746,9 +841,9 @@ public class BaseUtil {
         }
         return image;
     }
-*/
+     */
     public static boolean isMavenProject(String projDir) {
-        Project proj = FileOwnerQuery.getOwner(FileUtil.toFileObject(new File(projDir)));
+        Project proj = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(projDir)));
         //return new File(projDir + "/pom.xml").exists();
         return isMavenProject(proj);
     }
@@ -841,14 +936,13 @@ public class BaseUtil {
     }
 
     public static Properties loadProperties(FileObject propFile) {
-        if ( propFile == null ) {
+        if (propFile == null) {
             return null;
         }
         final Properties props = new Properties();
-        
+
         try (FileInputStream fis = new FileInputStream(propFile.getPath());) {
             props.load(fis);
-            fis.close();
         } catch (IOException ioe) {
             LOG.log(Level.INFO, "loadProperties() of " + propFile.getNameExt(), ioe);
         }
@@ -860,7 +954,6 @@ public class BaseUtil {
         final Properties props = new Properties();
         try (FileInputStream fis = new FileInputStream(f)) {
             props.load(fis);
-            fis.close();
             return props;
         } catch (IOException ioe) {
             LOG.log(Level.INFO, "loadHtml5ProjectProperties()", ioe);
@@ -927,7 +1020,7 @@ public class BaseUtil {
         if (fo == null) {
             return false;
         }
-        Project proj = FileOwnerQuery.getOwner(fo);
+        Project proj = BaseUtil.getOwnerProject(fo);
         if (proj == null) {
             return false;
         }

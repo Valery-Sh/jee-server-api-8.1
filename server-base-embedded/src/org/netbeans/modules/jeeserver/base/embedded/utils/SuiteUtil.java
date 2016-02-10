@@ -97,14 +97,13 @@ public class SuiteUtil extends BaseUtil {
         return result;
     }
 
-    public static boolean isEmbeddedServer(Project proj) {
+/*public static boolean isEmbeddedServer(Project proj) {
         return new ServerSuiteProjectFactory().isProject(proj.getProjectDirectory());
     }
-
+*/
     /**
      * Checks whether the specified project is actually a server project. Every
-     * server project has an object of type {@link ServerInstanceProperties} in
-     * its lookup
+     * 
      *
      * @param p a project to be checked
      * @return {@literal true } if the specified project is a server project.
@@ -138,6 +137,10 @@ public class SuiteUtil extends BaseUtil {
         return SuiteManager.getManager(serverProject).getInstanceProperties()
                 .getProperty(BaseConstants.SERVER_ID_PROP);
     }
+    public static String getActualServerId(Project serverProject) {
+        return SuiteManager.getManager(serverProject).getInstanceProperties()
+                .getProperty(BaseConstants.SERVER_ACTUAL_ID_PROP);
+    }    
     public static StringBuilder getServerInfo(Project server) {
 
         //Properties props = SuiteUtil.loadServerProperties(server);

@@ -47,26 +47,20 @@ public class JettyManagerFactory implements DeploymentFactory, ServerSpecificsPr
     private static JettyManagerFactory instance = null;
 
     private JettyManagerFactory() {
-/*        instance = new JettyManagerFactory();
-        delegateInstance = new EmbeddedFactoryDelegate(SERVER_ID, ((ServerSpecificsProvider) instance).getSpecifics());
-        DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
-*/        
     }
 
-/*    private static class FInstance {
-
-        public static final JettyManagerFactory INSTANCE = new JettyManagerFactory();
-    }
-*/
     public synchronized static JettyManagerFactory getInstance() {
         if (null == instance) {
             instance = new JettyManagerFactory();
-            delegateInstance = new EmbeddedFactoryDelegate(SERVER_ID, ((ServerSpecificsProvider) instance).getSpecifics());
+            //delegateInstance = new EmbeddedFactoryDelegate(instance.getServerId(), ((ServerSpecificsProvider) instance).newtSpecificsInstance());
+            delegateInstance = new JettyFactoryDelegate(instance.getServerId());            
+            //delegateInstance = instance.getFactoryDelegate();
             DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
         }
         
         return instance;
     }
+
     /*    protected void createHelperLibrary() {
      String libName = "jetty9-" + EmbConstants.SERVER_HELPER_LIBRARY_POSTFIX;
      }
@@ -142,10 +136,6 @@ public class JettyManagerFactory implements DeploymentFactory, ServerSpecificsPr
         return SERVER_ID;
     }
 
-    @Override
-    public ServerSpecifics getSpecifics() {
-        return new Jetty9Specifics();
-    }
 
     /*    @Override
      public void removeManager(String uri) {
@@ -156,5 +146,12 @@ public class JettyManagerFactory implements DeploymentFactory, ServerSpecificsPr
     public String[] getSupportedServerIds() {
         return new String[]{"jetty-9-embedded"};
     }
+
+
+    @Override
+    public ServerSpecifics getSpecifics() {
+       return new Jetty9Specifics();
+    }
+
 
 }

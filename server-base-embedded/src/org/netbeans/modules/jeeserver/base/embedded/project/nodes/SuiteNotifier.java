@@ -20,7 +20,7 @@ public class SuiteNotifier { //implements ChildrenNotifier {
      * @param uri a server instance id as specified by the class
      * {@literal Deployment}.
      */
-    public void settingsChanged(String uri) {
+    public synchronized void settingsChanged(String uri) {
         Project p = SuiteManager.getManager(uri).getServerProject();
 
         ServerInstanceAntBuildExtender ext = new ServerInstanceAntBuildExtender(p);
@@ -32,27 +32,28 @@ public class SuiteNotifier { //implements ChildrenNotifier {
      * Notifies {@link ServerInstancesRootNode} instance that child nodes keys
      * changed.
      */
-    public void instancesChanged() {
+    public synchronized void instancesChanged() {
+        BaseUtil.out("SuiteNotifier instancesChanged rootNodeNotifier " + rootNodeNotifier);
         if (rootNodeNotifier != null) {
             rootNodeNotifier.childrenChanged();
         }
     }
 
-    public void childrenChanged(Object source, Object... params) {
+    public synchronized void  childrenChanged(Object source, Object... params) {
         if (rootNodeNotifier != null) {
 BaseUtil.out("SuiteNotifier childrenChanged");
             rootNodeNotifier.childrenChanged(source, params);
         }
     }
 
-    public void iconChange(String uri, boolean newValue) {
+    public synchronized void iconChange(String uri, boolean newValue) {
         if (rootNodeNotifier == null) {
             return;
         }
         rootNodeNotifier.iconChange(uri, newValue);
     }
 
-    public void displayNameChange(String uri, String newValue) {
+    public synchronized void displayNameChange(String uri, String newValue) {
         if (rootNodeNotifier == null) {
             return;
         }
@@ -60,7 +61,7 @@ BaseUtil.out("SuiteNotifier childrenChanged");
         rootNodeNotifier.displayNameChange(uri, newValue);
     }
 
-    final void setNotifier(ChildrenNotifier childrenNotifier) {
+    final synchronized void setNotifier(ChildrenNotifier childrenNotifier) {
         this.rootNodeNotifier = childrenNotifier;
     }
 

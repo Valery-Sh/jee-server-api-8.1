@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
@@ -96,7 +95,6 @@ public class DistributedWebAppRootNode extends FilterNode implements ChildrenNot
     }
 
     private void init() {
-BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().getClass().getName());
         String uri = SuiteManager.getManager(childKeys.getServerProj()).getUri();
         InstanceProperties props = InstanceProperties.getInstanceProperties(uri);
         ServerInstanceProperties sip = new ServerInstanceProperties();
@@ -105,6 +103,9 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
 
         lookupContents.add(sip);
         lookupContents.add(this);
+        //addNodeListener(new DistributedWebAppRootNodeListener(null, "DISTR " ));
+        
+        
     }
 
     public DistRootChildrenKeys getChildKeys() {
@@ -198,6 +199,7 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
         if (childKeys != null) {
             childKeys.addNotify();
         }
+        //19.02 May be add else removeNotifier ?
     }
 
     @Override
@@ -226,7 +228,7 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
      */
     public static class DistRootChildrenKeys extends FilterNode.Children.Keys<String> {
 
-        private final Project instanceProj;
+        private final Project instanceProject;
 
         /**
          * Created a new instance of the class for the specified server
@@ -236,9 +238,8 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
          * instance for.
          */
         public DistRootChildrenKeys(Project instanceProj) {
+            this.instanceProject = instanceProj;
             
-            this.instanceProj = instanceProj;
-
         }
 
         /**
@@ -251,12 +252,16 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
         @Override
         protected Node[] createNodes(String key) {
             Node node = null;
-            FileObject fo = FileUtil.toFileObject(new File(key));
-            Project webProj = FileOwnerQuery.getOwner(fo);
+            FileObject webappFo = FileUtil.toFileObject(new File(key));
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             
             try {
                 LogicalViewProvider lvp = webProj.getLookup().lookup(LogicalViewProvider.class);
                 node = lvp.createLogicalView();
+                //node.addNodeListener(new DistributedWebAppNodeListener(webappFo, instanceProject, "LOGICAL VIEW"));
+                Node delegate = DataObject.find(webappFo).getNodeDelegate();
+                //node.addNodeListener(new DistributedWebAppNodeListener(webappFo, instanceProject, "LOGICAL VIEW"));                                
+                
             } catch (Exception ex) {
                 LOG.log(Level.INFO, ex.getMessage());
             }
@@ -274,7 +279,9 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
         @Override
         public void addNotify() {
             
-            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(instanceProj);
+            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(instanceProject);
+            distManager.refresh();
+            
             List<FileObject> list = distManager.getWebAppFileObjects();
             List<String> keys = new ArrayList<>();
             list.forEach(fo -> {
@@ -297,6 +304,9 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
          */
         @Override
         public void removeNotify() {
+            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(instanceProject);
+            distManager.refresh();
+
             this.setKeys(Collections.EMPTY_LIST);
         }
 
@@ -346,7 +356,7 @@ BaseUtil.out("DistributedWebAppRootNode children.class" + this.getChildren().get
         }
 
         public Project getServerProj() {
-            return instanceProj;
+            return instanceProject;
         }
 
     }//class

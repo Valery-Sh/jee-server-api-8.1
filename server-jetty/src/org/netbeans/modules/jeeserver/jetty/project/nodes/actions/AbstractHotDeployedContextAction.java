@@ -12,7 +12,6 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.swing.AbstractAction;
 import static javax.swing.Action.NAME;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StartServerAction;
@@ -53,8 +52,8 @@ public abstract class AbstractHotDeployedContextAction extends AbstractAction {
         putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, true);
 
         FileObject fo = context.lookup(FileObject.class);
-        if (fo != null && FileOwnerQuery.getOwner(fo) != null) {
-            project = FileOwnerQuery.getOwner(fo);
+        if (fo != null && BaseUtil.getOwnerProject(fo) != null) {
+            project = BaseUtil.getOwnerProject(fo);
             isJettyServer = Utils.isJettyServer(project);
             if (isJettyServer) {
                 loadManager();

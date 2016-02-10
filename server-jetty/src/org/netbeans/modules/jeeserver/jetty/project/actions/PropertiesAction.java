@@ -24,13 +24,12 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.customizer.JettyServerCustomizer;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
@@ -41,7 +40,6 @@ import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
-import sun.util.calendar.BaseCalendar;
 
 /**
  * The class provides implementations of the context aware action to be
@@ -164,9 +162,10 @@ public final class PropertiesAction extends AbstractAction implements ContextAwa
                 InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
                 if (ip == null) {
                     Map<String, String> map = getDefaultPropertyMap(projectDir);
-                    InstanceProperties.createInstanceProperties(uri, null, null, projectDir.getNameExt(), map);
+                    //InstanceProperties.createInstanceProperties(uri, null, null, projectDir.getNameExt(), map);
+                    ServerUtil.createInstanceProperties(uri, projectDir.getNameExt(), map);                    
                     // to update with InstanceProperties                
-                    FileOwnerQuery.getOwner(projectDir).getLookup().lookup(ServerInstanceProperties.class);
+                    BaseUtil.getOwnerProject(projectDir).getLookup().lookup(ServerInstanceProperties.class);
                 }
 
             } catch (InstanceCreationException ex) {

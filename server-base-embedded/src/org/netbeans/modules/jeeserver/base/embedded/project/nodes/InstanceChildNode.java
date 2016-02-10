@@ -21,6 +21,7 @@ public class InstanceChildNode {
             try {
                 LogicalViewProvider lvp = instanceProject.getLookup().lookup(LogicalViewProvider.class);
                 node = lvp.createLogicalView();
+                
             } catch (Exception ex) {
                 LOG.log(Level.INFO, ex.getMessage());
             }

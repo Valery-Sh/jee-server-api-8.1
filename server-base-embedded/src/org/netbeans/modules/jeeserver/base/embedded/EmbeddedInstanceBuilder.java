@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
@@ -101,7 +100,7 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
 
         FileObject instancesDir = FileUtil.toFileObject(new File(configProps.getProperty(SuiteConstants.SERVER_INSTANCES_DIR_PROP)));
 
-        Project suite = FileOwnerQuery.getOwner(instancesDir);
+        Project suite = BaseUtil.getOwnerProject(instancesDir);
 
         SuiteUtil.setSuiteProjectLocation(ip, suite.getProjectDirectory().getPath());
     }

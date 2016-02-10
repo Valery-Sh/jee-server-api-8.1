@@ -22,6 +22,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.jeeserver.base.deployment.BaseTargetModuleID;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentContext;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileUtil;
 
 /**

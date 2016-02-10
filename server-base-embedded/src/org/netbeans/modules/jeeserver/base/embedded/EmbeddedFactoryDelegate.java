@@ -6,11 +6,10 @@
 package org.netbeans.modules.jeeserver.base.embedded;
 
 import java.io.File;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.FactoryDelegate;
-import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -18,10 +17,14 @@ import org.openide.filesystems.FileUtil;
  *
  * @author Valery
  */
-public class EmbeddedFactoryDelegate extends FactoryDelegate {
+public abstract class EmbeddedFactoryDelegate extends FactoryDelegate {
 
-    public EmbeddedFactoryDelegate(String serverId, ServerSpecifics specifics) {
+/*    public EmbeddedFactoryDelegate(String serverId, ServerSpecifics specifics) {
         super(serverId, specifics);
+    }
+*/    
+    public EmbeddedFactoryDelegate(String serverId) {
+        super(serverId);
     }
 
     /**
@@ -33,13 +36,15 @@ public class EmbeddedFactoryDelegate extends FactoryDelegate {
      */
     @Override
     protected boolean existsServer(FileObject instanceFO) {
-
+BaseUtil.out("EmbeddedFactoryDelegate existsServer instanceFO = " + instanceFO);
         String serverLocation = (String) instanceFO.getAttribute(BaseConstants.SERVER_LOCATION_PROP);
 //        String serverInstanceDir = (String) instanceFO.getAttribute(BaseConstants.SERVER_INSTANCE_DIR_PROP);
 
         if (serverLocation == null) {
+BaseUtil.out("EmbeddedFactoryDelegate existsServer serverLocation returns FALSE = " + instanceFO);            
             return false;
         }
+BaseUtil.out("EmbeddedFactoryDelegate existsServer serverLocation  = " + serverLocation);            
 
         File f = new File(serverLocation);
         if (!f.exists()) {
@@ -48,23 +53,13 @@ public class EmbeddedFactoryDelegate extends FactoryDelegate {
 
         FileObject fo = FileUtil.toFileObject(f);
 
-        Project p = FileOwnerQuery.getOwner(fo);
+        Project p = BaseUtil.getOwnerProject(fo);
         if (p == null) {
             return false;
         }
+BaseUtil.out("EmbeddedFactoryDelegate returns TRUE  = " + serverLocation);            
+        
         return true;
-/*        String suteLocation = (String) instanceFO.getAttribute(SuiteConstants.SUITE_PROJECT_LOCATION);
-        if (suteLocation == null || !new File(suteLocation).exists()) {
-            return false;
-        }
-//        String serverInstanceDir = (String) instanceFO.getAttribute(BaseConstants.SERVER_INSTANCE_DIR_PROP);
-
-        fo = FileUtil.toFileObject(new File(suteLocation));
-
-        p = FileOwnerQuery.getOwner(fo);
-
-        return p != null;
-*/        
     }
 
 }

@@ -5,10 +5,7 @@
  */
 package org.netbeans.modules.jeeserver.base.embedded.apisupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,19 +18,24 @@ public abstract class AbstractSupportedApi implements SupportedApi{
     private String displayName;
     private String description;
     private boolean alwaysRequired;
+    
+    private final APIVersions versions =  new APIVersions(this);    
+    
+    
+    
     /**
      * key - is a jar name;
      * value - is an array of the dependency lines
      */
     private Map<String, String[]> jarMap;
 
+            
     public Map<String, String[]> getJarMap() {
         if ( jarMap == null ) {
             jarMap = new HashMap<>();
         }
         return jarMap;
     }
-    
 
     @Override
     public String getName() {
@@ -70,6 +72,12 @@ public abstract class AbstractSupportedApi implements SupportedApi{
     public void setAlwaysRequired(boolean alwaysRequired) {
         this.alwaysRequired = alwaysRequired;
     }
+
+    @Override
+    public APIVersions getAPIVersions() {
+        return versions;
+    }
+    
     
     
 }

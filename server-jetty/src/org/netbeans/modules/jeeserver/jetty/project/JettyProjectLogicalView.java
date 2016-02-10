@@ -23,7 +23,6 @@ import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StartServerAction;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StopServerAction;
-import static org.netbeans.modules.jeeserver.jetty.project.Bundle.JettyProjectLogicalView_shortDescription;
 import org.netbeans.modules.jeeserver.jetty.project.actions.JettyStartCommandActions;
 
 import org.netbeans.modules.jeeserver.jetty.project.actions.PropertiesAction;
@@ -137,8 +136,8 @@ public class JettyProjectLogicalView implements LogicalViewProvider {
         }
 
         private void init() {
-            setShortDescription(
-               JettyProjectLogicalView_shortDescription(project.getProjectDirectory().getPath()));
+//            setShortDescription(
+//               JettyProjectLogicalView_shortDescription(project.getProjectDirectory().getPath()));
         }
 
         @Override

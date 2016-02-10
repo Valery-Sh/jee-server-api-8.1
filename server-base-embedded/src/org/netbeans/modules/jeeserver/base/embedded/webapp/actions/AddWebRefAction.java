@@ -10,7 +10,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
 import javax.swing.JFileChooser;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
@@ -152,7 +151,7 @@ public final class AddWebRefAction extends AbstractAction implements ContextAwar
                 return "Cannot be null";
             }
             String msg = "The selected project is not a Web Project ";
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             if (webProj == null) {
                 return msg + "(not a project)";
             }
@@ -177,7 +176,7 @@ public final class AddWebRefAction extends AbstractAction implements ContextAwar
 
         public static boolean accept(Project serverProject, FileObject webappFo) {
 
-            Project webProj = FileOwnerQuery.getOwner(webappFo);
+            Project webProj = BaseUtil.getOwnerProject(webappFo);
             J2eeModuleProvider provider = SuiteUtil.getJ2eeModuleProvider(webProj);
 
             if (provider == null) {

@@ -12,7 +12,6 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StartServerAction;
@@ -65,7 +64,7 @@ public class WarRefActions {
             public ContextAction(Lookup context) {
                 DataObject wardo = context.lookup(DataObject.class);
                 warrefFo = wardo.getPrimaryFile();
-                project = FileOwnerQuery.getOwner(warrefFo);
+                project = BaseUtil.getOwnerProject(warrefFo);
                 putValue(NAME, "&Run war");
                 dm = BaseUtil.managerOf(context);
 
@@ -174,7 +173,7 @@ public class WarRefActions {
 
                 DataObject wardo = context.lookup(DataObject.class);
                 warrefFo = wardo.getPrimaryFile();
-                project = FileOwnerQuery.getOwner(warrefFo);
+                project = BaseUtil.getOwnerProject(warrefFo);
                 dm = BaseUtil.managerOf(context);
                 putValue(NAME, "&Deploy");
             }
@@ -274,7 +273,7 @@ public class WarRefActions {
                 this.context = context; 
                 DataObject wardo = context.lookup(DataObject.class);
                 warrefFo = wardo.getPrimaryFile();
-                project = FileOwnerQuery.getOwner(warrefFo);
+                project = BaseUtil.getOwnerProject(warrefFo);
                 dm = BaseUtil.managerOf(context);
                 putValue(NAME, "&Undeploy");
             }

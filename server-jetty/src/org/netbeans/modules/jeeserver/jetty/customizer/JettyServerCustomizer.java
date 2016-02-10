@@ -30,7 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
@@ -240,7 +239,7 @@ public class JettyServerCustomizer extends JettyServerInstancePanelVisual implem
 
     @Override
     public void saveChanges() {
-        Utils.out("--------- CUSTOMIZER SAVE CHANGES ---------");
+        Utils.out("--------- JettyServerCustomizer SAVE CHANGES ---------");
         store(wiz);
         InstanceProperties ip = InstanceProperties.getInstanceProperties(manager.getUri());
         String homeDir = (String) wiz.getProperty(BaseConstants.HOME_DIR_PROP);
@@ -315,7 +314,7 @@ public class JettyServerCustomizer extends JettyServerInstancePanelVisual implem
     }
 
     public static void updateHttpIni(FileObject serverProjDir, Properties iniProps) {
-        Project proj = FileOwnerQuery.getOwner(serverProjDir);
+        Project proj = BaseUtil.getOwnerProject(serverProjDir);
         Properties p = propertiesOf(proj);
         //String jettyHome = p.getProperty(BaseConstants.HOME_DIR_PROP );
         JettyProperties jvs = JettyProperties.getInstance(proj);

@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
@@ -109,7 +108,7 @@ public class AddExistingProjectWizardActionAsIterator extends AbstractAction imp
         Properties props = new Properties();
         FileObject projFo = FileUtil.toFileObject(instanceProjectDir);
         
-        Project instanceProj = FileOwnerQuery.getOwner(projFo);
+        Project instanceProj = BaseUtil.getOwnerProject(projFo);
         if ( BaseUtil.isAntProject(instanceProj)) {       
             props.setProperty("project.based.type", "ant");
         } else {

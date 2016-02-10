@@ -60,18 +60,12 @@ public class TomcatManagerFactory implements DeploymentFactory, ServerSpecificsP
         if (null == instance) {
             instance = new TomcatManagerFactory();
             ((ServerSpecificsProvider) instance).getSpecifics();
-            delegateInstance = new EmbeddedFactoryDelegate(SERVER_ID, ((ServerSpecificsProvider) instance).getSpecifics());
+            delegateInstance = new TomcatFactoryDelegate(SERVER_ID);
             DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
         }
 
         return instance;
     }
-    /*    protected void createHelperLibrary() {
-     String libName = "tomcat7-" + EmbConstants.SERVER_HELPER_LIBRARY_POSTFIX;
-     LibUtils.createLibrary("nb-tomcat-helper.jar", libName);
-     }
-     */
-
     /**
      * Tests whether the factory can create a manager for the URI.
      *

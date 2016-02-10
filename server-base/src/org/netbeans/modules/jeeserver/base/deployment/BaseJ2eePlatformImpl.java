@@ -42,6 +42,7 @@ import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -70,6 +71,10 @@ public class BaseJ2eePlatformImpl extends J2eePlatformImpl implements PropertyCh
      */
     public BaseJ2eePlatformImpl(DeploymentManager manager) {
         this.manager = (BaseDeploymentManager) manager;
+        BaseUtil.out("BaseJ2eePlatformImpl manager = " + manager);
+        if (manager != null) {
+            BaseUtil.out("BaseJ2eePlatformImpl manager.getServerProject = " + ((BaseDeploymentManager)manager).getServerProject());
+        }
         init();
     }
     ClassPath rootClassPath = null;
@@ -82,14 +87,6 @@ public class BaseJ2eePlatformImpl extends J2eePlatformImpl implements PropertyCh
             return;
         }
         rootClassPath.addPropertyChangeListener(this);
-        /*        rootClassPath.addPropertyChangeListener((PropertyChangeEvent evt) -> {
-         if (ClassPath.PROP_ROOTS.equals(evt.getPropertyName())) {
-         BaseUtils.out("BaseJ2eePlatformImpl rootClassPath listener " + rootClassPath);
-                
-         notifyLibrariesChanged();// Update your stuff, because classpath roots have changed.
-         }
-         });
-         */
     }
 
     /**
@@ -300,8 +297,6 @@ public class BaseJ2eePlatformImpl extends J2eePlatformImpl implements PropertyCh
         return library;
     }
 
-
-
     protected List<URL> getServerClassPathUrls() {
         List<URL> urlList = new ArrayList<>();
         Sources sources = ProjectUtils.getSources(manager.getServerProject());
@@ -371,7 +366,6 @@ public class BaseJ2eePlatformImpl extends J2eePlatformImpl implements PropertyCh
         }
         return result;
     }
-
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

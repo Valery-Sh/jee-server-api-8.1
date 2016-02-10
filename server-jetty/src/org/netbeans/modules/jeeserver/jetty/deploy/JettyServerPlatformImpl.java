@@ -37,7 +37,6 @@ import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl2;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.DialogDisplayer;
