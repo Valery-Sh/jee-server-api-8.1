@@ -291,6 +291,7 @@ public class DistributedWebAppManager implements FileChangeListener {
      *
      */
     public void refresh() {
+        if (true) return;
         BaseUtil.out("DistributedWebAppManager REFRESH() SERVER INSTANCE  = " + serverInstance);
         Properties props = getWebAppsProperties();
         Properties updates = new Properties();
