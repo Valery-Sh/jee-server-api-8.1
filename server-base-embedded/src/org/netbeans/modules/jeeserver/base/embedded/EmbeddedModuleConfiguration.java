@@ -1,6 +1,5 @@
 package org.netbeans.modules.jeeserver.base.embedded;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -16,7 +15,6 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -43,6 +41,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         //
         // Ebedded servers
         //
+        
         notifyDistributedWebAppChange(serverInstanceId, true); // false means old assigned server                
     }
 

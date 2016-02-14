@@ -136,8 +136,8 @@ public class BaseIncrementalDeployment extends IncrementalDeployment implements 
         for (String p : paths) {
             if (filePath.endsWith(Paths.get(p))) {
                 FileObject fo = FileUtil.toFileObject(file);
-                manager.getSpecifics().getContextPoperties(fo);
-                cp = manager.getSpecifics().getContextPoperties(fo)
+                manager.getSpecifics().getContextProperties(fo);
+                cp = manager.getSpecifics().getContextProperties(fo)
                         .getProperty("contextPath");
                 break;
             }

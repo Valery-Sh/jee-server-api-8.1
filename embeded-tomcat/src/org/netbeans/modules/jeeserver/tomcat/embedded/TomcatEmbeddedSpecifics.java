@@ -43,6 +43,7 @@ import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
@@ -51,28 +52,36 @@ import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 
 import org.openide.util.ImageUtilities;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
  * @author V. Shyshkin
  */
 public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
-    
-    
+
     private static final Logger LOG = Logger.getLogger(TomcatEmbeddedSpecifics.class.getName());
 
     @StaticResource
     private static final String SERVER_IMAGE = "org/netbeans/modules/jeeserver/tomcat/embedded/resources/tomcat.png";
 
 //    private static final String HELPER_JAR = "nb-tomcat-helper.jar";
-
+    /**
+     *
+     * @return {@literal new String[] {"META-INF/context.xml"}}
+     */
     @Override
     public boolean pingServer(BaseDeploymentManager dm) {
-        
-//        ServerInstanceProperties sp = SuiteUtil.getServerProperties(serverProject);
 
+//        ServerInstanceProperties sp = SuiteUtil.getServerProperties(serverProject);
         Socket socket = new Socket();
-        if ( dm == null || dm.getInstanceProperties() == null ) {
+        if (dm == null || dm.getInstanceProperties() == null) {
             return false;
         }
         int port = Integer.parseInt(dm.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
@@ -130,9 +139,8 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
 
         int port = Integer.parseInt(dm.getInstanceProperties().getProperty(BaseConstants.SHUTDOWN_PORT_PROP));
         // checking whether a socket can be created is not reliable enough, see #47048
-        BaseUtil.out("TomcatEmbeddedSpecifics shutdownCommand(): port=" + port);        
+        BaseUtil.out("TomcatEmbeddedSpecifics shutdownCommand(): port=" + port);
         Socket socket = new Socket();
-        
 
         int timeout = 2000;
         try {
@@ -176,7 +184,7 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         String result = null;
         try {
             String urlstr = "/jeeserver/manager?" + cmd;
-            
+
             BaseUtil.out("TomcatSpecifics: execCommand (deploy) urlStr=" + urlstr);
 
             URL url = new URL(buildUrl(dm) + urlstr);
@@ -243,16 +251,17 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
     public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
         return new TomcatFindJspServlet((BaseDeploymentManager) dm);
     }
+
     @Override
     public Image getServerImage(Project serverProject) {
         return ImageUtilities.loadImage(SERVER_IMAGE);
     }
 
-/*    @Override
+    /*    @Override
     public Image getProjectImage(Project serverProject) {
         return ImageUtilities.loadImage(IMAGE);
     }
-*/    
+     */
     @Override
     public InstanceBuilder getInstanceBuilder(Properties props, InstanceBuilder.Options options) {
         InstanceBuilder ib = null;
@@ -278,8 +287,8 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
 
         return ib;
     }
-    
-/*
+
+    /*
     @Override
     public void projectCreated(FileObject projectDir, Map<String, Object> props) {
         //
@@ -378,12 +387,11 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         return null;
     }
 
-*/
+     */
     @Override
     public boolean needsShutdownPort() {
         return true;
     }
-
 
     @Override
     public int getDefaultPort() {
@@ -448,15 +456,58 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         }
         return result;
     }
-    
+
     @Override
     public String[] getSupportedContextPaths() {
-        return new String[] {"META-INF/context.xml"};
+        return new String[]{"META-INF/context.xml"};
     }
+
     @Override
-    public Properties getContextPoperties(FileObject config) {
-        return TomcatModuleConfiguration.getContextProperties(config);
-    }            
+    public Properties getContextProperties(FileObject config) {
+        Properties props = null;
+        if ("xml".equals(config.getExt()) || "XML".equals(config.getExt())) {
+            props = TomcatModuleConfiguration.getContextProperties(config);
+        }
+        if (props == null || props.getProperty(BaseConstants.CONTEXTPATH_PROP) == null) {
+            props = EmbeddedServerSpecifics.super.findContextProperties(config);
+        }
+        return props;
+    }
+
+    @Override
+    public Properties getContextProperties(InputSource source) {
+
+        Properties result = new Properties();
+        if (source == null) {
+            return result;
+        }
+        try {
+            Document doc = XMLUtil.parse(source, false, false, null, new ParseEntityResolver());
+            NodeList nl = doc.getDocumentElement().getElementsByTagName("Context");
+            if (nl != null) {
+                int found = 0;
+                for (int i = 0; i < nl.getLength(); i++) {
+                    Element el = (Element) nl.item(i);
+                    if (el.getAttribute("path") != null) {
+                        result.setProperty(BaseConstants.CONTEXTPATH_PROP, el.getTextContent());
+                        found++;
+                    }
+                    if (el.getAttribute("antiJARLocking") != null) {
+                        result.setProperty("getCopyDir", el.getTextContent());
+                        found++;
+                    }
+                    if (found >= 2) {
+                        break;
+                    }
+                }//for
+            }
+
+        } catch (IOException | DOMException | SAXException ex) {
+            BaseUtil.out("tomcatEmbeddedSpecifics getContextProperties EXCEPTION " + ex.getMessage());
+            LOG.log(Level.INFO, ex.getMessage());
+        }
+        return result;
+    }
 
     @Override
     public SupportedApiProvider getSupportedApiProvider(String actualServerId) {
@@ -473,9 +524,5 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public StartServerPropertiesProvider getStartServerPropertiesProvider(BaseDeploymentManager dm) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
 }

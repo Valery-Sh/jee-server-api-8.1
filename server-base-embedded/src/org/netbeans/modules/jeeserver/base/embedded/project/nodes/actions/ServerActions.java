@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions;
 
 import java.awt.event.ActionEvent;
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,12 +19,9 @@ import static javax.swing.Action.NAME;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.api.server.properties.InstancePropertiesManager;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
@@ -36,6 +32,7 @@ import org.netbeans.modules.jeeserver.base.deployment.progress.BaseAntTaskProgre
 
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import static org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants.HTTP_PORT_PROP;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.ApiDependency;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApi;
@@ -44,10 +41,13 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.Dependencies;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.Dependency;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.PomProperties;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.JavaPreferencesManager;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.JavaPreferencesRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.SuiteRegistry;
+
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ChildrenNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.SuiteRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddDependenciesPanelVisual;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.CustomizerWizardActionAsIterator;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddExistingProjectWizardActionAsIterator;
@@ -65,11 +65,8 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.DynamicMenuContent;
-import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -296,7 +293,7 @@ public class ServerActions {
                  BaseUtil.out("attrname = " + nm + "; attr value)=" + pfo.getAttribute(nm));
                  }
 
-                 MavenAuxConfig auxConfig = MavenAuxConfig.getInstance(p);
+                 MavenAuxConfig auxConfig = MavenAuxConfig.newInstance(p);
                  BaseUtil.out("auxConfig.getAuxAttributeValue()=" + auxConfig.getAuxAttributeValue());
                  BaseUtil.out("auxConfig.getActivatedProfile()=" + auxConfig.getActivatedProfile());
                  BaseUtil.out("auxConfig.getNbactionCurrentPath()=" + auxConfig.getNbactionsActivatedPath());
@@ -375,14 +372,15 @@ public class ServerActions {
                 if (alreadyPerformed()) {
                     return;
                 }
+                
                 if (isDummyAction()) {
                     FileObject fo = serverProject.getProjectDirectory();
                     Project p = BaseUtil.getOwnerProject(fo);
                     ProjectUtils.getAuxiliaryConfiguration(p);
-                    try {
+/*                    try {
                         p = BaseUtil.findOwnerProject(fo);
 BaseUtil.out("DUMMY ACION OPEN PROJECT ********* =" + p);                        
-                        SuiteRegistry r = SuiteRegistry.getInstance(p);
+                        SuiteRegistry r = SuiteRegistry.newInstance(p);
                         String prop = r.getProperty("Name");                        
                         if ( prop == null ) {
 BaseUtil.out("DUMMY ACION OPEN PROJECT ********* propName == null");                                                    
@@ -404,7 +402,36 @@ BaseUtil.out("DUMMY ACION OPEN PROJECT ********* getId() =" + r.getDefaultProper
                     }
 
                     BaseUtil.out("DUMMY ACION project=" + p);
+                        BaseUtil.out("JavaReferences DUMMY ACION isModified()=" + ProjectManager.getDefault().isModified(p));
+                        BaseUtil.out("JavaReferences DUMMY ACION = isValid()" + ProjectManager.getDefault().isValid(p));
+                        ProjectManager.getDefault().saveProject(p);
+                        attr(p);
+                    
+*/
+//===================================================
+                    fo = serverProject.getProjectDirectory();
+                    Path path = FileUtil.toFile(fo).toPath();
+                    try {
 
+                        JavaPreferencesRegistry jr = JavaPreferencesRegistry.newInstance(path);
+BaseUtil.out("*0) JavaReferences DUMMY ACION serverPath ********* getProperty(name) =" + path);                                                
+                        String prop = jr.getProperty(HTTP_PORT_PROP);                        
+BaseUtil.out("1) JavaReferences DUMMY ACION getProperty ********* getProperty(name) =" + jr.getProperty(HTTP_PORT_PROP));                        
+                        if ( prop == null ) {
+BaseUtil.out("2) JavaReferences DUMMY ACION putProperty ********* propName == null");                                                    
+                            jr.putProperty(BaseConstants.HTTP_PORT_PROP, "8989");
+                        }
+                        //String prop = r.putProperty("Name", "Valery");
+                        
+BaseUtil.out("3) JavaReferences DUMMY ACION getProperty ********* getProperty(HTTP_PORT_PROP) =" + jr.getProperty(BaseConstants.HTTP_PORT_PROP));
+
+                    } catch (Exception ex) {
+                        BaseUtil.out("JavaReferences DUMMY ACION EXCEPTION ex=" + ex.getMessage());
+                    }
+
+                    BaseUtil.out("JavaReferences DUMMY ACION project=" + p);
+
+                    
                     return;
                 }
                 setCommonProperties();
@@ -603,7 +630,7 @@ BaseUtil.out("DUMMY ACION OPEN PROJECT ********* getId() =" + r.getDefaultProper
                  BaseUtil.out("attrname = " + nm + "; attr value)=" + pfo.getAttribute(nm));
                  }
 
-                 MavenAuxConfig auxConfig = MavenAuxConfig.getInstance(p);
+                 MavenAuxConfig auxConfig = MavenAuxConfig.newInstance(p);
                  BaseUtil.out("auxConfig.getAuxAttributeValue()=" + auxConfig.getAuxAttributeValue());
                  BaseUtil.out("auxConfig.getActivatedProfile()=" + auxConfig.getActivatedProfile());
                  BaseUtil.out("auxConfig.getNbactionCurrentPath()=" + auxConfig.getNbactionsActivatedPath());
@@ -954,7 +981,7 @@ BaseUtil.out("DUMMY ACION OPEN PROJECT ********* getId() =" + r.getDefaultProper
                                 .getProjectDirectory());
                 String inst = instanceProject.getProjectDirectory().getPath();
                 SuiteManager.removeInstance(context.lookup(ServerInstanceProperties.class).getUri());
-                SuiteRegistry r = SuiteRegistry.getInstance(uid,inst);
+                SuiteRegistry r = SuiteRegistry.newInstance(uid,inst);
                 r.remove();
             }
         }

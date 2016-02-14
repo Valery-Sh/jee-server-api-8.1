@@ -292,7 +292,7 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
          */
         @Override
         public void addNotify() {
-            Node n = getNode();
+            //Node n = getNode();
             List keyArray = new ArrayList<>();
 
             keyArray.add(uri);

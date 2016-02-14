@@ -18,6 +18,7 @@ package org.netbeans.modules.jeeserver.jetty.embedded;
 
 import java.awt.Image;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -36,8 +37,12 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
+import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.Copier;
+import org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
@@ -45,6 +50,14 @@ import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import sun.util.calendar.BaseCalendar;
 
 /**
  *
@@ -260,9 +273,61 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
         return result;
     }
 
+    
     @Override
-    public Properties getContextPoperties(FileObject config) {
-        return JettyModuleConfiguration.getContextProperties(config);
+    public Properties getContextProperties(FileObject config) {
+        Properties props = null;
+        if ("xml".equals(config.getExt()) || "XML".equals(config.getExt())) {
+            props =  JettyModuleConfiguration.getContextProperties(config);
+        } 
+        if ( props == null || props.getProperty(BaseConstants.CONTEXTPATH_PROP) == null ) {
+            props =  EmbeddedServerSpecifics.super.findContextProperties(config); 
+        }
+        return props;
+    }
+    
+    @Override
+    public Properties getContextProperties(InputSource source) {
+        
+        Properties result = new Properties();
+        if ( source == null ) {
+            return result;
+        }
+        try {
+            Document doc = XMLUtil.parse(source, false, false, null, new ParseEntityResolver());
+            NodeList nl = doc.getDocumentElement().getElementsByTagName("Set");
+            if (nl != null) {
+                int found = 0;
+                for (int i = 0; i < nl.getLength(); i++) {
+                    Element el = (Element) nl.item(i);
+                    switch (el.getAttribute("name")) {
+                        case "contextPath":
+                            result.setProperty("contextPath", el.getTextContent());
+                            //BaseUtils.out("1. Utils.getContextProperties el.getTextContext()=" + el.getTextContent());
+                            found++;
+                            break;
+                        case "war":
+                            result.setProperty("war", el.getTextContent());
+                            //BaseUtils.out("2. Utils.getContextProperties el.getTextContext()=" + el.getTextContent());
+
+                            found++;
+                            break;
+                        case "getCopyDir":
+                            result.setProperty("getCopyDir", el.getTextContent());
+                            found++;
+                            break;
+                    }
+                    if (found >= 3) {
+                        break;
+                    }
+                }//for
+            }
+
+        } catch (IOException | DOMException | SAXException ex) {
+            BaseUtil.out("Jetty9Specifics getContextProperties EXCEPTION " + ex.getMessage());
+            LOG.log(Level.INFO, ex.getMessage());
+        }
+        return result;
     }
 
     @Override
@@ -270,7 +335,6 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
         InstanceBuilder ib = null;
 
         if ("ant".equals(props.getProperty("project.based.type"))) {
-BaseUtil.out("Jetty9Specifics ANT.BASED");
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new JettyCustomizeInstanceBuilder(props, options);
             } else {
@@ -279,7 +343,6 @@ BaseUtil.out("Jetty9Specifics ANT.BASED");
             ((EmbeddedInstanceBuilder) ib).setMavenbased(false);
 
         } else if ("maven".equals(props.getProperty("project.based.type"))) {
-BaseUtil.out("Jetty9Specifics MAVEB.BASED");            
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new JettyCustomizeInstanceBuilder(props, options);
             } else {
@@ -335,5 +398,5 @@ BaseUtil.out("Jetty9Specifics MAVEB.BASED");
         }
         return true;
     }
-
+    
 }

@@ -300,6 +300,7 @@
                 <package>org.netbeans.modules.jeeserver.base.deployment.progress</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.specifics</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.utils</package>
+                <package>org.netbeans.modules.jeeserver.base.deployment.utils.prefs</package>
             </public-packages>
         </data>
     </configuration>

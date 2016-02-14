@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.embedded.project;
+package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +13,7 @@ public class InstancePreferences {
 
     private Preferences prefs;
     
-    private String id;
+    private final String id;
 
     public InstancePreferences(String id, PreferencesManager manager, Preferences prefs) {
         this.manager = manager;
@@ -24,7 +24,14 @@ public class InstancePreferences {
     public PreferencesManager getManager() {
         return manager;
     }
-
+    public String[] keys() {
+        try {
+            return prefs.keys();
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.INFO, null, ex);
+            return new String[]{};
+        }
+    }
     public Preferences getPrefs() {
         return prefs;
     }
@@ -130,6 +137,12 @@ public class InstancePreferences {
             }
             prefs.putLong(key, value);
         }
+    }
+    public void setProperty(String propName, String value) {
+        this.putString(id, value);
+    }
+    public void getProperty(String propName) {
+        this.getString(id, null);
     }
 
     public void putString(String key, String value) {

@@ -1,5 +1,6 @@
-package org.netbeans.modules.jeeserver.base.embedded.project;
+package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
 
+import org.netbeans.modules.jeeserver.base.embedded.project.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,8 +10,8 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -21,7 +22,7 @@ public class SuiteRegistry {
     private static final Logger LOG = Logger.getLogger(SuiteRegistry.class.getName());
 
     private final Project serverInstance;
-
+    private NbPreferencesManager manager;
     private final String dir;
     private final String suiteUID;
 
@@ -32,6 +33,12 @@ public class SuiteRegistry {
         Project suite = SuiteManager.getServerSuiteProject(serverInstance);
         suiteUID = SuiteUtil.getSuiteUID(suite.getProjectDirectory());
     }
+    protected SuiteRegistry(Project serverInstance, String suiteUID) {
+        this.serverInstance = serverInstance;
+        dir = serverInstance.getProjectDirectory().getPath();
+        Project suite = SuiteManager.getServerSuiteProject(serverInstance);
+        this.suiteUID = suiteUID;
+    }
 
     protected SuiteRegistry(String suiteUID, String dir) {
         this.serverInstance = null;
@@ -39,24 +46,30 @@ public class SuiteRegistry {
         this.suiteUID = suiteUID;
     }
 
-    public static SuiteRegistry getInstance(Project instanceProject) {
+    public static SuiteRegistry newInstance(Project instanceProject) {
         SuiteRegistry d = new SuiteRegistry(instanceProject);
         //d.createRegistry();
         return d;
     }
+    
+    
+    public static SuiteRegistry newSharedInstance(Project instanceProject) {
+        SuiteRegistry d = new SuiteRegistry(instanceProject,"-shared");
+        return d;
+    }
 
-    public static SuiteRegistry getInstance(String uid, String dir) {
-        return new SuiteRegistry(uid, dir);
+    public static SuiteRegistry newInstance(String suiteUID, String dir) {
+        return new SuiteRegistry(suiteUID, dir);
     }
 
     public static void update(String suiteUID, List<Project> projects) {
         if (projects == null || projects.isEmpty()) {
             return;
         }
-
+/*
         List<String> list = new ArrayList<>();
 
-        SuiteRegistry r = getInstance(suiteUID, projects.get(0).getProjectDirectory().getPath());
+        SuiteRegistry r = newInstance(suiteUID, projects.get(0).getProjectDirectory().getPath());
         //
         // Create list that contains namespaces which are legal and we keep them all
         //
@@ -70,11 +83,10 @@ public class SuiteRegistry {
             BaseUtil.out(" --- " + r.getNamespace(p.getProjectDirectory().getPath()));
         });
 
-        PreferencesManager pm = PreferencesManager.getInstance();
 
         List<String> toRemove = null;
         try {
-            toRemove = pm.getEntries(suiteUID, list);
+           manager.getEntries(suiteUID, list);
         } catch (BackingStoreException ex) {
             BaseUtil.out("SuiteRegistry  EXCEPTION getInstance(String uid, String dir) try getEntries = " + ex.getMessage());
             LOG.log(Level.INFO, null, ex);
@@ -90,17 +102,18 @@ public class SuiteRegistry {
 
         try {
             for (String ns : toRemove) {
-                pm.remove(ns);
+                manager.remove(ns);
             }
         } catch (BackingStoreException ex) {
             BaseUtil.out("SuiteRegistry  EXCEPTION getInstance(String uid, String dir) try remove = " + ex.getMessage());
             LOG.log(Level.INFO, null, ex);
         }
+*/        
     }
 
     public void remove() {
         try {
-            PreferencesManager.getInstance().remove(SuiteRegistry.this.getNamespace());
+            manager.remove(SuiteRegistry.this.getNamespace());
         } catch (BackingStoreException ex) {
             LOG.log(Level.INFO, null, ex);
         }
@@ -137,12 +150,13 @@ public class SuiteRegistry {
 
         String namespace = SuiteRegistry.this.getNamespace();
 
-        PreferencesManager cm = PreferencesManager.getInstance();
-        BaseUtil.out("0) SuiteRegistry nameSpace = " + namespace);
+        BaseUtil.out("0) SuiteRegistry id = " + id);
+        
+        BaseUtil.out("0.1) SuiteRegistry nameSpace = " + namespace);
 
-        InstancePreferences ip = cm.getProperties(namespace, id);
+        InstancePreferences ip = manager.getProperties(namespace, id);
         if (ip == null) {
-            instancePreferences = cm.createProperties(namespace, id);
+            instancePreferences = manager.createProperties(namespace, id);
             BaseUtil.out("1) SuiteRegistry ip = " + ip);
 
         } else {
@@ -151,12 +165,20 @@ public class SuiteRegistry {
         }
         return instancePreferences;
     }
-
+    private static final String SHARED_UID = "-shared";
+    
+    protected boolean isUIDShared() {
+        return SHARED_UID.equals(suiteUID);
+    }
+    
     public void putProperty(String propName, String value) {
-        getProperties("server-instance").putString(propName, value);
+        if ( ! isUIDShared()) {
+            getProperties("server-instance").putString(propName, value);
+        }
         //instancePreferences.putString(propName, value);
     }
 
+    
     public String getProperty(String propName) {
         return getProperties("server-instance").getString(propName, null);
         //return instancePreferences.getString(propName, null);

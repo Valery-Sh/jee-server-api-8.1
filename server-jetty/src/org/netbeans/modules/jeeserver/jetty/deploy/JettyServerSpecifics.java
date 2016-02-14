@@ -43,6 +43,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ImageUtilities;
 import org.openide.windows.InputOutput;
+import org.xml.sax.InputSource;
 
 /**
  *
@@ -55,7 +56,7 @@ public class JettyServerSpecifics implements ServerSpecifics {
     public static final String JETTY_SHUTDOWN_KEY = "netbeans";
     public static final String IMAGE = "org/netbeans/modules/jeeserver/jetty/resources/jetty01-16x16.jpg";
 
-/*    @Override
+    /*    @Override
     public boolean pingServer(BaseDeploymentManager dm) {
 
         //ServerInstanceProperties sp = BaseUtils.getServerProperties(serverProject.getLookup());
@@ -90,14 +91,14 @@ public class JettyServerSpecifics implements ServerSpecifics {
         return false;
 
     }
-*/
+     */
+
     @Override
     public boolean shutdownCommand(BaseDeploymentManager dm) {
 
         boolean result;
 
         //ServerInstanceProperties sp = BaseUtils.getServerProperties(serverProject.getLookup());
-
         String key = JETTY_SHUTDOWN_KEY;
 
         // for future  String pkey = sp.getServerConfigProperties().getProperty("jetty-shutdown-key");
@@ -137,7 +138,7 @@ public class JettyServerSpecifics implements ServerSpecifics {
 
         long pingtimeout = System.currentTimeMillis() + BaseConstants.SERVER_TIMEOUT_DELAY;
         result = true;
-        while (pingServer(dm,0)) {
+        while (pingServer(dm, 0)) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException ie) {
@@ -153,10 +154,10 @@ public class JettyServerSpecifics implements ServerSpecifics {
     @Override
     public String execCommand(BaseDeploymentManager dm, String cmd) {
         String builtUrl = dm.buildUrl();
-        if ( builtUrl == null ) {
+        if (builtUrl == null) {
             return null;
         }
-        
+
         HttpURLConnection connection = null;
         String result = null;
         try {
@@ -224,10 +225,10 @@ public class JettyServerSpecifics implements ServerSpecifics {
         return sb.toString();
     }
 
-/*    private String buildUrl(Project p) {
+    /*    private String buildUrl(Project p) {
         return BaseUtils.managerOf(p.getLookup()).buildUrl();
     }
-*/
+     */
     @Override
     public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
         return new JettyServerFindJspServlet((BaseDeploymentManager) dm);
@@ -237,17 +238,16 @@ public class JettyServerSpecifics implements ServerSpecifics {
     public Image getServerImage(Project serverProject) {
         return ImageUtilities.loadImage(IMAGE);
     }
+
     @Override
     public Image getProjectImage(Project serverProject) {
         return ImageUtilities.loadImage(IMAGE);
     }
 
-
     @Override
     public boolean needsShutdownPort() {
         return true;
     }
-
 
     @Override
     public int getDefaultPort() {
@@ -278,7 +278,7 @@ public class JettyServerSpecifics implements ServerSpecifics {
     }
 
     @Override
-    public Properties getContextPoperties(FileObject config) {
+    public Properties getContextProperties(FileObject config) {
         return JettyServerModuleConfiguration.getContextProperties(config);
     }
 
@@ -289,20 +289,19 @@ public class JettyServerSpecifics implements ServerSpecifics {
      */
     @Override
     public boolean licensesAccepted(DeploymentManager dm) {
-        final boolean[] accepted = new boolean[] {false};
+        final boolean[] accepted = new boolean[]{false};
         FileUtil.runAtomicAction((Runnable) () -> {
-            accepted[0] = JettyConfig.CDISupport.showLicenseDialog(((BaseDeploymentManager)dm).getServerProject());
+            accepted[0] = JettyConfig.CDISupport.showLicenseDialog(((BaseDeploymentManager) dm).getServerProject());
         });
-        
+
         return accepted[0];
-    }    
-    
-/*    @Override
+    }
+
+    /*    @Override
     public Lookup getServerLookup(BaseDeploymentManager dm) {
         return dm.getServerProject().getLookup();
     }    
-*/    
-
+     */
     @Override
     public StartServerPropertiesProvider getStartServerPropertiesProvider(BaseDeploymentManager dm) {
         return dm.getServerProject().getLookup().lookup(StartServerPropertiesProvider.class);

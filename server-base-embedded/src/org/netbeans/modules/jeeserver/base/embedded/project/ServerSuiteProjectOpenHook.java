@@ -31,6 +31,7 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.SuiteRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
@@ -67,7 +68,7 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
        DistributedWebAppManager.refreshSuiteInstances(projectDir);
 /*        List<Project> projects = getServerInstances(uid);
         projects.forEach(p -> {
-            DistributedWebAppManager.getInstance(p).refresh();
+            DistributedWebAppManager.newInstance(p).refresh();
         });
 */        
         

@@ -123,6 +123,10 @@ public class Copier {
         Copier.ZipUtil.unzip(null, zipFile, zipEntry, targetFolder);
     }
 
+    public static String stringOf(InputStream is) {
+        return ZipUtil.stringOf(is);
+    }
+
     /**
      * Copies the source file of the object to a target file. The method doesn't
      * throw an exception. Instead it returns the {@code null} value.<br/>
@@ -771,7 +775,6 @@ public class Copier {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
-
             try {
                 while ((line = reader.readLine()) != null) {
                     sb.append(line).append("\n");

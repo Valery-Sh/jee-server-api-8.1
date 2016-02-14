@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment;
 
 import java.util.Map;
-import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 
