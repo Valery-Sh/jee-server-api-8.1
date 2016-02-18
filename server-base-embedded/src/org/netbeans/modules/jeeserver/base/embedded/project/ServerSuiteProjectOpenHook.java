@@ -61,7 +61,7 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
         } else {
             updateSuiteLocation(uid);
         }
-        SuiteRegistry.update(uid,getServerInstances(uid));
+//        SuiteRegistry.update(uid,getServerInstances(uid));
        // if ( true ) {
        //     return;
        // }

@@ -1,29 +1,34 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.stream.Stream;
+import static org.netbeans.modules.jeeserver.base.deployment.utils.prefs.PathPreferencesRegistry.DEFAULT_PROPERTIES_ID;
 
-public class InstancePreferences {
+public class InstancePreferences implements PreferencesProperties {
 
     private static final Logger LOG = Logger.getLogger(InstancePreferences.class.getName());
 
-    private final PreferencesManager manager;
-
     private Preferences prefs;
-    
+
     private final String id;
 
-    public InstancePreferences(String id, PreferencesManager manager, Preferences prefs) {
-        this.manager = manager;
+    public InstancePreferences(String id, Preferences prefs) {
         this.prefs = prefs;
         this.id = id;
     }
 
-    public PreferencesManager getManager() {
-        return manager;
-    }
     public String[] keys() {
         try {
             return prefs.keys();
@@ -32,7 +37,8 @@ public class InstancePreferences {
             return new String[]{};
         }
     }
-    public Preferences getPrefs() {
+
+    public Preferences getPreferences() {
         return prefs;
     }
 
@@ -138,11 +144,14 @@ public class InstancePreferences {
             prefs.putLong(key, value);
         }
     }
-    public void setProperty(String propName, String value) {
-        this.putString(id, value);
+
+    public InstancePreferences setProperty(String propName, String value) {
+        this.putString(propName, value);
+        return this;
     }
-    public void getProperty(String propName) {
-        this.getString(id, null);
+
+    public String getProperty(String propName) {
+        return this.getString(propName, null);
     }
 
     public void putString(String key, String value) {
@@ -151,16 +160,10 @@ public class InstancePreferences {
                 throw new IllegalStateException("Properties are not valid anymore");
             }
             prefs.put(key, value);
-            /*                try {
-                    prefs.flush();
-                } catch (Exception ex) {
-                    BaseUtil.out("IManager putString EXCEPTION ex=" + ex.getMessage());
-                    Exceptions.printStackTrace(ex);
-                }
-             */
         }
     }
 
+    @Override
     public void removeKey(String key) {
         synchronized (this) {
             if (prefs == null) {
@@ -170,16 +173,126 @@ public class InstancePreferences {
         }
     }
 
-    public void remove() {
+    public boolean remove() {
+
+        boolean success = false;
+
         try {
             synchronized (this) {
                 if (prefs != null) {
-                    manager.remove(prefs);
-                    prefs = null;
+                    prefs.removeNode();
+                }
+                success = !prefs.nodeExists("");
+            }
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.INFO, null, ex);
+        }
+        return success;
+    }
+
+    //
+    //
+    //
+    public Map<String, String> toMap() {
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            Map<String, String> map = new HashMap<>();
+            for (String key : keys()) {
+                map.put(key, prefs.get(key, null));
+            }
+            return map;
+        }
+    }
+    public Properties toProperties() {
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            Properties props = new Properties();
+            for (String key : keys()) {
+                props.put(key, prefs.get(key, null));
+            }
+            return props;
+        }
+    }
+
+    public PreferencesProperties copyFrom(Properties props) {
+        if (props == null || props.isEmpty()) {
+            return this;
+        }
+
+        Enumeration en = props.propertyNames();
+        while (en.hasMoreElements()) {
+            String nm = (String) en.nextElement();
+            putString(nm, props.getProperty(nm));
+        }
+        return this;
+    }
+
+    public PreferencesProperties copyFrom(Map<String,String> props) {
+        if (props == null || props.isEmpty()) {
+            return this;
+        }
+        props.forEach( (k,v) -> {
+            putString(k,v);
+        });
+        
+        return this;
+    }
+    
+    @Override
+    public void clear() {
+        try {
+            synchronized (this) {
+                if (prefs != null) {
+                    for (String key : prefs.keys()) {
+                        prefs.remove(key);
+                    }
                 }
             }
         } catch (BackingStoreException ex) {
             LOG.log(Level.INFO, null, ex);
         }
+
+    }
+
+    public void removeKeys(Predicate<String> predicate) {
+        for (String key : keys()) {
+            if (predicate.test(key)) {
+                removeKey(key);
+            }
+        }
+    }
+
+    public void forEach(BiConsumer<String, String> action) {
+        String[] keys = keys();
+        for (String key : keys) {
+            action.accept(key, getString(key, null));
+        }
+
+    }
+    @Override
+    public Map<String, String> filter(BiPredicate<String, String> predicate) {
+        Map<String, String> map = new HashMap<>();
+        String[] keys = keys();
+        for (String key : keys) {
+            String value = getString(key, null);
+            if (predicate.test(key, value)) {
+                map.put(key, value);
+            }
+        }
+        return map;
+    }
+    @Override
+    public Stream<String> keyStream() {
+        List<String> list = Arrays.asList(keys());
+        return list.stream();
+    }
+
+    @Override
+    public int size() {
+        return keys().length;
     }
 }

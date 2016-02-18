@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
@@ -41,8 +44,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.Dependencies;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.Dependency;
 import org.netbeans.modules.jeeserver.base.deployment.utils.PomXmlUtil.PomProperties;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.JavaPreferencesManager;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.JavaPreferencesRegistry;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.PathPreferencesRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ChildrenNotifier;
@@ -107,7 +109,7 @@ public class ServerActions {
             if (fo == null || fo.getFileObject("classes") == null) {
                 result = true;
             }
-            return result;
+          return result;
         }
 
     }
@@ -223,7 +225,7 @@ public class ServerActions {
                         name = "Build";
                         break;
                     case "rebuild":
-        
+
                         name = "Clean and Build";
                         break;
                 }
@@ -372,74 +374,42 @@ public class ServerActions {
                 if (alreadyPerformed()) {
                     return;
                 }
-                
+
                 if (isDummyAction()) {
                     FileObject fo = serverProject.getProjectDirectory();
                     Project p = BaseUtil.getOwnerProject(fo);
                     ProjectUtils.getAuxiliaryConfiguration(p);
-/*                    try {
-                        p = BaseUtil.findOwnerProject(fo);
-BaseUtil.out("DUMMY ACION OPEN PROJECT ********* =" + p);                        
-                        SuiteRegistry r = SuiteRegistry.newInstance(p);
-                        String prop = r.getProperty("Name");                        
-                        if ( prop == null ) {
-BaseUtil.out("DUMMY ACION OPEN PROJECT ********* propName == null");                                                    
-                            r.putProperty("Name", "Valery");
-                        }
-                        //String prop = r.putProperty("Name", "Valery");
-                        
-BaseUtil.out("DUMMY ACION OPEN PROJECT ********* getProperty(name) =" + r.getProperty("Name"));
-BaseUtil.out("DUMMY ACION OPEN PROJECT ********* getId() =" + r.getDefaultPropertiesId());
-                        BaseUtil.out("DUMMY ACION isModified()=" + ProjectManager.getDefault().isModified(p));
-                        BaseUtil.out("DUMMY ACION = isValid()" + ProjectManager.getDefault().isValid(p));
-                        ProjectManager.getDefault().saveProject(p);
-                        attr(p);
-                    } catch (IOException ex) {
-                        BaseUtil.out("DUMMY ACION EXCEPTION ex=" + ex.getMessage());
-                    } catch (IllegalArgumentException ex) {
-                        BaseUtil.out("1 DUMMY ACION EXCEPTION ex=" + ex.getMessage());
-                        Exceptions.printStackTrace(ex);
-                    }
-
-                    BaseUtil.out("DUMMY ACION project=" + p);
-                        BaseUtil.out("JavaReferences DUMMY ACION isModified()=" + ProjectManager.getDefault().isModified(p));
-                        BaseUtil.out("JavaReferences DUMMY ACION = isValid()" + ProjectManager.getDefault().isValid(p));
-                        ProjectManager.getDefault().saveProject(p);
-                        attr(p);
-                    
-*/
 //===================================================
                     fo = serverProject.getProjectDirectory();
                     Path path = FileUtil.toFile(fo).toPath();
+                    
+                    BaseUtil.out("* -0) DUMMY ACION");
+                    Preferences prefs = AbstractPreferences.userRoot();
                     try {
-
-                        JavaPreferencesRegistry jr = JavaPreferencesRegistry.newInstance(path);
-BaseUtil.out("*0) JavaReferences DUMMY ACION serverPath ********* getProperty(name) =" + path);                                                
-                        String prop = jr.getProperty(HTTP_PORT_PROP);                        
-BaseUtil.out("1) JavaReferences DUMMY ACION getProperty ********* getProperty(name) =" + jr.getProperty(HTTP_PORT_PROP));                        
-                        if ( prop == null ) {
-BaseUtil.out("2) JavaReferences DUMMY ACION putProperty ********* propName == null");                                                    
-                            jr.putProperty(BaseConstants.HTTP_PORT_PROP, "8989");
-                        }
-                        //String prop = r.putProperty("Name", "Valery");
+                        prefs.node("D_").removeNode();
+                        prefs.node("c:").removeNode();
+                        prefs.node("c:\\preferences\\testing").removeNode();
+                        prefs.node("c_").removeNode();
                         
-BaseUtil.out("3) JavaReferences DUMMY ACION getProperty ********* getProperty(HTTP_PORT_PROP) =" + jr.getProperty(BaseConstants.HTTP_PORT_PROP));
-
-                    } catch (Exception ex) {
-                        BaseUtil.out("JavaReferences DUMMY ACION EXCEPTION ex=" + ex.getMessage());
+                        
+                        prefs.flush();
+                    BaseUtil.out("* -1) DUMMY ACION");
+                        
+                    } catch (BackingStoreException ex) {
+                        BaseUtil.out("* -2) EXCEPTION DUMMY ACION");                        
+                        Exceptions.printStackTrace(ex);
                     }
 
-                    BaseUtil.out("JavaReferences DUMMY ACION project=" + p);
+                    if ( true ) return;
+                    setCommonProperties();
+                    setStartProperies();
+                    new BaseAntTaskProgressObject(null, startProperties).execute();
 
-                    
-                    return;
-                }
-                setCommonProperties();
-                setStartProperies();
-                new BaseAntTaskProgressObject(null, startProperties).execute();
+                }//if (isDummyAction()) 
+            }//actionPerformed
 
-            }
-
+            
+            
             protected void setStartProperies() {
                 if (isDummyAction()) {
                     return;
@@ -687,8 +657,7 @@ BaseUtil.out("3) JavaReferences DUMMY ACION getProperty ********* getProperty(HT
                     Project p = BaseUtil.getOwnerProject(fo);
                     ProjectUtils.getAuxiliaryConfiguration(p);
                     try {
-                        
-                        
+
                         p = BaseUtil.findOwnerProject(fo);
                         BaseUtil.out("!!DUMMY ACION isModified()=" + ProjectManager.getDefault().isModified(p));
                         BaseUtil.out("DUMMY ACION = isValid()" + ProjectManager.getDefault().isValid(p));
@@ -981,8 +950,8 @@ BaseUtil.out("3) JavaReferences DUMMY ACION getProperty ********* getProperty(HT
                                 .getProjectDirectory());
                 String inst = instanceProject.getProjectDirectory().getPath();
                 SuiteManager.removeInstance(context.lookup(ServerInstanceProperties.class).getUri());
-                SuiteRegistry r = SuiteRegistry.newInstance(uid,inst);
-                r.remove();
+//                SuiteRegistry r = SuiteRegistry.newInstance(uid,inst);
+//                r.clearSuite();
             }
         }
     }
