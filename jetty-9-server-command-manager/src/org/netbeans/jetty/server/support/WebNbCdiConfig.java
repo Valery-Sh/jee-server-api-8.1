@@ -3,6 +3,7 @@ package org.netbeans.jetty.server.support;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
+import java.util.UUID;
 import javax.servlet.FilterRegistration;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -75,7 +76,8 @@ public class WebNbCdiConfig extends AbstractConfiguration {
         // Here we must use isCDIEnabled()
         //
         if (CommandManager.isCDIEnabled(webapp)) {
-            String[] classes = webapp.getSystemClasses();
+        //if (true) {
+/*            String[] classes = webapp.getSystemClasses();
             boolean found = false;
             for (String s : classes) {
                 if ("org.jboss.weld.".equals(s)) {
@@ -83,8 +85,10 @@ public class WebNbCdiConfig extends AbstractConfiguration {
                     break;
                 }
             }
-
-            if (!found) {
+*/        
+//            if (!found) {
+        System.out.println("    --- PRECONFIGURE CDI Enabled cp = " + webapp.getContextPath());
+                
                 //
                 // webapp cannot change / replace weld classes        
                 //
@@ -104,7 +108,14 @@ public class WebNbCdiConfig extends AbstractConfiguration {
                 webapp.addServerClass("-org.jboss.logging.");
                 webapp.addServerClass("-com.google.common.");
             }
-        }
+            if (webapp.getInitParameter("WELD_CONTEXT_ID_KEY") == null) {
+                if (!"/WEB_APP_FOR_CDI_WELD".equals(webapp.getContextPath())) {
+                    UUID id = UUID.randomUUID();
+                    webapp.setInitParameter("WELD_CONTEXT_ID_KEY", id.toString());
+                }
+            }
+        
+//        }
         
         out(" --------------------------------------------------------------------------------------------");
 

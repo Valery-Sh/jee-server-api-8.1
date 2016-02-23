@@ -70,7 +70,6 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     private JettyConfig config;
 
     //private static CommandManager commandManager;
-
     protected CommandManager(String msgOption) {
         super();
         if (msgOption != null) {
@@ -99,11 +98,11 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     public static CommandManager getInstance(String msgOption) {
         getInstance().messageOption = msgOption;
         return getInstance();
-/*        if (commandManager == null) {
+        /*        if (commandManager == null) {
             commandManager = new CommandManager(msgOption);
         }
         return commandManager;
-*/        
+         */
     }
 
     public JettyConfig getJettyConfig() {
@@ -115,23 +114,25 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         Resource baseResource = ctx.getBaseResource();
 
         boolean foundBeansXml = false;
-        // Verify that beans.xml is present, otherwise weld will fail silently.
-        for (String beansXmlPath : REQUIRED_BEANS_XML_PATHS) {
-            try {
-                Resource res = baseResource.addPath(beansXmlPath);
-                if (res == null) {
-                    continue;
+        if (baseResource != null) {
+            // Verify that beans.xml is present, otherwise weld will fail silently.
+            for (String beansXmlPath : REQUIRED_BEANS_XML_PATHS) {
+                try {
+                    Resource res = baseResource.addPath(beansXmlPath);
+                    if (res == null) {
+                        continue;
+                    }
+
+                    if (res.exists() && !res.isDirectory()) {
+                        foundBeansXml = true;
+                        break;
+                    }
+
+                } catch (IOException ex) {
+                    getInstance().out("NB-DEPLOYER: CommandManager.isCDIEnabled(ContentHandler) continuw process");
                 }
 
-                if (res.exists() && !res.isDirectory()) {
-                    foundBeansXml = true;
-                    break;
-                }
-
-            } catch (IOException ex) {
-                getInstance().out("NB-DEPLOYER: CommandManager.isCDIEnabled(ContentHandler) continuw process");
             }
-
         }
 
         return foundBeansXml;
@@ -143,7 +144,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
 
         Collection<DeploymentManager> dms = getInstance().getServer().getBeans(DeploymentManager.class);
         DeploymentManager dm = null;
-        
+
         int i = 0;
         if (dms != null && !dms.isEmpty()) {
             for (DeploymentManager m : dms) {
@@ -177,10 +178,10 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
      *
      */
     private void init() {
-/*        if (commandManager == null) {
+        /*        if (commandManager == null) {
             commandManager = this;
         }
-*/       
+         */
         config = new JettyConfig();
         config.getConfigBuilder().build();
 
@@ -1041,7 +1042,6 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     public static class ManagerLifeCycleListener extends AbstractLifeCycleListener {
 
         //CommandManager cm;
-
         public ManagerLifeCycleListener() {
             //this.cm = cm;
         }
@@ -1064,7 +1064,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                 }
             }
              */
-System.out.println("---------- CommandManager.getInstance()=" + CommandManager.getInstance());
+            System.out.println("---------- CommandManager.getInstance()=" + CommandManager.getInstance());
             if (CommandManager.getInstance().getJettyConfig().isCDIEnabled()) {
                 /*                Collection<DeploymentManager> dms = cm.getServer().getBeans(DeploymentManager.class);
                 DeploymentManager dm = null;
@@ -1113,7 +1113,7 @@ System.out.println("---------- CommandManager.getInstance()=" + CommandManager.g
     }
          */
         protected void updateServerHandlers() {
-/*            HandlerWrapper wrapper = null;
+            /*            HandlerWrapper wrapper = null;
 
             Handler serverHandler = cm.getServer().getHandler();
             if (serverHandler instanceof HandlerWrapper) {
@@ -1240,7 +1240,7 @@ System.out.println("---------- CommandManager.getInstance()=" + CommandManager.g
                     }
                 }
             }
-*/
+             */
         }
 
         protected void updateHandler(HandlerCollection hc) {
@@ -1307,8 +1307,9 @@ System.out.println("---------- CommandManager.getInstance()=" + CommandManager.g
 
         }
     }
-    
+
     private static final class CommandManagerSingletonHolder {
+
         private static final CommandManager INSTANCE = new CommandManager();
     }
 }
