@@ -43,7 +43,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.ImageUtilities;
 import org.openide.windows.InputOutput;
-import org.xml.sax.InputSource;
 
 /**
  *

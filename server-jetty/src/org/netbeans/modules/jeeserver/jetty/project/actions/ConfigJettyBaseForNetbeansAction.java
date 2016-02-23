@@ -113,13 +113,13 @@ public final class ConfigJettyBaseForNetbeansAction extends AbstractAction imple
         public static final String MAX_FILES_ZIP = ROOT_RESOURCE + "max-nbfiles.zip";
 
         @StaticResource
-        public static final String NB_DEPLOY_XML = ROOT_RESOURCE + "min-nb-deploy.xml";
+        public static final String NB_DEPLOY_XML = ROOT_RESOURCE + "min-nb-deployer.xml";
 
         @StaticResource
-        public static final String NB_DEPLOY_INI = ROOT_RESOURCE + "min-nbdeploy.ini";
+        public static final String NB_DEPLOY_INI = ROOT_RESOURCE + "min-nbdeployer.ini";
 
         @StaticResource
-        public static final String NB_DEPLOY_MOD = ROOT_RESOURCE + "min-nbdeploy.mod";
+        public static final String NB_DEPLOY_MOD = ROOT_RESOURCE + "min-nbdeployer.mod";
 
         public String menuItemText() {
             return "Enable  NetBeans Support (Min)";

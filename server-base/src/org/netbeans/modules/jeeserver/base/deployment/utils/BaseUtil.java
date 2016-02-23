@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,6 +77,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.EditableProperties;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -102,6 +104,26 @@ public class BaseUtil {
     public static final String MAVEN2_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/maven2-icon.gif";
     @StaticResource
     public static final String J2SE_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/j2seproject-icon.png";
+
+    public static File createTempDir(InputStream source, String prefix, FileObject forFile, String targetFileName) {
+        File tmp = new File(System.getProperty("java.io.tmpdir"));
+        String targetFolder = prefix + forFile
+                .getPath().replace("\\", "/")
+                .replace(":", "_");
+        Path targetPath = Paths.get(tmp.getPath(), targetFolder, targetFileName);
+        try {
+            if ( ! Files.exists(targetPath.getParent())) {
+out("BaseUtil - createTempDir dir NOT EXISTS");                
+                Files.createDirectories(targetPath.getParent());
+            }
+            Files.copy(source, targetPath, StandardCopyOption.REPLACE_EXISTING);
+out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));                            
+        } catch (IOException ex) {
+            LOG.log(Level.INFO, ex.getMessage());
+        }
+        targetPath.toFile().deleteOnExit();
+        return targetPath.toFile();
+    }
 
     public static WebModule getWebModule(FileObject fo) {
         if (fo == null) {
@@ -910,12 +932,12 @@ public class BaseUtil {
      */
     public static BaseDeploymentManager managerOf(Lookup context) {
         ServerInstanceProperties sp = context.lookup(ServerInstanceProperties.class);
-BaseUtil.out("0. ((((((((( BaseUtil managerOf server instanceprops = " + sp);                                    
+        BaseUtil.out("0. ((((((((( BaseUtil managerOf server instanceprops = " + sp);
         if (sp == null) {
             return null;
         }
-BaseUtil.out("0. ((((((((( BaseUtil managerOf manager = " + sp.getManager());                                    
-        
+        BaseUtil.out("0. ((((((((( BaseUtil managerOf manager = " + sp.getManager());
+
         return sp.getManager();
     }
 

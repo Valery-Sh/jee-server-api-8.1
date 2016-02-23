@@ -2,7 +2,7 @@
 server
 
 [xml]
-etc/nbdeploy/nb-deploy.xml
+etc/nbdeploy/nb-deployer.xml
 
 [lib]
 lib/ext/nbdeploy/*.jar

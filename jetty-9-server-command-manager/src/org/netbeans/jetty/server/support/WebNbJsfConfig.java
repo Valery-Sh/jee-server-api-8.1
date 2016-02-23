@@ -1,11 +1,8 @@
 package org.netbeans.jetty.server.support;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.Map;
-import javax.annotation.Resource;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import org.eclipse.jetty.webapp.AbstractConfiguration;

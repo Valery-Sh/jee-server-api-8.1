@@ -13,21 +13,19 @@
     <!-- for example the jetty-requestlog.xml file adds the          -->
     <!-- RequestLogHandler after the default handler                 -->
     <!-- =========================================================== -->
-    <Set name="handler">
-        <New id="Handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
-            <Set name="handlers">
-                <Array type="org.eclipse.jetty.server.Handler">
-                    <Item>
-                        <Call name="getInstance" class="org.netbeans.jetty.server.support.CommandManager" />
-                    </Item>
-                    <Item>
-                        <New id="Contexts" class="org.eclipse.jetty.server.handler.ContextHandlerCollection"/>
-                    </Item>
-                    <Item>
-                        <New id="DefaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler"/>
-                    </Item>
-                </Array>
-            </Set>
-        </New>
-    </Set>
+    <Ref id="DeploymentManager" >
+        <Call name="insertLifeCycleNode" >
+          <Arg>started</Arg>
+          <Arg>stopping</Arg>
+          <Arg>beforestopping</Arg>
+        </Call>
+	<Call name="addLifeCycleBinding">
+          <Arg>
+            <New class="org.netbeans.jetty.server.support.BeforeStandardStopperBinding">
+            </New>
+          </Arg>
+	</Call>
+        
+    </Ref>
+    
 </Configure>

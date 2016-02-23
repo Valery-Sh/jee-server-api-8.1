@@ -70,7 +70,13 @@ public class JettyProjectFactory implements ProjectFactory {
                 && projectDirectory.getFileObject(httpIni) != null;
         
     }
-    
+    public static boolean isConfiguredForNetbeans(Project project) {
+        if ( project.getProjectDirectory().getFileObject(JettyConstants.BUILD_XML) == null) {
+            return false;
+        }
+        return true;
+        
+    }
     public static boolean hasProjectFiles(FileObject folder) {
         if ( folder == null ) {
             return false;

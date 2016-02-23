@@ -16,18 +16,28 @@
  */
 package org.netbeans.modules.jeeserver.jetty.deploy.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import static org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil.out;
 import org.netbeans.modules.jeeserver.jetty.deploy.JettyServerSpecifics;
+import org.netbeans.modules.jeeserver.jetty.project.JettyProjectFactory;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 //import org.netbeans.modules.jeeserver.jetty.util.NpnConfig;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -35,6 +45,8 @@ import org.openide.filesystems.FileObject;
  */
 public class JettyStartServerPropertiesProvider implements StartServerPropertiesProvider {
 
+    private static final Logger LOG = Logger.getLogger(BaseUtil.class.getName());
+    
     private Properties startProperties;
     private Properties stopProperties;
     private Properties debugProperties;
@@ -45,6 +57,26 @@ public class JettyStartServerPropertiesProvider implements StartServerProperties
 
     @Override
     public FileObject getBuildXml(Project serverProject) {
+        FileObject result = null;
+        if ( ! JettyProjectFactory.isConfiguredForNetbeans(serverProject)) {
+            FileObject projectDir = serverProject.getProjectDirectory();
+            String buildxml = Utils.stringOf(getClass().getResourceAsStream("/org/netbeans/modules/jeeserver/jetty/resources/build_tmp.template"));
+            buildxml = buildxml.replace("${jetty_server_instance_name}", "\"" + projectDir.getNameExt() + "\"");
+            buildxml = buildxml.replace("${projectBasedir}", "\"" + serverProject.getProjectDirectory().getPath() + "\"" );
+            BaseUtil.out("1) JettyStartProperties - getBuildXml = " + buildxml );                                        
+            try (InputStream is = new ByteArrayInputStream(buildxml.getBytes() )) {
+                result = FileUtil.toFileObject(
+                        BaseUtil.createTempDir(is, "jetty-server-", projectDir, "build.xml"));
+                BaseUtil.out("2) JettyStartProperties - result = " + result );                                        
+                        
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, ex.getMessage());
+            } catch (Exception ex) {
+                LOG.log(Level.INFO, ex.getMessage());
+            }
+            return result;
+            
+        }     
         String base = Utils.jettyBase(serverProject);
         return serverProject
                 .getProjectDirectory()
