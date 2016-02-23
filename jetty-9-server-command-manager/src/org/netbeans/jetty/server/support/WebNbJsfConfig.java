@@ -100,29 +100,4 @@ public class WebNbJsfConfig extends AbstractConfiguration {
         }
 
     }
-
-    /**
-     * Process web-default.xml, web.xml, override-web.xml
-     *
-     * @param context
-     */
-    @Override
-    public void configure(WebAppContext context) throws Exception {
-    }
-
-    /* ------------------------------------------------------------------------------- */
-    protected Resource findWebXml(WebAppContext context) throws IOException, MalformedURLException {
-        return null;
-    }
-
-
-    /* ------------------------------------------------------------------------------- */
-    @Override
-    public void deconfigure(WebAppContext context) throws Exception {
-    }
-
-    @Override
-    public void postConfigure(WebAppContext context) throws Exception {
-    }
-
 }

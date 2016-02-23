@@ -38,6 +38,7 @@ import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvail
 import org.netbeans.modules.jeeserver.base.deployment.config.WebModuleConfig;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -78,14 +79,14 @@ public class WebModulesRootNode extends FilterNode {
      */
     public WebModulesRootNode(Project serverProj) throws DataObjectNotFoundException {
         super(DataObject.find(serverProj.getProjectDirectory().
-                getFileObject(JettyConstants.WEBAPPS_FOLDER)).getNodeDelegate(),
+                getFileObject(Utils.webapps(serverProj))).getNodeDelegate(),
                 new RootChildrenKeys(serverProj));
 
     }
 
     public WebModulesRootNode(Project serverProj, Children children) throws DataObjectNotFoundException {
         super(DataObject.find(serverProj.getProjectDirectory().
-                getFileObject(JettyConstants.WEBAPPS_FOLDER))
+                getFileObject(Utils.webapps(serverProj)))
                 .getNodeDelegate(), children);
 
     }

@@ -29,6 +29,7 @@ import static org.netbeans.modules.jeeserver.jetty.project.nodes.libs.NodeOption
 import static org.netbeans.modules.jeeserver.jetty.project.nodes.libs.NodeOptions.LIB_EXT;
 import static org.netbeans.modules.jeeserver.jetty.project.nodes.libs.NodeOptions.ROOT;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -166,7 +167,7 @@ public class LibUtil {
         final String jh = BaseUtil.managerOf(server.getLookup()).getInstanceProperties()
                 .getProperty(BaseConstants.HOME_DIR_PROP);
         final String jb = server.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER).getPath();
+                .getFileObject(Utils.jettyBase(server)).getPath();
 
         final Path jettyHome = Paths.get(jh);
         final Path jettyBase = Paths.get(jb);
@@ -230,7 +231,7 @@ public class LibUtil {
         final String jh = manager.getInstanceProperties()
                 .getProperty(BaseConstants.HOME_DIR_PROP);
         final String jb = server.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER).getPath();
+                .getFileObject(Utils.jettyBase(server)).getPath();
         final Path jettyHome = Paths.get(jh);
         final Path jettyBase = Paths.get(jb);
 
@@ -300,7 +301,7 @@ public class LibUtil {
     public static List addFolderNotify(Project server, FileObject baseKey, NodeOptions options) {
         BaseDeploymentManager manager = (BaseDeploymentManager) BaseUtil.managerOf(server.getLookup());
         final String jb = server.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER).getPath();
+                .getFileObject(Utils.jettyBase(server)).getPath();
 
         final Path keypath = Paths.get(baseKey.getPath());
         final List jars = new ArrayList<>();
@@ -327,7 +328,7 @@ public class LibUtil {
 
     public static List addRootExtNotify(Project server) {
         final String jb = server.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER).getPath();
+                .getFileObject(Utils.jettyBase(server)).getPath();
 
         final Path extLib = Paths.get(jb, "lib/ext");
         final List jars = new ArrayList<>();
@@ -355,7 +356,7 @@ public class LibUtil {
 
     public static List addRootExtNotify_old(Project server) {
         final String jb = server.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER).getPath();
+                .getFileObject(Utils.jettyBase(server)).getPath();
 
         final Path extLib = Paths.get(jb, "lib/ext");
         final List jars = new ArrayList<>();

@@ -32,7 +32,6 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.Info;
 import org.netbeans.modules.jeeserver.jetty.project.JettyLibBuilder;
 import org.netbeans.modules.jeeserver.jetty.deploy.JettyServerPlatformImpl;
 import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
-import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.AbstractHotDeployedContextAction;
 import org.netbeans.modules.jeeserver.jetty.project.nodes.libs.LibUtil;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
@@ -56,6 +55,7 @@ public class StartIni extends AbsractJettyConfig {
 
     public StartIni(Project server) {
         this(FileUtil.toFile(server.getProjectDirectory()
+                .getFileObject(Utils.jettyBase(server))
                 .getFileObject(JettyConstants.JETTY_START_INI)));
     }
 
@@ -63,6 +63,7 @@ public class StartIni extends AbsractJettyConfig {
         this.withComments = withComments;
 
         setFile(FileUtil.toFile(server.getProjectDirectory()
+                .getFileObject(Utils.jettyBase(server))
                 .getFileObject(JettyConstants.JETTY_START_INI)));
 
     }
@@ -212,6 +213,8 @@ public class StartIni extends AbsractJettyConfig {
         @Override
         public void fileChanged(FileEvent ev) {
             BaseDeploymentManager manager = BaseUtil.managerOf(project.getLookup());
+BaseUtil.out("0. ((((((((( StartIni fileChanged manager = " + manager);                            
+BaseUtil.out("0.1 ((((((((( StartIni fileChanged project = " + project);                            
             //RequestProcessor rp = new RequestProcessor("Server processor", 1);
             RP.post(new RunnableImpl(manager), 0, Thread.NORM_PRIORITY);
         }
@@ -226,6 +229,8 @@ public class StartIni extends AbsractJettyConfig {
 
             @Override
             public void run() {
+BaseUtil.out("1. ((((((((( StartIni manager = " + manager);                
+BaseUtil.out("2. ((((((((( StartIni manager.getServerProject = " + manager.getServerProject());                
                 ((JettyServerPlatformImpl) manager.getPlatform()).notifyLibrariesChanged();
                 LibUtil.updateLibraries(manager.getServerProject());
                 
@@ -248,7 +253,7 @@ public class StartIni extends AbsractJettyConfig {
                 LOG.log(Level.INFO, ex.getMessage());
             }
             String baseDir = Paths.get(
-                    project.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER)
+                    project.getProjectDirectory().getPath(), Utils.jettyBase(project))
                     .toString();
             String homeDir = BaseUtil.getServerProperties(project.getLookup()).getHomeDir();
 

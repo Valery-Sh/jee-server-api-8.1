@@ -76,7 +76,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.EditableProperties;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -122,7 +121,7 @@ public class BaseUtil {
             return null;
         }
 
-        Project p = FileOwnerQuery.getOwner(fo);
+        Project p;// = FileOwnerQuery.getOwner(fo);
         p = ProjectManager.getDefault().findProject(fo);
         if (p != null && ProjectConvertors.isConvertorProject(p)) {
             p = ProjectConvertors.getNonConvertorOwner(fo);
@@ -596,9 +595,9 @@ public class BaseUtil {
     }
 
     /**
-     * Replaces {@literal Properties} content of the file specified by the second
-     * as a directory and third parameter as a file name.
-     * parameter. If the properties file already exists it is deleted
+     * Replaces {@literal Properties} content of the file specified by the
+     * second as a directory and third parameter as a file name. parameter. If
+     * the properties file already exists it is deleted
      *
      *
      * @param props an object to be stored
@@ -698,12 +697,31 @@ public class BaseUtil {
         io.getOut().close();
     }
 
+    public static boolean isWebProject(Project project) {
+        if (project == null || project.getLookup() == null) {
+            return false;
+        }
+        if (project.getLookup().lookup(J2eeModuleProvider.class) == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isWebProject(FileObject fo) {
+        Project project = BaseUtil.getOwnerProject(fo);
+        return isWebProject(project);
+    }
+
     public static FileObject getWar(Project webProject) {
+        if (!isWebProject(webProject)) {
+            return null;
+        }
         try {
             return webProject.getLookup().lookup(J2eeModuleProvider.class).getJ2eeModule().getArchive();
         } catch (IOException ex) {
             return null;
         }
+
     }
 
     /**
@@ -849,7 +867,8 @@ public class BaseUtil {
     }
 
     public static boolean isMavenProject(Project proj) {
-        for (Object o : proj.getLookup().lookupAll(Object.class)) {
+        for (Object o : proj.getLookup().lookupAll(Object.class
+        )) {
             if ("org.netbeans.modules.maven.api.NbMavenProject".equals(o.getClass().getName())) {
                 return true;
             }
@@ -860,7 +879,9 @@ public class BaseUtil {
 
     public static boolean isMavenWebProject(Project proj) {
         boolean b = false;
-        for (Object o : proj.getLookup().lookupAll(Object.class)) {
+
+        for (Object o : proj.getLookup().lookupAll(Object.class
+        )) {
             if (!"org.netbeans.modules.maven.api.NbMavenProject".equals(o.getClass().getName())) {
                 continue;
             }
@@ -874,7 +895,8 @@ public class BaseUtil {
     }
 
     public static boolean isAntProject(Project proj) {
-        return proj.getLookup().lookup(org.netbeans.api.project.ant.AntBuildExtender.class) != null;
+        return proj.getLookup().lookup(org.netbeans.api.project.ant.AntBuildExtender.class
+        ) != null;
         //return proj.getProjectDirectory().getFileObject("pom.xml") != null;  
     }
 
@@ -888,9 +910,12 @@ public class BaseUtil {
      */
     public static BaseDeploymentManager managerOf(Lookup context) {
         ServerInstanceProperties sp = context.lookup(ServerInstanceProperties.class);
+BaseUtil.out("0. ((((((((( BaseUtil managerOf server instanceprops = " + sp);                                    
         if (sp == null) {
             return null;
         }
+BaseUtil.out("0. ((((((((( BaseUtil managerOf manager = " + sp.getManager());                                    
+        
         return sp.getManager();
     }
 
@@ -901,8 +926,10 @@ public class BaseUtil {
      * @param context
      * @return
      */
-    public static ServerInstanceProperties getServerProperties(Lookup context) {
-        return context.lookup(ServerInstanceProperties.class);
+    public static ServerInstanceProperties
+            getServerProperties(Lookup context) {
+        return context.lookup(ServerInstanceProperties.class
+        );
     }
 
     /**

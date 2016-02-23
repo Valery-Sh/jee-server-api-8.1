@@ -16,6 +16,7 @@
  */
 package org.netbeans.modules.jeeserver.jetty.project.nodes;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,6 @@ import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.ShowInBrowserW
 import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.StartHotDeployedWebAppAction;
 import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.StopHotDeployedWebAppAction;
 import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.UndeployHotDeployedWebAppAction;
-import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -105,7 +105,7 @@ public class HotBaseWebAppChildNode extends FilterNode {
         return true;
     }    
     private void initContextProperies() {
-        FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(webAppKey));
+        FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey));
         if (webappFo == null) {
 //            BaseUtils.out("BaseWebAppChildNode initContextProperies webappFo == NULL");
             return;
@@ -179,13 +179,16 @@ public class HotBaseWebAppChildNode extends FilterNode {
     @Override
     public Action[] getActions(boolean context) {
         try {
-            Node node = DataObject.find(getServerProject().getProjectDirectory().getFileObject(getPath(getWebAppKey()))).getNodeDelegate();
+            Node node = DataObject.find(getServerProject().getProjectDirectory().getFileObject(getPath(getServerProject(),getWebAppKey()))).getNodeDelegate();
             List<Action> list2 = Arrays.asList(node.getActions(true));
             Action showbrowserAction = new ShowInBrowserWebAppAction().createContextAwareInstance(getWebAppProject().getLookup());
+            if ( getContextProperties() == null ) {
+                showbrowserAction.setEnabled(false);
+            }
             Action startAction = new StartHotDeployedWebAppAction().createContextAwareInstance(getWebAppProject().getLookup());
             Action stopAction = new StopHotDeployedWebAppAction().createContextAwareInstance(getWebAppProject().getLookup());
             Action undeployAction = new UndeployHotDeployedWebAppAction().createContextAwareInstance(getWebAppProject().getLookup());
-
+            
             List<Action> list1 = Arrays.asList(
                     new Action[]{
                         showbrowserAction,
@@ -199,7 +202,7 @@ public class HotBaseWebAppChildNode extends FilterNode {
                     });
             
             list1 = new ArrayList(list1);
-            FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(webAppKey));
+            FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey));
             
             if (webappFo == null || ! webappFo.isFolder()) {
                 list1.addAll(new ArrayList(list2));
@@ -215,12 +218,12 @@ public class HotBaseWebAppChildNode extends FilterNode {
     }
 
     public static Node getNodeByKey(Project serverProj, Object webAppKey) throws DataObjectNotFoundException {
-        Node n = DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(webAppKey))).getNodeDelegate();
-        return DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(webAppKey))).getNodeDelegate();
+        Node n = DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey))).getNodeDelegate();
+        return DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey))).getNodeDelegate();
     }
 
-    static String getPath(Object webAppKey) {
-        return JettyConstants.WEBAPPS_FOLDER + "/" + webAppKey;
+    static String getPath(Project proj, Object webAppKey) {
+        return Paths.get(Utils.webapps(proj),webAppKey.toString()).toString().replace("\\","/");
     }
 
     /**
@@ -247,7 +250,7 @@ public class HotBaseWebAppChildNode extends FilterNode {
      * @return a web project which this node represents.
      */
     public FileObject getWebAppProject() {
-        FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(getWebAppKey()));
+        FileObject webappFo = serverProj.getProjectDirectory().getFileObject(getPath(serverProj,getWebAppKey()));
         return webappFo;
     }
 }

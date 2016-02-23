@@ -87,17 +87,21 @@ public class ShowInBrowserWebAppAction extends AbstractAction implements Context
                     // we must extract jetty-web.xml if exists
                     String s = Copier.ZipUtil.getZipEntryAsString(FileUtil.toFile(webFo), "WEB-INF/jetty-web.xml");
                     props = Utils.getContextProperties(s);
-                    if ( props == null ) {
+                    if (props == null) {
                         props = new Properties();
                         props.setProperty(BaseConstants.CONTEXTPATH_PROP, webFo.getName());
+                    } else if (props.getProperty(BaseConstants.CONTEXTPATH_PROP) == null) {
+                        props.setProperty(BaseConstants.CONTEXTPATH_PROP, webFo.getName());
                     }
-
                     break;
                 }
                 default: {
                     // we must extract jetty-web.xml if exists
                     if (webFo.isFolder()) {
                         props = Utils.getContextProperties(webFo.getFileObject("WEB-INF/jetty-web.xml"));
+                        if (props.getProperty(BaseConstants.CONTEXTPATH_PROP) == null) {
+                            props.setProperty(BaseConstants.CONTEXTPATH_PROP, webFo.getNameExt());
+                        }
                     }
                     break;
                 }
@@ -121,7 +125,6 @@ public class ShowInBrowserWebAppAction extends AbstractAction implements Context
             }
 
             //BaseUtils.out(" %%%%%%% contextPath= " + contextPath);
-
             String port = manager.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP);
             String host = manager.getInstanceProperties().getProperty(BaseConstants.HOST_PROP);
             urlStr = "http://" + host + ":" + port + contextPath;
@@ -133,7 +136,7 @@ public class ShowInBrowserWebAppAction extends AbstractAction implements Context
                         String[] a = state.split(" ");
                         state = a[0];
                     }
-                    
+
                     if ("STARTED".equals(state)) {
                         break;
                     }

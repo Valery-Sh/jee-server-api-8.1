@@ -23,6 +23,7 @@ import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StartServerAction;
 import org.netbeans.modules.jeeserver.base.deployment.actions.StopServerAction;
+import org.netbeans.modules.jeeserver.jetty.project.actions.ConfigJettyBaseForNetbeansAction;
 import org.netbeans.modules.jeeserver.jetty.project.actions.JettyStartCommandActions;
 
 import org.netbeans.modules.jeeserver.jetty.project.actions.PropertiesAction;
@@ -152,6 +153,11 @@ public class JettyProjectLogicalView implements LogicalViewProvider {
                 new JettyStartCommandActions.ListModulesAction(project.getLookup()),
                 new JettyStartCommandActions.ListClasspathAction(project.getLookup()),
                 null,
+                new ConfigJettyBaseForNetbeansAction.MinConfigContextAction(project.getLookup()),
+                null,
+                new ConfigJettyBaseForNetbeansAction.MaxConfigContextAction(project.getLookup()),
+                null,
+                
                 CommonProjectActions.newFileAction(),
                 CommonProjectActions.copyProjectAction(),
                 CommonProjectActions.deleteProjectAction(),

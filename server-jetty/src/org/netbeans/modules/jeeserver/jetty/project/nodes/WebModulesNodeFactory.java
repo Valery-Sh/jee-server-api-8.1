@@ -62,7 +62,7 @@ public class WebModulesNodeFactory implements NodeFactory {
         if (!Utils.isJettyServer(project)) {
             return NodeFactorySupport.fixedNodeList();
         }
-        if (project.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER) != null) {
+        if (project.getProjectDirectory().getFileObject(Utils.webapps(project)) != null) {
             try {
                 WebModulesRootNode node = new WebModulesRootNode(project);
                 node.init(project);

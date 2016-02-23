@@ -25,12 +25,11 @@ import javax.swing.Action;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyProjectLogicalView;
 
 import org.netbeans.modules.jeeserver.jetty.project.nodes.actions.HotDeployedWebAppsNodeActionFactory;
-import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileChangeAdapter;
@@ -43,7 +42,6 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle;
 
 /**
  * Represents the root node of the logical view of the project's folder named
@@ -73,7 +71,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
      */
     public HotWebApplicationsRootNode(Project serverProj) throws DataObjectNotFoundException {
         super(DataObject.find(serverProj.getProjectDirectory().
-                getFileObject(JettyConstants.WEBAPPS_FOLDER)).getNodeDelegate(),
+                getFileObject(Utils.webapps(serverProj))).getNodeDelegate(),
                 new WebAppKeys(serverProj));
     }
 
@@ -86,7 +84,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
      */
     protected final void init(Project serverProj) {
         fileChangeHandler = new FileChangeHandler(serverProj, this);
-        serverProj.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER)
+        serverProj.getProjectDirectory().getFileObject(Utils.webapps(serverProj))
                 .addFileChangeListener(fileChangeHandler);
         serverProj.getLookup().lookup(JettyProjectLogicalView.class)
                 .setWebApplicationsNode(this);
@@ -98,14 +96,18 @@ public class HotWebApplicationsRootNode extends FilterNode {
         String name = key.toString();
         Node node = null;
 
-        FileObject fo = project.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER).getFileObject(name);
+        FileObject fo = project.getProjectDirectory().getFileObject(Utils.webapps(project)).getFileObject(name);
         try {
-            if (fo.isFolder()) {
+            if (fo.isFolder() && BaseUtil.isWebProject(fo)  ) {
                 node = new HotWebFolderChildNode(project, key);
+            } else if (fo.isFolder()) {
+                node = new HotAnyFolderChildNode(project, key);
             } else if ("war".equals(fo.getExt())) {
                 node = new HotWarArchiveChildNode(project, key);
             } else if ("xml".equals(fo.getExt())) {
                 node = new HotXmlChildNode(project, key);
+            } else {
+                node = new HotAnyFolderChildNode(project, key);
             }
         } catch (DataObjectNotFoundException e) {
         }
@@ -211,7 +213,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
         private final Project serverProj;
 
         /**
-         * Created a new instance of the class for the specified server project.
+         * Creates a new instance of the class for the specified server project.
          *
          * @param serverProj the project which is used to create an instance
          * for.
@@ -229,7 +231,6 @@ public class HotWebApplicationsRootNode extends FilterNode {
          */
         @Override
         protected Node[] createNodes(T key) {
-            SourceGroup sg;
             //return new Node[]{WebAppChildFactory.getNode(serverProj, key)};
             return new Node[]{HotWebApplicationsRootNode.getNode(serverProj, key)};
         }
@@ -243,7 +244,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
          */
         @Override
         protected void addNotify() {
-            FileObject rootFolder = serverProj.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER);
+            FileObject rootFolder = serverProj.getProjectDirectory().getFileObject(Utils.webapps(serverProj));
             FileObject[] files = rootFolder.getChildren();
             List keyArray = new ArrayList<>(files.length);
             for (FileObject fo : files) {
@@ -297,7 +298,7 @@ public class HotWebApplicationsRootNode extends FilterNode {
         @Override
         public void fileDeleted(FileEvent ev) {
 
-            if (null == project.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER)) {
+            if (null == project.getProjectDirectory().getFileObject(Utils.webapps(project))) {
                 ServerUtil.removeInstanceProperties(Utils.getServerInstanceId(project));
             } else {
                 ((HotWebApplicationsRootNode.WebAppKeys) node.getChildren()).addNotify();
@@ -370,6 +371,9 @@ public class HotWebApplicationsRootNode extends FilterNode {
             this.keyFileObject = keyFileObject;
             if (!keyFileObject.isFolder() && "xml".equals(keyFileObject.getExt())) {
                 Properties props = Utils.getContextProperties(keyFileObject);
+                if ( props == null ) {
+                    return;
+                }
                 this.contextPath = props.getProperty("contextPath");
                 this.war = props.getProperty("war");
             }

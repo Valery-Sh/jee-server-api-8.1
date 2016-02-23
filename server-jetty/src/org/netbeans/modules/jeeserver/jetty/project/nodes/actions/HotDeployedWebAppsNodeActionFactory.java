@@ -35,6 +35,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.Copier;
@@ -180,6 +181,7 @@ public class HotDeployedWebAppsNodeActionFactory {
 //            task = new RequestProcessor("AddProjectBody").create(new Runnable() { // NOI18N
         }
 
+
         private void init(final Lookup context) {
             task = RP.create(() -> {
                 File baseDir = FileUtil.toFile(server.getProjectDirectory().getParent());
@@ -228,13 +230,13 @@ public class HotDeployedWebAppsNodeActionFactory {
                  * Try if the selectedFo is not a folder and has "war" extension
                  * and is not in a project
                  */
-                if (webapp == null && WAR.equals(actionType)
+                if ( WAR.equals(actionType)
                         && !selectedFo.isFolder() && "war".equals(selectedFo.getExt())) {
                     tryCopy(targetFolder, selectedFo, selectedFo.getName(), "war");
                     return;
                 }
 
-                if (webapp == null) {
+                if (webapp == null || ! BaseUtil.isWebProject(webapp)) {
                     return;
                 }
 
@@ -246,6 +248,7 @@ public class HotDeployedWebAppsNodeActionFactory {
                 if (warFo == null) {
                     return;
                 }
+
                 if (null != actionType) {
                     switch (actionType) {
                         case WAR:

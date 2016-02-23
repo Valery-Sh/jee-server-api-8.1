@@ -52,13 +52,14 @@ public class JettyConfigBuilder {
 
         startIniModuleNames = getJettyBaseDefinedModules();
     }
+
     /**
-     * Returns  modules that are explicitly defined in ini files of the {@literal  ${jetty.base}
-     * directory. 
-     * Dependent modules are not taken into account.
-     * 
-     * @return all modules that are explicitly defined in ini files of the {@literal  ${jetty.base}
-     * directory.
+     * Returns modules that are explicitly defined in {@literal ini} files of
+     * the {@literal  ${jetty.base} }
+     * directory. Dependent modules are not taken into account.
+     *
+     * @return all modules that are explicitly defined in {@literal ini} files
+     * of the {@literal  ${jetty.base}} directory.
      */
     public static List<String> getJettyBaseDefinedModules() {
         //
@@ -90,11 +91,12 @@ public class JettyConfigBuilder {
         }
         return modules;
     }
-    
+
     public JettyConfigBuilder build() {
         createModules();
         return this;
     }
+
     public Map<String, Module> getModulesMap() {
         return modulesMap;
     }
@@ -115,7 +117,6 @@ public class JettyConfigBuilder {
         return errorMessages;
     }
 
-
     protected Map<String, Module> createModules() {
         //
         // May be for example  "annotations" or alpn-impl/alpn-${java.version} 
@@ -129,7 +130,7 @@ public class JettyConfigBuilder {
             if (p == null) {
                 continue;
             }
-                //
+            //
             // Module not found. An error registered in tne errorMessages list
             //
             String filePath = p.toString().replace("\\", "/");
@@ -147,7 +148,7 @@ public class JettyConfigBuilder {
             if (!Files.exists(p)) {
                 String srv = Paths.get(JettyConfig.JETTY_BASE).getParent().getFileName().toString();
                 String msg = "Server: " + srv + ". The module doesn't exists: " + nameRef;
-                if ( ! errorMessages.contains(msg)) {
+                if (!errorMessages.contains(msg)) {
                     errorMessages.add(msg);
                 }
                 p = null;
@@ -174,17 +175,20 @@ public class JettyConfigBuilder {
 
         List<String> rawDepend;
         List<String> rawLib;
+        List<String> rawIniTemplate;
+        
 
         public Module(JettyConfigBuilder configBuilder, String modulePath) {
             this.libBuilder = configBuilder;
             this.modulePath = modulePath;
             rawDepend = new ArrayList<>();
             rawLib = new ArrayList<>();
-
+            rawIniTemplate = new ArrayList<>();
+            
             name = Paths.get(modulePath).getFileName().toString();
-           
-            name = name.substring(0,name.toLowerCase().indexOf(".mod"));
-            if ( ! configBuilder.moduleNames.contains(name)) {
+
+            name = name.substring(0, name.toLowerCase().indexOf(".mod"));
+            if (!configBuilder.moduleNames.contains(name)) {
                 configBuilder.moduleNames.add(name.toLowerCase());
             }
 
@@ -208,7 +212,7 @@ public class JettyConfigBuilder {
                 }
 
                 Path p = libBuilder.findModule(l);
-                if ( p == null ) {
+                if (p == null) {
                     continue;
                 }
                 String filePath = p.toString().replace("\\", "/");
@@ -230,48 +234,47 @@ public class JettyConfigBuilder {
 
                     if (sectionMatcher.matches()) {
                         sectionType = sectionMatcher.group(1).trim().toUpperCase(Locale.ENGLISH);
+                    } else // blank lines and comments are valid for ini-template section
+                    if ((line.length() == 0) || line.startsWith("#")) {
                     } else {
-                        // blank lines and comments are valid for ini-template section
-                        if ((line.length() == 0) || line.startsWith("#")) {
-                        } else {
-                            switch (sectionType) {
-                                case "":
-                                    break;
-                                case "DEPEND":
-                                    rawDepend.add(line);
-                                    break;
-                                case "LIB":
-                                    rawLib.add(line);
-                                    break;
-                                case "NAME":
-                                    if (line != null && !line.trim().isEmpty()) {
-                                        logicalName = name;
-                                    }
-                                    break;
-                                case "FILES":
-                                    break;
-                                case "DEFAULTS": // old nameRef introduced in 9.2.x
-                                case "INI": // new nameRef for 9.3+
-                                    break;
-                                case "INI-TEMPLATE":
-                                    break;
-                                case "LICENSE":
-                                case "LICENCE":
-                                    break;
-                                case "OPTIONAL":
-                                    break;
-                                case "EXEC":
-                                    break;
-                                case "VERSION":
-                                    break;
-                                case "XML":
-                                    break;
+                        switch (sectionType) {
+                            case "":
+                                break;
+                            case "DEPEND":
+                                rawDepend.add(line);
+                                break;
+                            case "LIB":
+                                rawLib.add(line);
+                                break;
+                            case "NAME":
+                                if (line != null && !line.trim().isEmpty()) {
+                                    logicalName = name;
+                                }
+                                break;
+                            case "FILES":
+                                break;
+                            case "DEFAULTS": // old nameRef introduced in 9.2.x
+                            case "INI": // new nameRef for 9.3+
+                                break;
+                            case "INI-TEMPLATE":
+                                rawIniTemplate.add(line);
+                                break;
+                            case "LICENSE":
+                            case "LICENCE":
+                                break;
+                            case "OPTIONAL":
+                                break;
+                            case "EXEC":
+                                break;
+                            case "VERSION":
+                                break;
+                            case "XML":
+                                break;
 
-                                default:
-                                    throw new RuntimeException("Unrecognized Module section: [" + sectionType + "]");
-                            }//switch
-                        }//if
-                    }//if
+                            default:
+                                throw new RuntimeException("Unrecognized Module section: [" + sectionType + "]");
+                        }//switch
+                    }//if//if
                 }//while
             } catch (Exception ex) {
                 throw new RuntimeException("Cannot pars module fole " + modulePath + "; " + ex.getMessage());
@@ -291,13 +294,17 @@ public class JettyConfigBuilder {
 
         }
 
+        public List<String> getRawIniTemplate() {
+            return rawIniTemplate;
+        }
+
         /**
          *
          * @param root represents a ${jetty.home} or ${jetty.base} directory
          * @param pattern represents a [lib] entry of a module definition.
          */
         protected void addJars(String root, String pattern) {
-/*            LibPathFinder pf = new LibPathFinder();
+            /*            LibPathFinder pf = new LibPathFinder();
             pf.setBase(Paths.get(root));
             String path = root + "/" + pattern;
             path = path.replace("//", "/").replace("\\", "/");
@@ -312,7 +319,7 @@ public class JettyConfigBuilder {
                 System.err.println(" getPaths.error " + ex.getMessage());
                 LOG.log(Level.INFO, ex.getMessage());
             }
-*/
+             */
         }
 
         public String getModulePath() {
@@ -363,4 +370,144 @@ public class JettyConfigBuilder {
         private String serverProjectName;
 
     }
+    
+    public static class ModuleBean {
+
+        private final String modulePath;
+
+        private String name;
+        private String logicalName;
+
+//        private boolean jettyBaseModule;
+        private List<Module> depend;
+        private List<Path> lib;
+
+        List<String> rawDepend;
+        List<String> rawLib;
+        
+        List<String> rawIniTemplate;
+        
+
+        public ModuleBean(String modulePath) {
+            this.modulePath = modulePath;
+            rawDepend = new ArrayList<>();
+            rawLib = new ArrayList<>();
+
+            name = Paths.get(modulePath).getFileName().toString();
+
+            name = name.substring(0, name.toLowerCase().indexOf(".mod"));
+            
+            logicalName = name;
+            
+        }
+
+        private void init() {
+            parseModule();
+        }
+
+        protected void parseModule() {
+            Pattern section = Pattern.compile("\\s*\\[([^]]*)\\]\\s*");
+
+            try (BufferedReader buf = Files.newBufferedReader(Paths.get(modulePath))) {
+                String sectionType = "";
+                String line;
+                while ((line = buf.readLine()) != null) {
+                    line = line.trim();
+                    Matcher sectionMatcher = section.matcher(line);
+
+                    if (sectionMatcher.matches()) {
+                        sectionType = sectionMatcher.group(1).trim().toUpperCase(Locale.ENGLISH);
+                    } else // blank lines and comments are valid for ini-template section
+                    if ((line.length() == 0) || line.startsWith("#")) {
+                    } else {
+                        switch (sectionType) {
+                            case "":
+                                break;
+                            case "DEPEND":
+                                rawDepend.add(line);
+                                break;
+                            case "LIB":
+                                rawLib.add(line);
+                                break;
+                            case "NAME":
+                                if (line != null && !line.trim().isEmpty()) {
+                                    logicalName = name;
+                                }
+                                break;
+                            case "FILES":
+                                break;
+                            case "DEFAULTS": // old nameRef introduced in 9.2.x
+                            case "INI": // new nameRef for 9.3+
+                                break;
+                            case "INI-TEMPLATE":
+                                rawIniTemplate.add(line);
+                                break;
+                            case "LICENSE":
+                            case "LICENCE":
+                                break;
+                            case "OPTIONAL":
+                                break;
+                            case "EXEC":
+                                break;
+                            case "VERSION":
+                                break;
+                            case "XML":
+                                break;
+
+                            default:
+                                throw new RuntimeException("Unrecognized Module section: [" + sectionType + "]");
+                        }//switch
+                    }//if//if
+                }//while
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot pars module fole " + modulePath + "; " + ex.getMessage());
+            }//try
+        }
+
+        public String getModulePath() {
+            return modulePath;
+        }
+
+        public String getLogicalName() {
+            return logicalName;
+        }
+
+        public List<String> getRawIniTemplate() {
+            return rawIniTemplate;
+        }
+
+        public List<String> getRawDepend() {
+            return rawDepend;
+        }
+
+        public List<String> getRawLib() {
+            return rawLib;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<Module> getDepend() {
+            return depend;
+        }
+
+        public void setDepend(List<Module> depend) {
+            this.depend = depend;
+        }
+
+        public List<Path> getLib() {
+            return lib;
+        }
+
+        public void setLib(List<Path> lib) {
+            this.lib = lib;
+        }
+
+    }//class
+    
 }//class

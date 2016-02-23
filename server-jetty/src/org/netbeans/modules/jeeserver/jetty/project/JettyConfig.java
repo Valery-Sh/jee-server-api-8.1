@@ -25,6 +25,7 @@ import org.netbeans.modules.jeeserver.base.deployment.lc.LicenseWizard;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.StartIni;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 
 /**
  *
@@ -49,7 +50,7 @@ public class JettyConfig {
     }
 
     private void init() {
-        jettyBase = Paths.get(server.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER);
+        jettyBase = Paths.get(server.getProjectDirectory().getPath(), Utils.jettyBase(server));
         startd = Paths.get(jettyBase.toString(), "start.d");
     }
 
@@ -293,7 +294,7 @@ public class JettyConfig {
         }
         
         private void init() {
-            Path p = Paths.get(server.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER);
+            Path p = Paths.get(server.getProjectDirectory().getPath(), Utils.jettyBase(server));
             this.jettyBase = p.toFile();
         }
         

@@ -75,7 +75,7 @@ public class LibraryNodeFactory implements NodeFactory {
         }
 //        if (server.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER) != null) {
         FileObject lib = server.getProjectDirectory().
-                getFileObject(JettyConstants.JETTYBASE_FOLDER + "/lib");
+                getFileObject(Utils.jettyBase(server) + "/lib");
 
         try {
             NodeOptions opts = ROOT;
@@ -139,7 +139,7 @@ public class LibraryNodeFactory implements NodeFactory {
     public static Node[] createChildsForRoot(Project server, Object key) {
         boolean isfolder = new File(key.toString()).isDirectory();
         Path extLib = Paths.get(server.getProjectDirectory().getPath(),
-                JettyConstants.JETTYBASE_FOLDER, "lib/ext");
+                Utils.jettyBase(server), "lib/ext");
         Path keyPath = Paths.get(key.toString());
         if (keyPath.equals(extLib)) {
             return createNodes(LIB_EXT, server, key);
@@ -156,7 +156,7 @@ public class LibraryNodeFactory implements NodeFactory {
             return new Node[0];
         }
 
-        if (server.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER) != null) {
+        if (server.getProjectDirectory().getFileObject(Utils.webapps(server)) != null) {
             try {
                 FileObject keyFo = FileUtil.toFileObject(new File(key.toString()));
                 if ( keyFo == null ) {

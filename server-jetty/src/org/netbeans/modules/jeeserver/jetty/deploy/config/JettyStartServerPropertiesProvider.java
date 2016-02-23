@@ -25,6 +25,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.deploy.JettyServerSpecifics;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 //import org.netbeans.modules.jeeserver.jetty.util.NpnConfig;
 import org.openide.filesystems.FileObject;
 
@@ -44,7 +45,12 @@ public class JettyStartServerPropertiesProvider implements StartServerProperties
 
     @Override
     public FileObject getBuildXml(Project serverProject) {
-        return serverProject.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER + "/build.xml");
+        String base = Utils.jettyBase(serverProject);
+        return serverProject
+                .getProjectDirectory()
+                .getFileObject(base)
+                .getFileObject(JettyConstants.BUILD_XML);
+//        return serverProject.getProjectDirectory().getFileObject(base + "/build.xml");
     }
 
     protected String getStartJar(Project serverProject) {

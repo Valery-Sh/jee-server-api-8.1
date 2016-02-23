@@ -20,6 +20,7 @@ package org.netbeans.modules.jeeserver.jetty.project;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
@@ -28,9 +29,9 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service=ProjectFactory.class)
 public class JettyProjectFactory implements ProjectFactory {
     
-    public static final String START_INI_FILE = JettyConstants.JETTYBASE_FOLDER + "/start.ini";
-    public static final String MODULES_FOLDER = JettyConstants.JETTYBASE_FOLDER + "/modules";
-    public static final String ETC_FOLDER = JettyConstants.JETTYBASE_FOLDER + "/etc-cm";
+    //public static final String START_INI_FILE = JettyConstants.JETTYBASE_FOLDER + "/start.ini";
+    //public static final String MODULES_FOLDER = JettyConstants.JETTYBASE_FOLDER + "/modules";
+    //public static final String ETC_FOLDER = JettyConstants.JETTYBASE_FOLDER + "/etc-cm";
 
     public JettyProjectFactory() {
         
@@ -51,12 +52,34 @@ public class JettyProjectFactory implements ProjectFactory {
      */
     @Override
     public boolean isProject(FileObject projectDirectory) {
-        return projectDirectory.getFileObject(JettyConstants.JETTYBASE_FOLDER) != null 
+        if ( JettyConstants.JETTYBASE_FOLDER.equals(projectDirectory.getNameExt()) ) {
+            return false;
+        }
+        
+/*        String MODULES_FOLDER = Utils.jettyBase(projectDirectory) + "/modules";
+        String ETC_FOLDER = Utils.jettyBase(projectDirectory) + "/etc-cm";;
+        
+        return projectDirectory.getFileObject(Utils.jettyBase(projectDirectory)) != null 
                 && projectDirectory.getFileObject(MODULES_FOLDER) != null
                 && projectDirectory.getFileObject(ETC_FOLDER) != null;
+*/        
+        String startIni = Utils.jettyBase(projectDirectory) + "/start.ini";
+        String httpIni = Utils.jettyBase(projectDirectory) + "/" + JettyConstants.JETTY_HTTP_INI;
+        return projectDirectory.getFileObject(Utils.jettyBase(projectDirectory)) != null 
+                && projectDirectory.getFileObject(startIni) != null
+                && projectDirectory.getFileObject(httpIni) != null;
         
     }
-
+    
+    public static boolean hasProjectFiles(FileObject folder) {
+        if ( folder == null ) {
+            return false;
+        }
+        String startIni = "start.ini";
+        String httpIni = JettyConstants.JETTY_HTTP_INI;
+        return folder.getFileObject(startIni) != null && folder.getFileObject(httpIni) != null;
+    }
+    
     /**
      * Specifies when the project will be opened, i.e., if the project exists.
      * @param dir

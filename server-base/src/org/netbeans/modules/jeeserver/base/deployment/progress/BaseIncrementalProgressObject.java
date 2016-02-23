@@ -56,7 +56,7 @@ public class BaseIncrementalProgressObject extends BaseDeployProgressObject {
             return this;
         }
         fireRunning(CommandType.START, getManager().getDefaultTarget().getName());
-        RP.post(this, 0, Thread.NORM_PRIORITY);
+        RP.post(this, 10, Thread.NORM_PRIORITY);
         return this;
     }
 

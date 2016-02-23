@@ -88,15 +88,18 @@ public class JettyServerCustomizer extends JettyServerInstancePanelVisual implem
         wiz.putProperty(BaseConstants.SHUTDOWN_PORT_PROP, ip.getProperty(BaseConstants.SHUTDOWN_PORT_PROP));
         wiz.putProperty(BaseConstants.SERVER_ID_PROP, ip.getProperty(BaseConstants.SERVER_ID_PROP));
         wiz.putProperty("projdir", new File(BaseUtil.getServerLocation(ip)));
-
-        FileObject fo = manager.getServerProject().getProjectDirectory().getFileObject(JettyConstants.JETTY_HTTP_INI);
+        FileObject fo = manager.getServerProject().getProjectDirectory()
+                .getFileObject(Utils.jettyBase(manager.getServerProject()))
+                .getFileObject(JettyConstants.JETTY_HTTP_INI);
 
         if (fo != null) {
             HttpIni httpIni = new HttpIni(FileUtil.toFile(fo));
             //wiz.putProperty(JettyConstants.JETTY_HTTP_TIMEOUT, httpIni.getHttpTimeout());
             wiz.putProperty(PROP_HTTP_TIMEOUT, httpIni.getHttpTimeout());
         }
-        fo = manager.getServerProject().getProjectDirectory().getFileObject(JettyConstants.JETTY_START_D);
+        fo = manager.getServerProject().getProjectDirectory()
+                .getFileObject(Utils.jettyBase(manager.getServerProject()))
+                .getFileObject(JettyConstants.JETTY_START_D);
         String enabled;
         if (fo.getFileObject("jsf.ini") != null) {
             enabled = "true";
@@ -319,7 +322,9 @@ public class JettyServerCustomizer extends JettyServerInstancePanelVisual implem
         //String jettyHome = p.getProperty(BaseConstants.HOME_DIR_PROP );
         JettyProperties jvs = JettyProperties.getInstance(proj);
         //jvs
-        FileObject httpIni = serverProjDir.getFileObject(JettyConstants.JETTY_HTTP_INI);
+        FileObject httpIni = serverProjDir
+                .getFileObject(Utils.jettyBase(serverProjDir))
+                .getFileObject(JettyConstants.JETTY_HTTP_INI);
         if (httpIni == null) {
             return;
         }

@@ -2,6 +2,8 @@ package org.netbeans.modules.jeeserver.base.deployment.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,8 +26,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import org.openide.filesystems.FileObject;
 import org.openide.windows.InputOutput;
 
 /**
@@ -55,7 +62,6 @@ public class Copier {
 
     public Copier(File srcFile, InputOutput io) {
         this(srcFile, io, NOTIFY_BY_TIME, 500); // TODO change to 500
-
     }
 
     public Copier(File srcFile, InputOutput io, int notifyOption, int interval) {
@@ -63,7 +69,6 @@ public class Copier {
         this.notifyOption = notifyOption;
         this.interval = interval;
         this.io = io;
-
     }
 
     public Copier(File srcFile, int notifyOption, int interval) {
@@ -74,9 +79,9 @@ public class Copier {
 
     /**
      * Copies the source file of the object to a target file. The method doesn't
-     * throw an exception. Instead it returns the {@code null} value.<br/>
+     * throw an exception. Instead it returns the {@code null} value.<br>
      * The target file must be a directory. If not then the method returns
-     * {@code null}.<br/>
+     * {@code null}.<br>
      * If the target file doesn't exist then it will be created. <br>
      * If the source file is a directory then it's content will be copied (all
      * entries are copied).
@@ -106,7 +111,7 @@ public class Copier {
                 result = ps.toFile();
             }
         } catch (IOException ex) {
-            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
         }
         return result;
     }
@@ -129,21 +134,22 @@ public class Copier {
 
     /**
      * Copies the source file of the object to a target file. The method doesn't
-     * throw an exception. Instead it returns the {@code null} value.<br/>
+     * throw an exception. Instead it returns the {@code null} value.<br>
      * The target file must be a directory. If not then the method returns
-     * {@code null}.<br/>
+     * {@code null}.<br>
      * If the target file doesn't exist then it will be created. <br>
      * If the source file is a directory then it's content will be copied (all
-     * entries are copied).<br/>
+     * entries are copied).<br>
      * If the source file is a directory then the content of the directory will
      * be copied (all entries are copied) to a subdirectory named
-     * {@code newName} of the target directory.<br/>
+     * {@code newName} of the target directory.<br>
      * If the source file is not a directory it will be copied to the target
      * directory with a new name that is specified by the parameter
      * {@code newName}. If the new name is the same as the old name then the
-     * file will be replaced. <br/>
+     * file will be replaced. <br>
      *
      * @param targetDir
+     * @param newName
      * @return
      */
     public File copyTo(File targetDir, String... newName) {
@@ -173,7 +179,7 @@ public class Copier {
             copy(srcFile, ps.toFile());
             result = ps.toFile();
         } catch (IOException ex) {
-            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
         }
         return result;
     }
@@ -191,9 +197,9 @@ public class Copier {
     /**
      * Deletes the source file. If the source file is a directory then all the
      * entries of the source file and the directory itself will be deleted.
-     * <br/>
+     * <br>
      * The method doesn't throw an exception. Instead it returns the boolean
-     * {@code false} value.<br/>
+     * {@code false} value.<br>
      *
      * @return the deleted file or {@code null}
      */
@@ -211,9 +217,8 @@ public class Copier {
             }
         } catch (Exception ex) {
             if (logErrors) {
-                Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
-            System.err.println("Copier#delete(boolean) Delete failed. " + ex.getMessage());
             result = false;
         }
         return result;
@@ -223,14 +228,14 @@ public class Copier {
      * Deletes the file or directory specified by path relative to the source
      * file. If the source file is not a directory then the method returns
      * (#code null}.
-     * <br/>
+     * <br>
      * The parameter {@code subPath} specifies the position of the file to be
-     * deleted relative to the source file.<br/>
+     * deleted relative to the source file.<br>
      * If the file to be deleted doesn't exists then the method returns
      * {@code null}.
-     * <br/>
+     * <br>
      * The method doesn't throw an exception. Instead it returns the boolean
-     * {@code false} value.<br/>
+     * {@code false} value.<br>
      * If {
      *
      * @coe subPatn == "/"} then the method behaves as the {@link #delete() }.
@@ -255,7 +260,7 @@ public class Copier {
                 deleteDirs(toDelete.toPath());
             }
         } catch (IOException ex) {
-            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             result = false;
         }
         return result;
@@ -263,12 +268,12 @@ public class Copier {
 
     /**
      * Clears the content of the source file. The method doesn't throw an
-     * exception. Instead it returns the {@code null} value.<br/>
+     * exception. Instead it returns the {@code null} value.<br>
      * If the source file is a directory then all the entries of the source file
      * will be deleted.
-     * <br/>
+     * <br>
      * If the source file is not a directory then the method does nothing and
-     * returns {@code null}.<br/>
+     * returns {@code null}.<br>
      *
      * @return the deleted file or {@code null}
      */
@@ -279,7 +284,7 @@ public class Copier {
                 clearDir(srcFile.toPath());
             }
         } catch (IOException ex) {
-            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             result = false;
         }
         return result;
@@ -408,8 +413,7 @@ public class Copier {
 
                 return zipfs.getPath(zipFile.getPath());
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
             return null;
         }
@@ -422,10 +426,7 @@ public class Copier {
         }
 
         public static void createZip(File srcDir, File targetZip) {
-            // Create empty zip
-            //Path zip = createEmptyZip(targetZip);
             copy(srcDir, targetZip);
-
         }
 
         public static boolean delete(File zipFile, String path) {
@@ -438,8 +439,7 @@ public class Copier {
                 return true;
 
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 return false;
             }
         }
@@ -465,35 +465,6 @@ public class Copier {
             }
         }
 
-        /*        private static void copyFile(FileSystem srcfs, FileSystem targetfs, String srcFilePath, String srcFileInTarget)
-         throws IOException {
-
-         Path srcPath = srcfs.getPath(srcFilePath.replace("\\", "/"));
-
-         Path zipPath = targetfs.getPath(srcFileInTarget);
-
-         if (Files.isDirectory(srcPath)) {
-         if (!Files.exists(zipPath)) {
-         try {
-         //mkdirs(zipPath);
-         Files.createDirectories(zipPath);
-         } catch (FileAlreadyExistsException ex) {
-         LOG.log(Level.INFO, ex.getMessage());
-         }
-         }
-         try (DirectoryStream<Path> ds = Files.newDirectoryStream(srcPath)) {
-         for (Path child : ds) {
-         copyFile(srcfs, targetfs,
-         srcFilePath + (srcFilePath.endsWith("/") ? "" : "/") + child.getFileName(),
-         srcFileInTarget + (srcFileInTarget.endsWith("/") ? "" : "/") + child.getFileName());
-         }
-         }
-         } else {
-         Files.copy(srcPath, zipPath, StandardCopyOption.REPLACE_EXISTING);
-         }
-
-         }
-         */
         private static void copyFile(Copier copier, FileSystem srcfs, FileSystem targetfs, String srcFilePath, String srcFileInTarget)
                 throws IOException {
 
@@ -565,7 +536,7 @@ public class Copier {
                 LOG.log(Level.INFO, ex.getMessage());
                 result = false;
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 result = false;
             }
             return result;
@@ -586,15 +557,13 @@ public class Copier {
                     r.close();
                 }
             } catch (Exception ex) {
-                //Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("Copier.ZipUtil.getZipFileSystem(File) EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
 
             try {
                 r = FileSystems.newFileSystem(uri, env);
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
             return r;
 
@@ -604,7 +573,6 @@ public class Copier {
             if (src.isFile()) {
                 return copy(src, zipFile, "/");
             }
-            //return copy(src, zipFile, src.getName());
             return copy(src, zipFile, "/");
         }
 
@@ -640,14 +608,12 @@ public class Copier {
                 String srcPath = src.getPath();
                 if (src.isFile()) {
                     Files.copy(src.toPath(), pathInZipfile.resolve(src.getName()));
-                    //Files.copy(src.toPath(),pathInZipfile);
                 } else {
                     copyFile(copier, srcfs, zipfs, srcPath, srcNameInZip);
                 }
 
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 result = false;
             }
 
@@ -668,8 +634,7 @@ public class Copier {
                 entryPath = zipfs.getPath(zipEntry);
                 copyFile(copier, zipfs, FileSystems.getDefault(), entryPath.toString(), targetFolder.getPath());
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 result = false;
             }
             return result;
@@ -706,10 +671,8 @@ public class Copier {
                     InputStream is = ZipUtil.getZipEntryInputStream(copier, zipfs, entryPath.toString());
                     result = stringOf(is);
                 }
-//                copyFile(copier, zipfs, FileSystems.getDefault(), entryPath.toString(), targetFolder.getPath());
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 result = null;
             }
             return result;
@@ -731,7 +694,7 @@ public class Copier {
          */
         public static String extractEntry(File zipFile, String searchEntry, String startEntry) {
 
-            String result = null;
+            String result;// = null;
 
             Map<String, String> env = new HashMap<>();
             env.put("create", "true");
@@ -757,8 +720,7 @@ public class Copier {
                 }
 
             } catch (IOException ex) {
-                Logger.getLogger(ZipUtil.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("EXEPTION: " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 result = null;
             }
             return result;
@@ -775,19 +737,15 @@ public class Copier {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
+
             try {
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
+                    sb.append(line).append(System.lineSeparator());
                 }
             } catch (IOException ex) {
-                System.out.println("stringOf EXCEPTION" + ex.getMessage()); //NOI18N
-
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException ex) {
-                    System.out.println("stringOf close() EXCEPTION" + ex.getMessage()); //NOI18N
-                }
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
+            } catch (Exception ex) {
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
 
             return sb.toString();
@@ -808,7 +766,7 @@ public class Copier {
                     mkdirs(pathInZip);
                 }
             } catch (IOException ex) {
-                System.out.println("EXCEPTION " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
         }
 
@@ -826,11 +784,10 @@ public class Copier {
                 try (InputStream is = ZipUtil.getZipEntryInputStream(null, zipfs, entryPath.toString());) {
                     result = stringOf(is);
                 } catch (IOException ex) {
-                    Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
+                    LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
                 }
 
             }
-//                copyFile(copier, zipfs, FileSystems.getDefault(), entryPath.toString(), targetFolder.getPath());
             return result;
         }
 
@@ -860,7 +817,7 @@ public class Copier {
             try {
                 Files.walkFileTree(source, this);
             } catch (IOException ex) {
-                System.out.println("EXCEPTION " + ex.getMessage());
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
             }
             return result;
         }
@@ -874,7 +831,6 @@ public class Copier {
             return CONTINUE;
         }
 
-        // Print each directory visited.
         @Override
         public FileVisitResult postVisitDirectory(Path dir,
                 IOException exc) {
@@ -889,9 +845,167 @@ public class Copier {
         @Override
         public FileVisitResult visitFileFailed(Path file,
                 IOException exc) {
-            System.err.println(exc);
+            LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), "visitFileFailed file = " + file});
             return CONTINUE;
         }
+    }//class
+
+    /**
+     * <h6>How to</h6>
+     * Suppose we have an archive file with a name {@literal app-archive.zip}.
+     * The archive has a structure as follows:
+     * <pre>
+     *   App1
+     *      --- conf-1.xml
+     *      --- conf-2.xml
+     *      --- readme.txt
+     *   App2
+     *      --- conf-1.xml
+     *      --- conf-2.xml
+     *      --- conf-3.xml
+     *      --- props.properties
+     * </pre> Execute the code
+     * <pre>
+     * Path path = Paths.get("d:/TestApps/app-archive.zip");
+     * InputStream zipStream= Files.newInputStream(path);
+     * ZipScanner zipFilter = new Copier.ZipScanner(zipStream);
+     * list = zipFilter.filter( e -> e.endsWith(".xml"));
+     *   list.forEach((el) -> {
+     *       System.out.println(" --- entry : " + el);
+     *   });
+     * </pre> See results on the console:
+     * <pre>
+     * --- entry = App1/conf-1.xml
+     * --- entry = App1/conf-2.xml
+     * --- entry = App2/conf-1.xml
+     * --- entry = App2/conf-2.xml
+     * --- entry = App2/conf-3.xml
+     * </pre>
+     */
+    public static final class ZipScanner {
+
+        private List<String> result;
+
+        private final InputStream source;
+        private Predicate predicate;
+
+        public ZipScanner(InputStream source) {
+            this.source = source;
+        }
+
+        public ZipScanner(File zipFile) throws FileNotFoundException {
+            this.source = new FileInputStream(zipFile);
+        }
+
+        public ZipScanner(String zipFile) throws FileNotFoundException {
+            this.source = new FileInputStream(zipFile);
+        }
+
+        public ZipScanner(FileObject zipFile) throws FileNotFoundException {
+            this.source = zipFile.getInputStream();
+        }
+
+        /**
+         * Performs the given action for each element of the entry set of the
+         * zip file until all elements have been processed or the action throws
+         * an exception.
+         *
+         * Be aware that elements are passed to the action relatively to the
+         * root of zip file.
+         *
+         * @param action - The action to be performed for each element throws
+         * NullPointerException - if the specified action is null
+         */
+        public void forEach(Consumer<String> action) {
+            try (InputStream ip = source; ZipInputStream str = new ZipInputStream(ip);) {
+                ZipEntry entry;
+                while ((entry = str.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        action.accept(entry.getName().replace("\\", "/"));
+                    }
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
+            }
+        }
+
+        /**
+         * Performs the given action for each element of the entry set of the
+         * zip file until all elements have been processed or the action throws
+         * an exception.
+         *
+         * The parameter {@literal  startEntryPath } should present a directory
+         * entry. For example:
+         * <pre>
+         *   MyFolder1/MyFolder2/MyFolder3
+         * </pre> Be aware that elements are passed to the action relatively to
+         * the root of zip file and not relatively to {@literal  startEntryPath }
+         *
+         * @param startEntryPath - The starting point from which the starting
+         * point from which scanning is performed
+         * @param action - The action to be performed for each element throws
+         * NullPointerException - if the specified action is null
+         */
+        public void forEach(String startEntryPath, Consumer<String> action) {
+            //List l;
+            //l.fo
+            try (InputStream ip = source; ZipInputStream str = new ZipInputStream(ip);) {
+                ZipEntry entry;
+                String startEntry = startEntryPath.replace("\\", "/") + "/";
+                while ((entry = str.getNextEntry()) != null) {
+                    String entryName = entry.getName().replace("\\", "/");
+                    if (!entry.isDirectory() && entryName.startsWith(startEntry)) {
+                        action.accept(entry.getName().replace("\\", "/"));
+                    }
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
+            }
+        }
+
+        public List<String> filter(Predicate<String> predicate) {
+            this.predicate = predicate;
+            return start();
+
+        }
+
+        protected List<String> start() {
+            result = new ArrayList<>();
+            try (InputStream ip = source; ZipInputStream str = new ZipInputStream(ip);) {
+                ZipEntry entry;
+                while ((entry = str.getNextEntry()) != null) {
+                    if (!entry.isDirectory() && predicate.test(entry.getName())) {
+                        result.add(entry.getName().replace("\\", "/"));
+                    }
+                }
+
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
+            }
+            return result;
+        }
+
+        public void writeFiltered(File folder, Predicate<String> predicate) {
+            this.predicate = predicate;
+            write(folder);
+        }
+
+        protected void write(File folder) {
+
+            try (InputStream ip = source; ZipInputStream str = new ZipInputStream(ip);) {
+                ZipEntry entry;
+                while ((entry = str.getNextEntry()) != null) {
+                    String entryName = entry.getName().replace("\\", "/");
+                    if (!entry.isDirectory() && predicate.test(entryName)) {
+                        Files.copy(str, Paths.get(folder.getPath(), Paths.get(entry.getName()).getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, "{0} {1}", new Object[]{Copier.class.getName(), ex.getMessage()});
+            }
+        }
+
     }//class
 
 }//class

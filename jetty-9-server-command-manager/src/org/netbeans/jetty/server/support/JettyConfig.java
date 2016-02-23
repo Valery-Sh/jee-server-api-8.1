@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.jetty.server.support.JettyConfigBuilder.Module;
 
 /**
  *
@@ -76,23 +76,60 @@ public class JettyConfig {
             }
         }
         return yes;
-
+    }
+    private Module getJsfModule() {
+        boolean yes = false;
+        Module module = null;
+        String jsfModuleName = null;
+        for (String m : getModuleNames()) {
+            if (m.toLowerCase().startsWith("jsf-")) {
+                jsfModuleName = m;
+                break;
+            }
+        }
+        if ( jsfModuleName != null ) {
+            module = this.configBuilder.getModulesMap().get(jsfModuleName);
+        }
+        return module;
     }
 
+    public Module getModule(String moduleName) {
+        Module module = null;
+        String found = null;
+        for (String m : getModuleNames()) {
+            if (m.equals(moduleName)) {
+                found = m;
+                break;
+            }
+        }
+        if ( found != null ) {
+            module = this.configBuilder.getModulesMap().get(moduleName);
+        }
+        return module;
+    }
+    
     public String getJsfListener() {
-        final String[] l = new String[]{null};
+        String result = null;
+        
         if (Files.exists(startd) && Files.isDirectory(startd)) {
             
-            Properties props = getSupportedJSFListeners();
             final List<String> modules = getModuleNames();
-            props.forEach((name, value) -> {
-                if (modules.contains(name)) {
-                    l[0] = (String) value;
-                    return;
+            Module module = getJsfModule();
+            
+            if ( module != null ) {
+                List<String> lines = module.getRawIniTemplate();
+                
+                String prefix = module.getName() + ".config.listener.class=";
+                
+                for ( String line : lines) {
+                    String s =  line.trim().replace(" ", "");
+                    if ( s.startsWith(prefix)) {
+                        result = s.substring(prefix.length());
+                    }
                 }
-            });
+            }
         }
-        return l[0];
+        return result;
     }
 
     /**
@@ -122,12 +159,6 @@ public class JettyConfig {
 
                 line = line.trim().replaceAll(" ", "");
                 lines.add(line);
-                /* if (line.startsWith("--module=")) {
-                 separateModules(line, lines);
-                 } else {
-                 lines.add(line);
-                 }
-                 */
             }
 
             lines.forEach((String ln) -> {

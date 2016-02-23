@@ -20,6 +20,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator
 import org.netbeans.modules.jeeserver.jetty.project.JettyProjectLogicalView;
 import static org.netbeans.modules.jeeserver.jetty.project.nodes.libs.NodeOptions.ROOT;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -164,7 +165,7 @@ public class LibrariesFileNode extends FilterNode {
     }
 
     protected FileObject getExtFolder() {
-        return server.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER + "/lib/ext");
+        return server.getProjectDirectory().getFileObject(Utils.jettyBase(server) + "/lib/ext");
     }
 
     public void addJarOrFolder(File file) {

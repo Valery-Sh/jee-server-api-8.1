@@ -45,7 +45,6 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.jetty.project.JettyProject;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.StartdIniHelper;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
@@ -95,7 +94,7 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
     protected InputStream getTemplateInputStream() {
 
         String s = (String) wiz.getProperty(BaseConstants.HOME_DIR_PROP);
-        BaseUtil.out("****** ZIP TEMPLATE=" + JettyProperties.getProjectZipPath(s));
+        //BaseUtil.out("****** ZIP TEMPLATE=" + JettyProperties.getProjectZipPath(s));
         return getClass().getClassLoader().getResourceAsStream("/"
                 + JettyProperties.getProjectZipPath(s));
     }
@@ -126,8 +125,26 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
             ProjectChooser.setProjectsFolder(parent); // Last used folder with a new project
         }
         instantiateStartDIniFiles(dir);
-        JettyProject.enableJSFLibrary(dir);
+        //JettyProject.enableJSFLibrary(dir);
         return resultSet;
+    }
+    /**
+     * We cannot use {@literal Utils.jettyBase } the project directory
+     * has niot been fully generated
+     * @param serverDir
+     * @return 
+     */
+    public static String jettyBase(FileObject serverDir) {
+        
+        String jettyBase = JettyConstants.JETTYBASE_FOLDER;
+        
+        FileObject jettyBaseFo = serverDir.getFileObject(jettyBase);
+        
+        if ( jettyBaseFo == null ) {
+            jettyBase = "";
+        }
+//        if ( JettyProjectFactory().isProject(proj.getProjectDirectory()        
+        return jettyBase;
     }
 
     public void createBuildXml(FileObject projectDir) throws IOException {
@@ -135,7 +152,13 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
         String buildxml = Utils.stringOf(AbstractJettyInstanceIterator.class.getResourceAsStream("/org/netbeans/modules/jeeserver/jetty/resources/build.template"));
         buildxml = buildxml.replace("${jetty_server_instance_name}", "\"" + projectDir.getNameExt() + "\"");
 
-        FileObject fo = projectDir.getFileObject(JettyConstants.JETTYBASE_FOLDER + "/build.xml");
+        //FileObject fo = projectDir.getFileObject(JettyConstants.JETTYBASE_FOLDER + "/build.xml");
+        String jettyBase = jettyBase(projectDir);
+        BaseUtil.out("AbstractJettyInstanceIterator LOCAL createBuildXml jettyBase = " + jettyBase);        
+        BaseUtil.out("AbstractJettyInstanceIterator Utils createBuildXml jettyBase = " + Utils.jettyBase(projectDir));        
+        
+        FileObject fo = projectDir.getFileObject(Utils.jettyBase(projectDir) + "/" + JettyConstants.BUILD_XML);        
+
         InputStream is = new ByteArrayInputStream(buildxml.getBytes());
         OutputStream os = fo.getOutputStream();
 
@@ -151,29 +174,6 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
         }
     }
 
-    /**
-     * !!! NOT USED
-     *
-     * @param projectDir
-     * @throws IOException
-     */
-/*    public void modifyNPNModule(FileObject projectDir) throws IOException {
-        String npn = (String) wiz.getProperty(PROP_ENABLE_NPN);
-        boolean enabledNPN = true;
-
-        if (npn == null || !Boolean.parseBoolean(npn)) {
-            enabledNPN = false;
-        }
-
-        FileObject npnFo = projectDir.getFileObject("jetty.base/modules/npn.mod");
-        FileObject npnOldFo = projectDir.getFileObject("jetty.base/modules/npn.old.mod");
-
-        if (enabledNPN && npnOldFo != null) {
-            npnFo.delete();
-        }
-
-    }
-*/
     protected Set<FileObject> instantiateProjectDir(final Set<FileObject> resultSet) throws IOException {
 
         FileUtil.runAtomicAction(new Runnable() {
@@ -197,7 +197,6 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
 
         try {
             InstanceProperties ip = ServerUtil.createInstanceProperties(url, displayName, ipmap);            
-            //InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName, ipmap);
             result.add(ip);
         } catch (InstanceCreationException ex) {
             LOG.log(Level.SEVERE, ex.getMessage()); //NOI18N
@@ -211,7 +210,7 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
         helper.instantiateStartdIni(projDir, "jsf");
         helper.instantiateStartdIni(projDir, "cdi");
         helper.instantiateStartdIni(projDir, "https");
-        helper.instantiateStartdIni(projDir, "spdy");
+        //helper.instantiateStartdIni(projDir, "spdy");
         helper.instantiateStartdIni(projDir, "ssl");// must be after spdy and https
     }
 
@@ -337,6 +336,7 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
         ZipInputStream str = null;
         try {
             str = new ZipInputStream(source);
+            
             ZipEntry entry;
             while ((entry = str.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
@@ -348,7 +348,13 @@ public abstract class AbstractJettyInstanceIterator implements WizardDescriptor.
                         filterProjectXML(fo, str, projectRoot.getName());
                     } else {
                         writeFile(str, fo);
-                        if (JettyConstants.JETTY_HTTP_INI.equals(entry.getName())) {
+                        String httpIni = JettyConstants.JETTYBASE_FOLDER + "/" + JettyConstants.JETTY_HTTP_INI;
+/*                        String base = Utils.jettyBase(projectRoot);
+                        if ( base.length() > 0 ) {
+                            httpIni = base + "/" + httpIni;
+                        }
+*/
+                        if (httpIni.equals(entry.getName())) {
                             EditableProperties props = new EditableProperties(false);
                             try (FileInputStream fis = new FileInputStream(fo.getPath())) {
                                 props.load(fis);

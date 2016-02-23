@@ -21,6 +21,8 @@ package org.netbeans.modules.jeeserver.jetty.util;
  * @author V. Shyshkin
  */
 public class JettyConstants {
+
+    public static final String NBCONFIG = "nbconfig";
     
     public static final String JETTY_HTTP_TIMEOUT = "http.timeout";
     public static final String JETTY_HTTP_PORT = "jetty.port";
@@ -47,12 +49,20 @@ public class JettyConstants {
      */
     protected static final String  WEBAPPS_FOLDER_NAME = "webapps";
     
-    public static final String  JETTYBASE_FOLDER = "jettybase";
-    public static final String  WEBAPPS_FOLDER = JETTYBASE_FOLDER + "/" + WEBAPPS_FOLDER_NAME;    
-    public static final String  JETTY_HTTP_INI = JETTYBASE_FOLDER + "/start.d/http.ini";
-    public static final String  JETTY_START_INI = JETTYBASE_FOLDER + "/start.ini";
+    public static final String  NBCONFIG_FOLDER = "nbconfig";
     
-    public static final String  JETTY_START_D = JETTYBASE_FOLDER + "/start.d";
+    //public static final String  JETTYBASE_FOLDER = "jetty.base.root";
+    public static final String  JETTYBASE_FOLDER = "";
+    public static final String  BUILD_XML = NBCONFIG_FOLDER + "/build.xml";
+    
+    public static final String  WEBAPPS_FOLDER = WEBAPPS_FOLDER_NAME;    
+    //public static final String  JETTY_HTTP_INI = JETTYBASE_FOLDER + "/start.d/http.ini";
+    public static final String  JETTY_HTTP_INI = "start.d/http.ini";    
+    //public static final String  JETTY_START_INI = JETTYBASE_FOLDER + "/start.ini";
+    public static final String  JETTY_START_INI = "start.ini";
+    
+    //public static final String  JETTY_START_D = JETTYBASE_FOLDER + "/start.d";
+    public static final String  JETTY_START_D = "start.d";    
     
     public static final String LIBRARY_FILE = ".nblibrary";
     //========== Jetty Server Lificycle State ===================

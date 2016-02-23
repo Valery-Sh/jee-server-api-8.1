@@ -147,6 +147,7 @@ public class BaseDeploymentManager implements DeploymentManager2 {
         
         if (lookup == null) {
             serverProperties.setServerId(serverId);
+BaseUtil.out("0. (((((((((((((((( BaseDeploymentManager getLookup uri = " + uri);            
             serverProperties.setUri(uri);
             serverProjectDirectory = getServerProjectDirectory();
 //            serverProperties.setLayerProjectFolderPath(this.getLayerProjectFolderPath());
@@ -638,7 +639,9 @@ public class BaseDeploymentManager implements DeploymentManager2 {
      */
     @Override
     public ProgressObject start(TargetModuleID[] modules) throws IllegalStateException {
+        BaseUtil.out("DEPLOYMENT MANAGER: start targetModuleID={0} = " + modules[0]);
         LOG.log(Level.INFO, "DEPLOYMENT MANAGER: start targetModuleID={0}", modules[0]);
+        
         if (!isServerRunning()) {
             throw new IllegalStateException("ESDeploymentManager.start called on disconnected instance");   // NOI18N
         }
@@ -841,9 +844,13 @@ public class BaseDeploymentManager implements DeploymentManager2 {
         INFO.log("-               DISTRIBUTE NEW !!!           -");
         INFO.log("----------------------------------------------");
 
+        
         FileObject war = FileUtil.toFileObject(context.getModuleFile());
 
         BaseTargetModuleID module = getModule(war);
+        BaseUtil.out("----------------------------------------------");
+        BaseUtil.out("-               DISTRIBUTE NEW !!!  " + module.getProjectDir());
+        BaseUtil.out("----------------------------------------------");
 
         BaseDeployProgressObject deployer = new BaseDeployProgressObject(this);
         return deployer.deploy(module);

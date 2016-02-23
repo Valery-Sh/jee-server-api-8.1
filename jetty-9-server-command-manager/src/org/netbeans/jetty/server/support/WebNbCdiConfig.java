@@ -1,15 +1,8 @@
 package org.netbeans.jetty.server.support;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
-import javax.annotation.Resource;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.FilterRegistration;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -44,7 +37,7 @@ public class WebNbCdiConfig extends AbstractConfiguration {
 
         CommandManager cm = Utils.getCommandManager(webapp);
 
-        out(" ============ PRECONFIGURE WebAppContext.contextPath = " + webapp.getContextPath());
+        System.out.println(" ============ PRECONFIGURE WebAppContext.contextPath = " + webapp.getContextPath());
 
         out(" temp dir = " + webapp.getTempDirectory());
 
@@ -112,30 +105,7 @@ public class WebNbCdiConfig extends AbstractConfiguration {
                 webapp.addServerClass("-com.google.common.");
             }
         }
-        //context.getServletContext().addListener("org.jboss.weld.environment.servlet.Listener");
-        //out(" --- addListener org.jboss.weld.environment.servlet.Listener");
-        //context.getServletContext().setAttribute("org.jboss.weld.environment.servlet.listenerUsed", true);
-        //out(" --- setAttribute(org.jboss.weld.environment.servlet.listenerUsed, true");
-        //out(" --- init param WELD_CONTEXT_ID_KEY = " + webapp.getInitParameter("WELD_CONTEXT_ID_KEY"));
-
-        //out(" --- ServletContextName   =  " + webapp.getServletContext().getServletContextName());
-        //out(" --- PRE DESCRIPTOR =  " + webapp.getDescriptor());
-
-        /*            printContextListeners(webapp, "PRE CONFIGURE: LISTENERS: ");
-//            out(" --- DESCRIPTOR =  " + context.getDefaultsDescriptor());                                                        
-            if (webapp.getInitParameter("WELD_CONTEXT_ID_KEY") == null) {
-
-                if (!"/WEB_APP_FOR_CDI_WELD".equals(webapp.getContextPath())) {
-
-                    UUID id = UUID.randomUUID();
-                    //context.setInitParameter("WELD_CONTEXT_ID_KEY", id.toString());
-                    //context.setInitParameter("WELD_CONTEXT_ID_KEY", context.getContextPath());
-                    out(" !!!!!!!!! --- setInitParameter(WELD_CONTEXT_ID_KEY, UUID.randomUUID()) = " + id.toString());
-                }
-            }
-            //context.getServletContext().addListener("org.jboss.weld.environment.servlet.EnhancedListener");            
-        }
-         */
+        
         out(" --------------------------------------------------------------------------------------------");
 
     }
@@ -161,60 +131,6 @@ public class WebNbCdiConfig extends AbstractConfiguration {
 
     }
 
-    /* ------------------------------------------------------------------------------- */
-    protected Resource findWebXml(WebAppContext context) throws IOException, MalformedURLException {
-        return null;
-    }
-
-
-    /* ------------------------------------------------------------------------------- */
-    @Override
-    public void deconfigure(WebAppContext context) throws Exception {
-    }
-
-    @Override
-    public void postConfigure(WebAppContext context) throws Exception {
-        out("NB-BINDING:  {POST CONFIGURE contextPath = " + context.getContextPath());
-        printContextListeners(context, "POST CONFIGURE: LISTENERS: ");
-        out(" {POST CONFIGURE --- init param WELD_CONTEXT_ID_KEY = " + context.getInitParameter("WELD_CONTEXT_ID_KEY"));
-        out(" {POST CONFIGURE --- DESCRIPTOR =  " + context.getDescriptor());
-
-        context.getBeans().forEach(b -> {
-            out(" --- POST CONFIGURE bean  =  " + b.getClass().getName());
-
-        });
-        System.out.println("NB-BINDING:  {POST CONFIGURE Procesing Bindings ATTR=" + context.getAttribute("org.jboss.weld.environment.servlet.javax.enterprise.inject.spi.BeanManager"));
-        System.out.println("NB-BINDING:  {POST CONFIGURE Init Parameter WELD_CONTEXT_ID_KEY = " + context.getInitParameter("WELD_CONTEXT_ID_KEY"));
-
-    }
-
-    public BeanManager getBeanManager() {
-        InitialContext initialContext = null;
-        try {
-            initialContext = new InitialContext();
-            BeanManager bm = (BeanManager) initialContext.lookup("java:comp/BeanManager");
-            out(" --- BeanManager = " + bm);
-
-            return bm;
-        } catch (final Exception ex) {
-            try {
-                out(" --- CDI BeanManager = " + CDI.current().getBeanManager().getClass().getName());
-
-                return CDI.current().getBeanManager();
-            } catch (final Exception e) {
-
-                return null;
-            }
-        } finally {
-            if (initialContext != null) {
-                try {
-                    initialContext.close();
-                } catch (final NamingException ignored) {
-                    // no-op
-                }
-            }
-        }
-    }
 
     public void printContextListeners(WebAppContext context, String phase) {
         context.getServletContext().getAttributeEntrySet().forEach((e) -> {

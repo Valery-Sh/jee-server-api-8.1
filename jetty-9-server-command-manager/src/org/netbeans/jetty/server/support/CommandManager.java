@@ -51,7 +51,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
  */
 public class CommandManager extends AbstractHandler implements LifeCycle.Listener {
 
-    private static String WELD_INIT_PARAMETER = "org.jboss.weld.environment.container.class";
+    //private static String WELD_INIT_PARAMETER = "org.jboss.weld.environment.container.class";
     private static final String[] REQUIRED_BEANS_XML_PATHS = new String[]{
         "/WEB-INF/beans.xml",
         "/META-INF/beans.xml",
@@ -61,34 +61,18 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     /**
      * When {@literal true} the the server supports annotations.
      */
-    protected boolean annotationsSupported;
-    /**
-     * When {@literal true} then the server supports jsf.
-     */
-    //protected boolean jsfSupported;
+    //protected boolean annotationsSupported;
     /**
      * When {@literal true} then the server supports Weld.
      */
-    //protected boolean weldSupported;
-
-    /**
-     * When {@literal true} then the server supports jsf.
-     */
-    //protected boolean jsfActivated;
-    /**
-     * When {@literal true} then the server supports Weld.
-     */
-    protected boolean weldActivated;
-
-    //private File jettyBase;
     private String messageOption = "NO";
 
     private JettyConfig config;
 
-    private static CommandManager commandManager;
+    //private static CommandManager commandManager;
 
     protected CommandManager(String msgOption) {
-        this();
+        super();
         if (msgOption != null) {
             switch (msgOption.toUpperCase()) {
                 case "NO":
@@ -98,27 +82,28 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                     messageOption = "YES";
             }
         }
-        config = new JettyConfig();
-        config.getConfigBuilder().build();
+        init();
 
         System.out.println("NB-DEPLOYER: CommandManager set verbouse=" + this.messageOption);
     }
 
     protected CommandManager() {
-        super();
-        messageOption = "NO";
-        init();
+        this("NO");
     }
 
     public static CommandManager getInstance() {
-        return getInstance(null);
+        return CommandManagerSingletonHolder.INSTANCE;
+        //return getInstance(null);
     }
 
     public static CommandManager getInstance(String msgOption) {
-        if (commandManager == null) {
+        getInstance().messageOption = msgOption;
+        return getInstance();
+/*        if (commandManager == null) {
             commandManager = new CommandManager(msgOption);
         }
         return commandManager;
+*/        
     }
 
     public JettyConfig getJettyConfig() {
@@ -126,13 +111,10 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     }
 
     public static boolean isCDIEnabled(ContextHandler ctx) {
-        //getInstance().out(" CommandManager.isCDIEnabled) cp=" + ctx.getContextPath() + "; init=param=" + ctx.getInitParameter(WELD_INIT_PARAMETER));
-        //    return ctx.getInitParameter(WELD_INIT_PARAMETER) != null;
 
         Resource baseResource = ctx.getBaseResource();
 
         boolean foundBeansXml = false;
-
         // Verify that beans.xml is present, otherwise weld will fail silently.
         for (String beansXmlPath : REQUIRED_BEANS_XML_PATHS) {
             try {
@@ -159,8 +141,9 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
 
         boolean result = false;
 
-        Collection<DeploymentManager> dms = commandManager.getServer().getBeans(DeploymentManager.class);
+        Collection<DeploymentManager> dms = getInstance().getServer().getBeans(DeploymentManager.class);
         DeploymentManager dm = null;
+        
         int i = 0;
         if (dms != null && !dms.isEmpty()) {
             for (DeploymentManager m : dms) {
@@ -189,15 +172,19 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     public static boolean isJerseyEnabled() {
         return getInstance().getJettyConfig().isJerseyEnabled();
     }
-    
+
     /**
      *
      */
     private void init() {
-        if (commandManager == null) {
+/*        if (commandManager == null) {
             commandManager = this;
         }
-        addLifeCycleListener(new ManagerLifeCycleListener(this));
+*/       
+        config = new JettyConfig();
+        config.getConfigBuilder().build();
+
+        addLifeCycleListener(new ManagerLifeCycleListener());
     }
 
     public String getMessageOption() {
@@ -252,7 +239,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         String cp = request.getParameter("cp");
         String cmd = request.getParameter("cmd");
 
-        out("NB-DEPLOYER: handle: " + target + "; cp=" + cp + "cmd=" + cmd);
+        out("NB-DEPLOYER: handle: " + target + "; cp=" + cp + "; cmd=" + cmd);
 
         String text = "";
 
@@ -301,7 +288,10 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
         if (text == null || text.isEmpty()) {
             text = "<h1>Hello, from CommandManager</h1>";
         }
-        response.getWriter().println(text);
+        out("NB-DEPLOYER: response text: " + text + "; response isCommited = " + response.isCommitted());
+        if (!response.isCommitted()) {
+            response.getWriter().println(text);
+        }
     }
 
     @Override
@@ -379,6 +369,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     }
 
     protected Map<WebAppContext, ContextHandlerCollection> findWebApps() {
+        out("NB-DEPLOYER: findWebApps() START");
         Map<WebAppContext, ContextHandlerCollection> map = new HashMap<>();
 
         Handler[] contextHandlers = getServer().getChildHandlersByClass(ContextHandlerCollection.class);
@@ -394,7 +385,7 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     }
 
     protected WebAppContext findWebApps(String warPath) {
-        out("NB-DEPLOYER: findWebApps(String) param warPath=" + warPath);
+        out("NB-DEPLOYER: findWebApps(String) param warPath = " + warPath);
         Handler[] contextHandlers = getServer().getChildHandlersByClass(ContextHandlerCollection.class);
         for (Handler ch : contextHandlers) {
             ContextHandlerCollection chs = (ContextHandlerCollection) ch;
@@ -1049,10 +1040,10 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
 
     public static class ManagerLifeCycleListener extends AbstractLifeCycleListener {
 
-        CommandManager cm;
+        //CommandManager cm;
 
-        public ManagerLifeCycleListener(CommandManager cm) {
-            this.cm = cm;
+        public ManagerLifeCycleListener() {
+            //this.cm = cm;
         }
 
         @Override
@@ -1073,8 +1064,9 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                 }
             }
              */
-            if (cm.getJettyConfig().isCDIEnabled()) {
-/*                Collection<DeploymentManager> dms = cm.getServer().getBeans(DeploymentManager.class);
+System.out.println("---------- CommandManager.getInstance()=" + CommandManager.getInstance());
+            if (CommandManager.getInstance().getJettyConfig().isCDIEnabled()) {
+                /*                Collection<DeploymentManager> dms = cm.getServer().getBeans(DeploymentManager.class);
                 DeploymentManager dm = null;
                 int i = 0;
                 if (dms != null && !dms.isEmpty()) {
@@ -1082,26 +1074,26 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                         m.addLifeCycleBinding(new MyStandardStopper());
                     }
                 }
-*/                
-/*               Handler[] hs = cm.getServer().getChildHandlersByClass(CustomWebAppContext.class);
+                 */
+ /*               Handler[] hs = cm.getServer().getChildHandlersByClass(CustomWebAppContext.class);
                 if (hs.length == 0) {
 
                     WebAppContext ctx = new CustomWebAppContext(cm);
                     Handler[] chc = cm.getServer().getChildHandlersByClass(ContextHandlerCollection.class);
                     ((ContextHandlerCollection) chc[0]).addHandler(ctx);
                     try {
-                        ctx.start();
+                        ctx.serverHandler();
                     } catch (Exception ex) {
                         cm.error("NB-DEPLOYER: EXCEPTION server.lifeCycleStarted(): " + ex.getMessage());
                     }
                 }
-*/
+                 */
             }
 
         }
 
-        protected void updateServerHandlers() {
-
+        /*        protected void updateServerHandlers() {
+            Handler originHandler = cm.getServer().getHandler();
             HandlerCollection hc = (HandlerCollection) cm.getServer().getHandler();
             Handler[] dhs = hc.getChildHandlersByClass(DefaultHandler.class);
             //
@@ -1115,6 +1107,159 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
                     hc.addHandler(h);
                 }
             }
+
+        }
+
+    }
+         */
+        protected void updateServerHandlers() {
+/*            HandlerWrapper wrapper = null;
+
+            Handler serverHandler = cm.getServer().getHandler();
+            if (serverHandler instanceof HandlerWrapper) {
+                wrapper = (HandlerWrapper) serverHandler;
+                HandlerCollection hc = null;
+                ContextHandlerCollection chc = null;
+                if ( wrapper.getHandler() == null  ) {
+                    hc = new HandlerCollection();
+                    chc = new ContextHandlerCollection();
+                    hc.addHandler(cm);
+                    hc.addHandler(chc);
+                    wrapper.setHandler(serverHandler);
+                    return;
+                }
+                if ( ! (wrapper.getHandler() instanceof HandlerCollection) ) {
+                    //
+                    // Notify user ???
+                    //
+                    return;
+                }
+                
+                //HandlerCollection hc = new HandlerCollection();
+                hc = (HandlerCollection) wrapper.getHandler();
+                if ( hc.getChildHandlers().length > 0 && hc.getChildHandlers()[0] == cm ) {
+                    System.out.println("==== COMMAND MANAGER IS FIRST ");
+                    
+                    return;
+                }
+                
+                Handler commandmanager = hc.getChildHandlerByClass(CommandManager.class);
+                
+                if ( commandmanager == null ) {
+                    commandmanager = cm;
+                }
+                
+                List<Handler> list = new ArrayList<>();
+//                hc.removeHandler(commandmanager);
+//                hc.removeHandler(chc);
+                
+                for ( Handler h : hc.getChildHandlers() ) {
+                    System.out.println("1. ==== h ");
+                    
+                    if ( h != cm ) {
+                        System.out.println("2. ==== h ");
+                        list.add(h);
+                    }
+                }
+                //
+                // remove all except command manager
+                //
+                for ( Handler h : list ) {
+                    hc.removeHandler(h);
+                }
+                
+                //
+                // Add again
+                //
+                for ( int i = 0; i < list.size(); i++ ) {
+                    hc.addHandler(list.get(i));
+                }
+                chc = hc.getChildHandlerByClass(ContextHandlerCollection.class);                
+                if (chc == null) {
+                    hc.addBean(new ContextHandlerCollection());
+                }
+              
+                //updateHandler(hc);   
+                
+                if ( true ) return;
+                
+                Handler[] rhs = wrapper.getHandlers();
+                for (Handler h1 : rhs) {
+                    System.out.println("==== Rewrite handlers: class =  " + h1.getClass().getName());
+                }
+                System.out.println("************************************************");
+
+                rhs = hc.getHandlers();
+                for (Handler h1 : rhs) {
+                    System.out.println("==== Rewrite BEFORE HandlerCollection handlers: class =  " + h1.getClass().getName());
+                }
+
+//                hc.addHandler(new ContextHandlerCollection());
+                //hc.addHandler(cm);
+                updateHandler(hc);
+
+                System.out.println("************************************************");
+
+                rhs = hc.getHandlers();
+                for (Handler h1 : rhs) {
+                    System.out.println("==== Rewrite AFTER HandlerCollection handlers: class =  " + h1.getClass().getName());
+                    if (h1.getClass().equals(ContextHandlerCollection.class)) {
+                        ContextHandlerCollection ch = (ContextHandlerCollection) h1;
+                        System.out.println("   --- Rewrite ContexthandlerCollection " );
+                        Handler[] chs = ch.getChildHandlersByClass(Handler.class);
+                        System.out.println("   --- Rewrite ContexthandlerCollection chs = " + chs );
+                                
+                        if ( chs.length > 0) {
+                            for (Handler h2 : chs) {
+                                System.out.println("   ---  Rewrite ContextHandlerCollection handlers: class =  " + h2.getClass().getName());
+                            }
+                        }
+                    }
+                }
+
+                //hc.addHandler(cm);
+                //hc.addHandler(cm);
+                //  HandlerWrapper  w = new HandlerWrapper();
+                //  w.setHandler(cm);
+//                cm.getServer().insertHandler(w);
+                //rh.setHandler(hc);
+            } else if (serverHandler instanceof HandlerCollection) {
+
+                HandlerCollection hc = (HandlerCollection) cm.getServer().getHandler();
+                Handler[] dhs = hc.getChildHandlersByClass(DefaultHandler.class);
+
+                //
+                // Remove all DefaultHandlers and the add them at the end
+                //
+                if (dhs != null) {
+                    for (Handler h : dhs) {
+                        hc.removeHandler(h);
+                    }
+                    for (Handler h : dhs) {
+                        hc.addHandler(h);
+                    }
+                }
+            }
+*/
+        }
+
+        protected void updateHandler(HandlerCollection hc) {
+
+            Handler[] dhs = hc.getChildHandlersByClass(DefaultHandler.class);
+
+            //
+            // Remove all DefaultHandlers and the add them at the end
+            //
+            if (dhs != null) {
+                for (Handler h : dhs) {
+                    System.out.println("**** HANDLER REMOVED ");
+                    hc.removeHandler(h);
+                }
+                for (Handler h : dhs) {
+                    hc.addHandler(h);
+                }
+            }
+
         }
 
     }
@@ -1162,5 +1307,8 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
 
         }
     }
-
+    
+    private static final class CommandManagerSingletonHolder {
+        private static final CommandManager INSTANCE = new CommandManager();
+    }
 }

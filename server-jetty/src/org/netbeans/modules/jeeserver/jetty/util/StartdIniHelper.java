@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.jeeserver.jetty.customizer.JettyServerCustomizer;
@@ -48,7 +50,8 @@ public class StartdIniHelper {
     
     public void instantiateStartdIni(FileObject projDir, String iniName) {
         String iniFileName = iniName + ".ini";
-        File startdFile = new File(projDir.getPath() + "/" + JettyConstants.JETTY_START_D);
+        Path path = Paths.get(projDir.getPath(), Utils.jettyBase(projDir),JettyConstants.JETTY_START_D);
+        File startdFile = path.toFile();
         FileObject startdFo = FileUtil.toFileObject(startdFile);
         FileObject iniFo = startdFo.getFileObject(iniFileName);
 
@@ -58,7 +61,8 @@ public class StartdIniHelper {
             if (!iniExists) {
                 try {
                     copyFile(startdFo, iniName);
-                    if ("spdy".equals(iniName) || "https".equals(iniName)) {
+//                    if ("spdy".equals(iniName) || "https".equals(iniName)) {
+                    if ("https".equals(iniName)) {
                         copyFile(startdFo, "ssl");
                     }
                 } catch (IOException ex) {
@@ -70,7 +74,8 @@ public class StartdIniHelper {
             if (iniExists) {
                 try {
                     iniFo.delete();
-                    if ("spdy".equals(iniName) || "https".equals(iniName)) {
+                    //if ("spdy".equals(iniName) || "https".equals(iniName)) {
+                    if ("https".equals(iniName)) {                        
                         FileObject sslIniFo = startdFo.getFileObject("ssl.ini");
                         if (sslIniFo != null) {
                             sslIniFo.delete();

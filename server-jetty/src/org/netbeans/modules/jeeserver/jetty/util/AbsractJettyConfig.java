@@ -52,7 +52,7 @@ public class AbsractJettyConfig {
         try {
             Project p = BaseUtil.getOwnerProject(FileUtil.toFileObject(file));
             baseDir = FileUtil.toFile(
-                   p.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER))
+                   p.getProjectDirectory().getFileObject(Utils.jettyBase(p)))
                     .toPath();
         } catch (Exception ex) {
             throw new RuntimeException("Invalid base dir " + file.toString() + "; " + ex.getMessage() );

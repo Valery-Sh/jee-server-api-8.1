@@ -45,7 +45,6 @@ import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import static org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil.getServerProperties;
 import org.netbeans.modules.jeeserver.jetty.project.JettyProjectFactory;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -104,6 +103,44 @@ public class Utils {
         System.out.println("R=" + r + "; i=" + i);
         return r;
     }
+    public static String jettyBase(FileObject serverDir) {
+/*        if ( serverDir.getFileObject(JettyConstants.NBCONFIG_FOLDER) != null 
+                && serverDir.getFileObject(JettyConstants.NBCONFIG_FOLDER).getFileObject("project.xml") != null)
+        {
+            return "";
+        }
+*/        
+        String result = JettyConstants.JETTYBASE_FOLDER;
+        
+        FileObject jettyBaseFo = serverDir.getFileObject(JettyConstants.JETTYBASE_FOLDER);
+        
+        if ( jettyBaseFo == null || ! JettyProjectFactory.hasProjectFiles(jettyBaseFo) ) {
+            result = "";
+        }
+//        if ( JettyProjectFactory().isProject(proj.getProjectDirectory()        
+        return result;
+    }
+    
+    
+    
+    public static String jettyBase(Project server) {
+        return jettyBase(server.getProjectDirectory());
+    }
+    public static String webapps(Project server) {
+        return webapps(server.getProjectDirectory());
+    }
+    public static String webapps(FileObject serverDir) {
+        Path p = Paths.get(jettyBase(serverDir),JettyConstants.WEBAPPS_FOLDER_NAME);
+        return p.toString().replace("\\","/");
+    }
+    
+    public static FileObject getBuildXml(Project serverProject) {
+        if ( jettyBase(serverProject).length() == 0) {
+            return serverProject.getProjectDirectory().getFileObject(JettyConstants.NBCONFIG_FOLDER + "/build.xml");    
+        } else {
+            return serverProject.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER + "/build.xml");
+        }
+    }  
     /**
      * Return string {@literal uri} for the given server project
      *

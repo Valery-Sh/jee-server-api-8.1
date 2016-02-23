@@ -31,6 +31,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.template.JettyProperties;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
@@ -71,7 +72,7 @@ public class JettyBaseRootNode extends FilterNode {
      */
     public JettyBaseRootNode(Project serverProj) throws DataObjectNotFoundException {
         super(DataObject.find(serverProj.getProjectDirectory()
-                .getFileObject(JettyConstants.JETTYBASE_FOLDER))
+                .getFileObject(Utils.jettyBase(serverProj)))
                 .getNodeDelegate(),
                 new WebAppKeys(serverProj));
     }
@@ -85,7 +86,7 @@ public class JettyBaseRootNode extends FilterNode {
      */
     protected final void init(Project serverProj) {
         fileChangeHander = new JettyBaseRootNode.FileChangeHandler(serverProj, this);
-        serverProj.getProjectDirectory().getFileObject(JettyConstants.JETTYBASE_FOLDER)
+        serverProj.getProjectDirectory().getFileObject(Utils.jettyBase(serverProj))
                 .addFileChangeListener(fileChangeHander);
     }
 
@@ -207,7 +208,7 @@ public class JettyBaseRootNode extends FilterNode {
         @Override
         protected void addNotify() {
             FileObject rootFolder = serverProj.getProjectDirectory()
-                    .getFileObject(JettyConstants.JETTYBASE_FOLDER);
+                    .getFileObject(Utils.jettyBase(serverProj));
             if (rootFolder == null) {
                 return;
             }

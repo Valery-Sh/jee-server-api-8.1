@@ -157,13 +157,17 @@ public class IniFileDataObject extends MultiDataObject {
         if (p == null) {
             return false;
         }
-        if (!"jettybase".equals(p.getNameExt()) && !"start.d".equals(p.getNameExt())) {
+        Project proj = BaseUtil.getOwnerProject(pf);
+        if ( proj == null || ! Utils.isJettyServer(proj) ) {
             return false;
-        }
-        Project proj = BaseUtil.getOwnerProject(p);
-        if (proj == null) {
-            return false;
-        }
+        }        
+//        if (!  JettyConstants.JETTYBASE_FOLDER.equals(p.getNameExt()) && !"start.d".equals(p.getNameExt())) {
+//            return false;
+//        }
+  //      Project proj = BaseUtil.getOwnerProject(p);
+//        if (proj == null) {
+//            return false;
+//        }
 
         return Utils.isJettyServer(proj);
     }

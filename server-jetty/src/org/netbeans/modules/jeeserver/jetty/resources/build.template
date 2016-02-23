@@ -1,4 +1,4 @@
-<project name=${jetty_server_instance_name} default="run" basedir=".">
+<project name=${jetty_server_instance_name} default="run" basedir="..">
     <property name="pre-run" value="true" />
 
     <target name="pre-run" if="${pre-run}" >

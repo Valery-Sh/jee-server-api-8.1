@@ -28,6 +28,7 @@ import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -102,7 +103,7 @@ public final class AddListenerAction extends AbstractAction implements ContextAw
 
             if (enabled) {
 
-                File f = Paths.get(serverProject.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();                
+                File f = Paths.get(serverProject.getProjectDirectory().getPath(), Utils.jettyBase(serverProject)).toFile();                
                 String jsfListener = JettyConfig.getInstance(serverProject).getJsfListener();
 //BaseUtil.out("@@@@@@@@@@@@@@@@@ AddListenerAction listener=" + jsfListener);
                 String jsfModule = JettyConfig.getInstance(serverProject).getJSFModuleName();

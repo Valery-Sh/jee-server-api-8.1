@@ -3,6 +3,8 @@ package org.netbeans.modules.jeeserver.jetty.project;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +14,6 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.libraries.Library;
@@ -23,7 +24,6 @@ import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator;
 import org.netbeans.modules.jeeserver.jetty.deploy.config.JettyStartServerPropertiesProvider;
-import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.DeleteOperationImplementation;
@@ -42,7 +42,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class JettyProject implements Project {
 
-    private static final Logger LOG = Logger.getLogger(BaseStartServer.class.getName());
+    private static final Logger LOG = Logger.getLogger(JettyProject.class.getName());
 
     private final FileObject projectDir;
     private final ProjectState state;
@@ -69,8 +69,19 @@ public class JettyProject implements Project {
             return;
         }
         List<File> files = LibrariesFileLocator.findFiles(jsfLib);
-        final FileObject jsfFolder = FileUtil.toFileObject(Paths.get(projDir.getPath(), JettyConstants.JETTYBASE_FOLDER, "lib/jsf-netbeans").toFile());
+        Path jsfPath = Paths.get(projDir.getPath(), Utils.jettyBase(projDir), "lib/jsf-netbeans");
+        if ( ! Files.exists(jsfPath)) {
+            try {
+                FileUtil.createFolder(projDir, Utils.jettyBase(projDir) + "/lib/jsf-netbeans");
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, ex.getMessage());
+                return;
+            }
+        }
         
+        final FileObject jsfFolder = FileUtil.toFileObject( jsfPath.toFile() );
+//        final FileObject jsfFolder = FileUtil.toFileObject(Paths.get(projDir.getPath(), Utils.jettyBase(projDir), "lib/jsf-netbeans")        
+                
         files.forEach(file -> {
             FileObject fo = FileUtil.toFileObject(file);
             try {
@@ -97,6 +108,8 @@ public class JettyProject implements Project {
             final ServerInstanceProperties serverProperties = new ServerInstanceProperties();
             final String id = Utils.getServerId();
             final String uri = Utils.buildUri(projectDir);
+BaseUtil.out("0. (((((((((((((((( JettyPriject getLookup projectDir = " + projectDir);
+BaseUtil.out("1. (((((((((((((((( JettyPriject getLookup uri = " + uri);
             serverProperties.setServerId(id);
             serverProperties.setUri(uri);
             ProjectOpenedHook openHook = new JettyProjectOpenHook(projectDir, serverProperties);

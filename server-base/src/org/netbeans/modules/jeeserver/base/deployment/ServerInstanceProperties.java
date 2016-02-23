@@ -22,6 +22,7 @@ import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 
 /**
  * Each Server project contains a instance of this class in its Lookup.
@@ -92,8 +93,11 @@ public class ServerInstanceProperties {
     public BaseDeploymentManager getManager()  {
         BaseDeploymentManager dm = null;
         try {
+BaseUtil.out("0. ((((((((( ServerInstanceProperties getManager() uri = " + getUri());                                                
             dm = (BaseDeploymentManager) DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager(getUri());
+BaseUtil.out("0.1 ((((((((( ServerInstanceProperties getManager() dm = " + dm);                                                            
         } catch (DeploymentManagerCreationException ex) {
+BaseUtil.out("0.2 ((((((((( ServerInstanceProperties getManager() EXCEPTION ");
             LOG.log(Level.INFO, ex.getMessage());
         }
         return dm;

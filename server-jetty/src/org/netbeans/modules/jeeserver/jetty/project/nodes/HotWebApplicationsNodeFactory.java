@@ -19,7 +19,6 @@ package org.netbeans.modules.jeeserver.jetty.project.nodes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
@@ -55,7 +54,7 @@ public class HotWebApplicationsNodeFactory implements NodeFactory {
         if (!Utils.isJettyServer(project)) {
             return NodeFactorySupport.fixedNodeList();
         }
-        if (project.getProjectDirectory().getFileObject(JettyConstants.WEBAPPS_FOLDER) != null) {
+        if (project.getProjectDirectory().getFileObject(Utils.webapps(project)) != null) {
             try {
                 HotWebApplicationsRootNode node = new HotWebApplicationsRootNode(project);
                 node.init(project);

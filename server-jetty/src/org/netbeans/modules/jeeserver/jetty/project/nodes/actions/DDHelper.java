@@ -26,6 +26,7 @@ import org.netbeans.modules.jeeserver.jetty.project.JettyConfig;
 import org.netbeans.modules.jeeserver.jetty.project.nodes.JettyBaseRootNode;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
 import org.netbeans.modules.jeeserver.jetty.util.StartIni;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -43,7 +44,7 @@ public class DDHelper  {
 
         WebModule wm = BaseUtil.getWebModule(webFo);
 
-        File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTY_START_INI).toFile();
+        File f = Paths.get(serverProj.getProjectDirectory().getPath(), Utils.jettyBase(serverProj), JettyConstants.JETTY_START_INI).toFile();
 
         StartIni startIni = new StartIni(f);
         if (wm.getWebInf() == null) {
@@ -72,7 +73,7 @@ public class DDHelper  {
             return;
         }
 
-        File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTY_START_INI).toFile();
+        File f = Paths.get(serverProj.getProjectDirectory().getPath(), Utils.jettyBase(serverProj), JettyConstants.JETTY_START_INI).toFile();
 
         StartIni startIni = new StartIni(f);
         if (wm.getWebInf() != null) {
@@ -126,7 +127,7 @@ public class DDHelper  {
         }
 
 
-        File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();
+        //File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();
 
         //JSFSupport jsfSupport = new JSFSupport(f);
         String listenerClass = JettyConfig.getInstance(serverProj).getJsfListener();
@@ -195,7 +196,7 @@ public class DDHelper  {
 
 //        String listenerClass = startIni.getListenerClassForEnabledJsf();
 
-        File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();
+        //File f = Paths.get(serverProj.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER).toFile();
 
         //JSFSupport jsfSupport = new JSFSupport(f);
 

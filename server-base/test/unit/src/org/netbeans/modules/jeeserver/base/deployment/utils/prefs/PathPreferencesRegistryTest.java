@@ -5,9 +5,12 @@
  */
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +24,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
+import org.netbeans.api.annotations.common.StaticResource;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.web.api.webmodule.WebModule;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -34,7 +47,7 @@ public class PathPreferencesRegistryTest {
     private final Path dirnamespace01 = Paths.get("c:/preferences/PathPreferencesRegistry/testing");
     private final Path dirnamespace02 = Paths.get("c:/preferences/PathPreferencesRegistry/testing-01");
     private final Path dirnamespace03 = Paths.get("c:/preferences/PathPreferencesRegistry/testing/proj1");
-    
+
     private final String testId = "test-properties-id";
 
     public PathPreferencesRegistry create() {
@@ -44,20 +57,23 @@ public class PathPreferencesRegistryTest {
     public PathPreferencesRegistry create(Path namespace) {
         return create(namespace.toString());
     }
-    
+
     public PathPreferencesRegistry create(String namespace) {
         return PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID, Paths.get(namespace));
     }
+
     public void initProperties(PreferencesProperties instance) {
         instance.setProperty("testName0", "testValue0");
-        instance.setProperty("testName1", "testValue1");        
-        instance.setProperty("testName2", "testValue2");        
-        instance.setProperty("testName3", "testValue3");                        
-        
+        instance.setProperty("testName1", "testValue1");
+        instance.setProperty("testName2", "testValue2");
+        instance.setProperty("testName3", "testValue3");
+
     }
+
     public void initProperties(PathPreferencesRegistry instance) {
         initProperties(instance.getProperties(testId));
     }
+
     public PathPreferencesRegistryTest() {
     }
 
@@ -131,21 +147,19 @@ public class PathPreferencesRegistryTest {
         System.out.println("removeRegistry");
         PathPreferencesRegistry instance01 = create();
         initProperties(instance01);
-        
+
         PathPreferencesRegistry instance02 = create(dirnamespace02);
         initProperties(instance02);
-       
-        
+
         PathPreferencesRegistry instance03 = create(dirnamespace03);
         initProperties(instance03);
 
-        
         instance01.removeRegistryDirectory(instance01.directoryNode());
         //
         // Myst be removed removed
         //
         assertFalse(instance01.nodeExists(instance01.getNamespace()));
-                
+
         //
         // The node c:/preferences/PathPreferencesRegistry must ne kept
         //
@@ -154,8 +168,7 @@ public class PathPreferencesRegistryTest {
         initProperties(instance01); // restore registry
         initProperties(instance02); // restore registry
         initProperties(instance03); // restore registry
-        
-        
+
         //
         // test when remove instance02
         //
@@ -164,12 +177,12 @@ public class PathPreferencesRegistryTest {
         // remainder mus be "c_/preferences/PathPreferencesRegistry" and
         // didirnamespace01 and didirnamespace03 must exist
         //
-        
+
         remainder = dirnamespace02.getParent().toString();
         assertTrue(instance02.nodeExists(remainder));
         assertTrue(instance01.nodeExists(instance01.getNamespace(dirnamespace01.toString())));
         assertTrue(instance03.nodeExists(instance03.getNamespace(dirnamespace03.toString())));
-        
+
         initProperties(instance01); // restore registry
         initProperties(instance02); // restore registry
         initProperties(instance03); // restore registry
@@ -181,15 +194,14 @@ public class PathPreferencesRegistryTest {
         // remainder mus be "c_/preferences/PathPreferencesRegistry/testing" and
         // didirnamespace01 and didirnamespace02 must exist
         //
-        
+
         remainder = dirnamespace03.getParent().toString();
         assertTrue(instance03.nodeExists(remainder));
         assertTrue(instance01.nodeExists(instance01.getNamespace(dirnamespace01.toString())));
         assertTrue(instance02.nodeExists(instance03.getNamespace(dirnamespace02.toString())));
 
-        
     }
-    
+
     /**
      * Test of update method, of class PathPreferencesRegistry.
      */
@@ -286,5 +298,19 @@ public class PathPreferencesRegistryTest {
         assertNotNull(result);
     }
 
+    /**
+     * Test of getProperties method, of class PathPreferencesRegistry.
+     */
+    @Test
+    public void testEXTERNAL() throws IOException {
+        System.out.println("EXTERNAL");
+        String ROOT_RESOURCE = "org/netbeans/modules/jeeserver/jetty/project/template/ext/";
+        String NB_DEPLOY_XML = ROOT_RESOURCE + "min-nb-deploy.xml";
+        Enumeration<URL> en = BaseConstants.class.getClassLoader().getResources("org/netbeans/modules/jeeserver/base/deployment/resources");
+        while (en.hasMoreElements()) {
+            URL u = en.nextElement();
+            System.out.println( "file = " + u.getFile());
+        }
 
+    }
 }

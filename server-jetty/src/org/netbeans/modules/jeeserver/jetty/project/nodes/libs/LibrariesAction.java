@@ -24,6 +24,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.Copier;
 import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -142,7 +143,7 @@ public class LibrariesAction extends AbstractAction implements ContextAwareActio
                         .setApproveText("Open").showOpenDialog();
                 if (fc != null && fc.exists()) {
                     String folderName = fc.isDirectory() ? fc.getName() : "";
-                    File extFolder = Paths.get(server.getProjectDirectory().getPath(), JettyConstants.JETTYBASE_FOLDER, "lib/ext", folderName).toFile();
+                    File extFolder = Paths.get(server.getProjectDirectory().getPath(), Utils.jettyBase(server), "lib/ext", folderName).toFile();
                     Copier copier = new Copier(fc);
                     copier.copyTo(extFolder);
                     LibUtil.updateLibraries(server,node);

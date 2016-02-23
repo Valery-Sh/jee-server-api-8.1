@@ -44,9 +44,9 @@ public class HotWebFolderChildNode extends HotBaseWebAppChildNode {
      *
      * @throws DataObjectNotFoundException should never occur
      */
-    protected HotWebFolderChildNode(Project serverProj, Object key, Children.Keys childrenKeys) throws DataObjectNotFoundException {
-        super(serverProj, key, childrenKeys);
-    }
+//    protected HotWebFolderChildNode(Project serverProj, Object key, Children.Keys childrenKeys) throws DataObjectNotFoundException {
+//        super(serverProj, key, childrenKeys);
+//    }
 
     protected HotWebFolderChildNode(Project serverProj, Object key) throws DataObjectNotFoundException {
         super(serverProj, key);

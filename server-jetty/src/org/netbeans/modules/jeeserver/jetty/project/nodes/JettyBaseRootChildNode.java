@@ -17,6 +17,8 @@
 package org.netbeans.modules.jeeserver.jetty.project.nodes;
 
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.jeeserver.jetty.util.JettyConstants;
+import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
@@ -70,12 +72,12 @@ public class JettyBaseRootChildNode extends FilterNode {
     }
     
     public static Node getNodeByKey(Project serverProj, Object webAppKey) throws DataObjectNotFoundException {
-        Node n = DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(webAppKey))).getNodeDelegate();
-        return DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(webAppKey))).getNodeDelegate();
+        Node n = DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey))).getNodeDelegate();
+        return DataObject.find(serverProj.getProjectDirectory().getFileObject(getPath(serverProj,webAppKey))).getNodeDelegate();
     }
 
-    static String getPath(Object webAppKey) {
-        return "jettybase/" + webAppKey;
+    static String getPath(Project server,Object webAppKey) {
+        return Utils.jettyBase(server) + "/" + webAppKey;
     }
     /**
      * Returns ab object that represents a key of the node.
