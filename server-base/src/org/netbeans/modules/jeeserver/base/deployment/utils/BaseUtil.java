@@ -99,6 +99,7 @@ import org.xml.sax.SAXException;
 public class BaseUtil {
 
     private static final Logger LOG = Logger.getLogger(BaseUtil.class.getName());
+    private static final Logger LOG1 = Logger.getLogger(BaseUtil.class.ge
 
     @StaticResource
     public static final String MAVEN2_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/maven2-icon.gif";
