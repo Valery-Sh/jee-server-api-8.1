@@ -134,9 +134,9 @@ public class JettyConfig {
 
     /**
      * Returns a list of names of all active modules from both 
-     * {@literal ${jetty.base} } and {@literal ${jetty.home} directories
+     * {@literal ${jetty.base} } and {@literal ${jetty.home} } directories
      *
-     * @return Returns a list of names of all active modules from both      {@literal ${jetty.base} } and {@literal ${jetty.home} directories 
+     * @return Returns a list of names of all active modules from both  {@literal ${jetty.base} } and {@literal ${jetty.home} } directories 
      */
     public List<String> getModuleNames() {
         return configBuilder.getModuleNames();

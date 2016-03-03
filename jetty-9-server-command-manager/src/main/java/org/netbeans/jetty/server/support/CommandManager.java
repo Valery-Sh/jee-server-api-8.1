@@ -910,8 +910,8 @@ public class CommandManager extends AbstractHandler implements LifeCycle.Listene
     /**
      * {@literal Deployment mode} only.
      *
-     * @param contextPath
-     * @param webDir
+     * @param contextPath the context path
+     * @param webDir tbe application root directory 
      */
     protected void deploy(String contextPath, String webDir) {
         out("NB-DEPLOYER: deploy started for cp=" + contextPath + "; webDir=" + webDir);

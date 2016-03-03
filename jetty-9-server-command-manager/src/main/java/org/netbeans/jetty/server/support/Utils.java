@@ -148,10 +148,10 @@ public class Utils {
     }
 
     /**
-     * (@code Development mode} only.
+     * (@literal Development mode} only.
      *
-     * @param buildPath
-     * @return
+     * @param buildPath the 
+     * @return the
      */
     public static boolean isBuildOfMavenProject(String buildPath) {
         boolean b = false;
@@ -172,8 +172,8 @@ public class Utils {
     /**
      * (@code Development mode} only.
      *
-     * @param projDir
-     * @return
+     * @param projDir the
+     * @return the
      */
     public static boolean isMavenProject(String projDir) {
         return new File(projDir + "/pom.xml").exists();
@@ -182,8 +182,8 @@ public class Utils {
     /**
      * {@literal Development mode} only.
      *
-     * @param projDir
-     * @return
+     * @param projDir the
+     * @return the
      */
     public static String getMavenBuildDir(String projDir) {
         Path target = Paths.get(projDir + "/target");

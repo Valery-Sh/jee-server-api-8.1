@@ -36,7 +36,7 @@ public class WebNbCdiConfig extends AbstractConfiguration {
 
         Map<String, ? extends FilterRegistration> srf = (Map<String, FilterRegistration>) webapp.getServletContext().getFilterRegistrations();
 
-        CommandManager cm = Utils.getCommandManager(webapp);
+        CommandManager cm = CommandManager.getInstance();//Utils.getCommandManager(webapp);
 
         System.out.println(" ============ PRECONFIGURE WebAppContext.contextPath = " + webapp.getContextPath());
 
@@ -51,6 +51,8 @@ public class WebNbCdiConfig extends AbstractConfiguration {
         // Here we must use isJerseyEnabled() without parameter. So each webapp is processed
         //
         if (CommandManager.isJerseyEnabled()) {
+        System.out.println("    --- PRECONFIGURE Jersey Enabled cp = " + webapp.getContextPath());
+            
             String[] jerseyClasses = webapp.getSystemClasses();
             boolean jerseyFound = false;
             for (String s : jerseyClasses) {
@@ -111,7 +113,7 @@ public class WebNbCdiConfig extends AbstractConfiguration {
             if (webapp.getInitParameter("WELD_CONTEXT_ID_KEY") == null) {
                 if (!"/WEB_APP_FOR_CDI_WELD".equals(webapp.getContextPath())) {
                     UUID id = UUID.randomUUID();
-                    webapp.setInitParameter("WELD_CONTEXT_ID_KEY", id.toString());
+                    //webapp.setInitParameter("WELD_CONTEXT_ID_KEY", id.toString());
                 }
             }
         
