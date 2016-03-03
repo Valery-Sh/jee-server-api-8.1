@@ -63,6 +63,8 @@ public class WebNbCdiConfig extends AbstractConfiguration {
             }
 
             if (!jerseyFound) {
+        System.out.println("    --- PRECONFIGURE Jersey first configure");
+                
                 //
                 // webapp cannot change / replace jersey classes        
                 //
