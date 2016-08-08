@@ -64,10 +64,20 @@ public class JettySupportedApiProvider extends AbstractSupportedApiProvider{
         "jersey/JAX-RS Jersey API/The implementation of the JAX-RS API",
         "angularBeans/AngularBeans API/Enables the usage of AngularJS in Java EE through CDI",
     };
-
+    
+    private String cm_addons =  "{\"exclusions\":" +
+                    "{" + 
+                        "\"##\": \"comment for maven-2\"" +
+                        "\"exclusion\":" +
+                        "{\"groupId\":\"*\", " +
+                        "\"artifactId\":\"*\" }" +
+                    "}" +
+                "}";
+    
     protected String[] source = new String[]{
      
         //"maven:base://org.eclipse.jetty.aggregate/jetty-all/${nb.server.version}/type=jar,classifier=uber,scope=provided/jetty-all-${nb.server.version}.jar",
+        
         "maven:base://org.eclipse.jetty.aggregate/jetty-all/${nb.server.version}/type=pom/jetty-all-${nb.server.version}.jar",        
         "maven:base://org.netbeans.plugin.support.embedded/jetty-9-embedded-command-manager/${command.manager.version}/jetty-9-embedded-command-manager-${command.manager.version}.jar",
         "maven:jsp://org.ow2.asm/asm-commons/5.0.1/asm-5.0.1.jar",
@@ -122,6 +132,7 @@ public class JettySupportedApiProvider extends AbstractSupportedApiProvider{
         
     };
     
+    @Override
     public String[] getServerVersions() {
         return new String[] {
             "9.3.7.v20160115",

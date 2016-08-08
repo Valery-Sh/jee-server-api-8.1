@@ -98,7 +98,6 @@ public class PomXmlUtil {
 
     /*    protected Document parse1() {
      Document d = null;
-
      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
      try {
      domFactory.setValidating(false);
@@ -109,9 +108,7 @@ public class PomXmlUtil {
      System.err.println("Cannot parse the pom.xml file: " + pomXml);
      System.err.println("   --- Exception.message=" + ex.getMessage());
      LOG.log(Level.INFO, "Parse pom.xml: ", ex);
-
      }
-
      return d;
      }
      */
@@ -540,7 +537,6 @@ public class PomXmlUtil {
              System.out.println("***** this.artId=" + this.getArtifactId());
              System.out.println("***** this.version=" + this.getVersion());
              System.out.println("================================================");
-
              b = equals(getGroupId(), o.getGroupId())
              && equals(getArtifactId(), o.getArtifactId())
              && equals(getVersion(), o.getVersion());

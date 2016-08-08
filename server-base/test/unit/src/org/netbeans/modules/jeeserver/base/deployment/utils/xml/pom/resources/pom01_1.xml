@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.embedded.server</groupId>
+    <artifactId>AMEmbServer03</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <command.manager.version>[1.3.1-SNAPSHOT,)</command.manager.version>
+        <nb.server.version>9.3.5.v20151012</nb.server.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>a.b.c</groupId>
+            <artifactId>a1.b1.c1</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main</directory>
+                <includes>
+                    <include>**/nbdeployment/wars/**/*</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

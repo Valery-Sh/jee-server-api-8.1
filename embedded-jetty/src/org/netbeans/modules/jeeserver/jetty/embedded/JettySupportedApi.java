@@ -2,7 +2,6 @@ package org.netbeans.modules.jeeserver.jetty.embedded;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.AbstractSupportedApi;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.ApiDependency;
 
@@ -22,7 +21,6 @@ public class JettySupportedApi extends AbstractSupportedApi {
     public JettySupportedApi(String masterLine,List<String> dataLines,List<String> apiVersionLines) {
         this.masterLine = masterLine;
         this.dataLines = dataLines;
-        //this.apiVersionsLine = apiVersionsLine;
         this.apiVersionLines = apiVersionLines;
         init();
     }
@@ -35,7 +33,6 @@ public class JettySupportedApi extends AbstractSupportedApi {
         apiVersionLines.forEach( line -> {
             getAPIVersions().addVersion(line);
         });
-        //getAPIVersions().addVersion(apiVersionsLine);
     }
     
     @Override

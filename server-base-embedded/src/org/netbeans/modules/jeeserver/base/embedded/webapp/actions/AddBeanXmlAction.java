@@ -101,6 +101,10 @@ public final class AddBeanXmlAction extends AbstractAction implements ContextAwa
                 return;
             }
             InstanceProperties ip = p.getInstanceProperties();
+            //BaseUtil.out("IP ppppppp = " + ip);
+            if ( ip == null ) {
+                return;
+            }
             String id = "";
             if (p != null && ip.getProperty(SuiteConstants.SUITE_PROJECT_LOCATION) != null) {
                 File file = new File(BaseUtil.getServerLocation(ip));
@@ -113,7 +117,6 @@ public final class AddBeanXmlAction extends AbstractAction implements ContextAwa
             if (serverProject != null) {
                 setEnabled(needsBeansXml(serverProject, webProject));
             }
-
             putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, true);
 
             putValue(NAME, "Add beans.xml to WEB-INF folder");

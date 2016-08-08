@@ -1173,4 +1173,33 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
      return result;
      }
      */
+    
+     public static  InputStream getResourceAsStream(String resource)
+     {
+        // Try to format as a URL?
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream is = null;
+        if (loader != null) {
+            try {
+                is = loader.getResourceAsStream(resource);
+                if (is == null && resource.startsWith("/")) {
+                    is = loader.getResourceAsStream(resource.substring(1));
+                }
+            } catch (IllegalArgumentException e) {
+     
+            }
+        }
+        if (is == null) {
+            loader = BaseUtil.class.getClassLoader();
+            if (loader != null) {
+                is = loader.getResourceAsStream(resource);
+                if (is == null && resource.startsWith("/")) {
+                    is = loader.getResourceAsStream(resource.substring(1));
+                }
+            }
+        }
+
+        return is;
+    }
+    
 }

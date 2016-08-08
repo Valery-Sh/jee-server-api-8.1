@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+    <Set name="contextPath">/WebApp101</Set>
+    
+    <Call name="setAttribute">
+        <Arg>webdefault.async.supported</Arg>
+        <Arg>true</Arg>
+    </Call>    
+    <!-- Some frameworks require that this parameter has been set. 
+         Typically, these are frameworks that provide CDI extensions.
+         For example, AngularBeans (http://bessemhmidi.github.io/AngularBeans/)
+    <Call name="setInitParameter">
+        <Arg>WELD_CONTEXT_ID_KEY</Arg>
+        <Arg>my-unique-id</Arg>
+    </Call>
+    -->
+</Configure>
