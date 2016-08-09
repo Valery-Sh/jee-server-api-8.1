@@ -82,7 +82,7 @@ public class PomDocument extends XmlDocument {
         if (dependencies == null) {
             return childs;
         } else {
-            childs = getNextLevelChildElementsByTagName(dependencies, "dependency");
+            childs = getChildsByTagName(dependencies, "dependency");
         }
 
         return childs;

@@ -100,6 +100,7 @@ public class XmlDocument {
 
     public XmlDocument(Document doc) {
         this.document = doc;
+        Element e;
     }
 
     
@@ -140,6 +141,7 @@ public class XmlDocument {
     }
     
     public static Element getParentElement(Element el) {
+        
         Element result = null;
         if ( el.getParentNode() != null && (el.getParentNode() instanceof Element)) {
             result = (Element) el.getParentNode();
@@ -152,25 +154,7 @@ public class XmlDocument {
         
     }
     
-    
-    public static List<Element> getNextLevelChildElements(Element parent) {
-        List<Element> childs = new ArrayList<>();
-
-        NodeList nl = parent.getChildNodes();
-        
-        if ( nl.getLength() > 0) {
-            for (int i = 0; i < nl.getLength(); i++) {
-                if ((nl.item(i) instanceof Element)) {
-                    Element el = (Element) nl.item(i);
-                    childs.add(el);
-                }
-            }
-        }
-        return childs;
-    }
-    
-    
-    public static List<Element> getNextLevelChildElementsByTagName(Element parent, String tagName) {
+    public static List<Element> getChildsByTagName(Element parent, String tagName) {
         List<Element> childs = new ArrayList<>();
 
         NodeList nl = parent.getChildNodes();
@@ -271,5 +255,13 @@ public class XmlDocument {
     
     public static boolean isRootElement(Element element) {
         return element.getOwnerDocument().getDocumentElement() == element;
+    }
+    /**
+     * Convenient method to create a DOM Element. Useful for test purpose.
+     * @param tagName a tag name to create element
+     * @return a new element created
+     */
+    public Element createElement(String tagName) {
+        return getDocument().createElement(tagName);
     }
 }

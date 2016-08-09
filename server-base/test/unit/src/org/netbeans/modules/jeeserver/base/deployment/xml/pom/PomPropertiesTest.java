@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.deployment.utils.xml.pom;
+package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,7 +52,7 @@ public class PomPropertiesTest {
     }
 
     /**
-     * Test of getChilds method, of class PomProperties.
+     * Test of getChildElements method, of class PomProperties.
      */
     @Test
     public void testGetChilds() {

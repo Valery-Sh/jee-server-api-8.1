@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractCompoundXmlElement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,7 @@ public class Dependency extends AbstractCompoundXmlElement {
 
     }
     public DependencyArtifact findByTagName(String tagName) {
-        List<XmlElement> list = getChilds();
+        List<XmlElement> list = getChilds().list();
         DependencyArtifact result = null;
         for ( XmlElement el : list ) {
             if ( (el instanceof DependencyArtifact) && tagName.equals(el.getTagName()) ) {
@@ -71,7 +70,7 @@ public class Dependency extends AbstractCompoundXmlElement {
     }
             
     private String getChildTagValue(String tagName) {
-        List<XmlElement> list = getChilds();
+        List<XmlElement> list = getChilds().list();
         String value = null;
         for (XmlElement pe : list) {
             if (tagName.equals(pe.getTagName())) {
@@ -117,28 +116,6 @@ public class Dependency extends AbstractCompoundXmlElement {
                 && thisType.equals(otherType);
     }
 
-/*    @Override
-    public List<XmlElement> getChilds() {
-        if (childs == null) {
-            childs = new ArrayList<>();
-            List<Element> domList = getChildDomElements();
-            domList.forEach(el -> {
-                XmlElement pel = null;
-                switch (el.getNodeName()) {
-                    case "exclusions":
-                        break;
-                    default:
-                        pel = new DependencyArtifact(el, this);
-                        ((DependencyArtifact) pel).setText(el.getTextContent());
-                        break;
-                }
-                assert pel != null;
-                childs.add(pel);
-            });
-        }
-        return childs;
-    }
-*/
     @Override
     public int hashCode() {
         int hash = 5;

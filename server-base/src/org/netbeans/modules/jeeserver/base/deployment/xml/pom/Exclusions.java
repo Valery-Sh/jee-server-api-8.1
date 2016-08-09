@@ -40,23 +40,4 @@ public class Exclusions  extends AbstractCompoundXmlElement {
         setTagMapping(map);
     }
 
-/*    @Override
-    public boolean isChildSupported(String tagName) {
-        return SUPPORTED_CHILD.contains(tagName);
-    }
-*/
-/*    public List<XmlElement> getChilds() {
-
-        if (childs == null) {
-            childs = new ArrayList<>();
-            List<Element> domList = getChildDomElements();
-            domList.forEach(el -> {
-                if ("exclude".equals(el.getTagName())) {
-                    childs.add(new Dependency(el, this));
-                }
-            });
-        }
-        return childs;
-    }
-*/
 }

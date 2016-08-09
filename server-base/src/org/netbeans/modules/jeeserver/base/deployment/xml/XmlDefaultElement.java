@@ -59,10 +59,10 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
         super.commitUpdates();
         //
         // Copy childs to another list.
-        // We cannot use getChilds() to scan because one or more elements 
+        // We cannot use getChildElements() to scan because one or more elements 
         // may be deleted. 
         //
-        List<XmlElement> list = new ArrayList<>(getChilds());
+        List<XmlElement> list = new ArrayList<>(getChildElements());
         if (list.isEmpty() && text != null) {
             getElement().setTextContent(text);
             return;
@@ -75,13 +75,13 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
     }
 */
 /*    @Override
-    public List<XmlElement> getChilds() {
+    public List<XmlElement> getChildElements() {
         if (childs == null) {
             childs = new ArrayList<>();
             List<Element> domList = getChildDomElements();
             if (!domList.isEmpty() && text != null) {
                 throw new IllegalStateException(
-                        " XmlDefaultElement.getChilds(): Can't get child elements since the element has not null text property.");
+                        " XmlDefaultElement.getChildElements(): Can't get child elements since the element has not null text property.");
             }
 
             domList.forEach(el -> {
@@ -112,8 +112,7 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
 
     @Override
     public void setText(String text) {
-        List<XmlElement> list = getChilds();
-        if (!list.isEmpty()) {
+        if (!getChilds().isEmpty()) {
             throw new IllegalStateException(
                     "XmlDefaultElement.setText: can't set text since the element has child elements");
         }
@@ -126,5 +125,4 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
             }
         }
     }
-
 }

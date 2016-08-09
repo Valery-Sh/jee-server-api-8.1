@@ -60,7 +60,7 @@ public class Exclude extends AbstractCompoundXmlElement {
     }
 
     private String getChildTagValue(String tagName) {
-        List<XmlElement> list = getChilds();
+        List<XmlElement> list = getChilds().list();
         String value = null;
         for (XmlElement pe : list) {
             if (tagName.equals(pe.getTagName())) {
@@ -105,26 +105,6 @@ public class Exclude extends AbstractCompoundXmlElement {
                 && equals(getArtifactId(), o.getArtifactId())
                 && thisType.equals(otherType);
     }
-
-    public List<XmlElement> getChilds() {
-        if (childs == null) {
-            childs = new ArrayList<>();
-            List<Element> domList = getChildDomElements();
-            domList.forEach(el -> {
-                XmlElement pel = null;
-                switch (el.getNodeName()) {
-                    default:
-                        pel = new DependencyArtifact(el, this);
-                        ((DependencyArtifact) pel).setText(el.getTextContent());
-                        break;
-                }
-                assert pel != null;
-                childs.add(pel);
-            });
-        }
-        return childs;
-    }
-
     @Override
     public int hashCode() {
         int hash = 5;

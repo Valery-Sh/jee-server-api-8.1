@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.netbeans.modules.jeeserver.base.deployment.utils.xml.pom;
+package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -57,7 +57,7 @@ public class ExclusionsTest {
     }
 
     /**
-     * Test of getChilds method, of class Exclusions.
+     * Test of getChildElements method, of class Exclusions.
      */
     @Test
     public void testGetChilds() {

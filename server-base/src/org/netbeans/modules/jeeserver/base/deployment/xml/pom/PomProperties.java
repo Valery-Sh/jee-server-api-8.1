@@ -8,7 +8,7 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
 
 /**
  *
- * @author Valery
+ * @author Valery Shyshkin
  */
 public class PomProperties extends AbstractCompoundXmlElement {
 
@@ -37,26 +37,4 @@ public class PomProperties extends AbstractCompoundXmlElement {
         setTagMapping(map);
     }
 
-/*    @Override
-    public List<XmlElement> getChilds() {
-
-        if (childs == null) {
-            childs = new ArrayList<>();
-
-            List<Element> domList = getChildDomElements();
-            domList.forEach((Element el) -> {
-                XmlElement pel = null;
-                switch (el.getNodeName()) {
-                    case "property":
-                        pel = new Property(el, this);
-                        ((Property)pel).setText(el.getTextContent());
-                        break;
-                }
-                assert pel != null;
-                childs.add(pel);
-            });
-        }
-        return childs;
-    }
-*/
 }

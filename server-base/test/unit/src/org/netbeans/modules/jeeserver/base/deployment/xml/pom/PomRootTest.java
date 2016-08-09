@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.deployment.utils.xml.pom;
+package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Dependencies;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Dependency;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.DependencyArtifact;
@@ -301,7 +302,7 @@ public class PomRootTest {
     }
 
     /**
-     * Test of getChilds method, of class XmlRoot.
+     * Test of getChildElements method, of class XmlRoot.
      */
     @Test
     public void testGetChilds() {
@@ -311,7 +312,7 @@ public class PomRootTest {
         //
         // No dependencies tag still
         //
-        List<XmlElement> expResult = pomRoot.getChilds();
+        XmlChilds expResult = pomRoot.getChilds();
         assertTrue(expResult.isEmpty());
         //
         // Now add dependencies

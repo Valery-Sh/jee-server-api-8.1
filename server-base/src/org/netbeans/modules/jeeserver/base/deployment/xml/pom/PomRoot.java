@@ -1,12 +1,8 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
-import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractCompoundXmlElement;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
 
@@ -48,7 +44,7 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
      */
     public Dependencies getDependencies() {
         Dependencies dependencies = null;
-        for (XmlElement e : getChilds()) {
+        for (XmlElement e : getChilds().list()) {
             if (e instanceof Dependencies) {
                 return (Dependencies) e;
             }
@@ -94,7 +90,7 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
      * @return a list of {@link Dependencies } elements.
      */
 /*    @Override
-    public List<XmlElement> getChilds() {
+    public List<XmlElement> getChildElements() {
 
         if (childs == null) {
             childs = new ArrayList<>();
@@ -129,7 +125,7 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
         // Create a copy of child list because one or more elements of 
         // the original one may be deleted.
         //
-        List<XmlElement> list = new ArrayList<>(getChilds());
+        List<XmlElement> list = new ArrayList<>(getChildElements());
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();

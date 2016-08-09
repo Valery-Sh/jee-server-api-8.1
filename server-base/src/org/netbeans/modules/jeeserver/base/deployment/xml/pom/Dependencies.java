@@ -39,24 +39,9 @@ public class Dependencies extends AbstractCompoundXmlElement {
         setTagMapping(map);
     }
     
-/*    @Override
-    public List<XmlElement> getChilds() {
-
-        if (childs == null) {
-            childs = new ArrayList<>();
-            List<Element> domList = getChildDomElements();
-            domList.forEach(el -> {
-                if ("dependency".equals(el.getTagName())) {
-                    childs.add(new Dependency(el, this));
-                }
-            });
-        }
-        return childs;
-    }
-*/
     public Dependency findDependency(String groupId,String artifactId, String type) {
         Dependency result = null;
-        List<XmlElement> list = getChilds();
+        List<XmlElement> list = getChilds().list();
         for ( XmlElement e : list ) {
             if ( e instanceof Dependency) {
                 Dependency d = (Dependency) e;

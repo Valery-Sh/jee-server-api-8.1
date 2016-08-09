@@ -86,16 +86,12 @@ public class XmlChildElementFactoryTest {
         rootMapping.put("books/pen",XmlDefaultElement.class.getName());
         rootMapping.put("books/book",XmlDefaultTextElement.class.getName());
         
-        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/utils/xml/pom/resources/xml-shop-template.xml");
-        
+        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template.xml");
+        //InputStream is = BaseUtil.getResourceAsStream("resources/xml-shop-template.xml");
         XmlDocument xmlDocument = new XmlDocument(is);
         XmlRoot root = new XmlRoot(xmlDocument); 
         root.setTagMapping(rootMapping);
 
-        List<XmlElement> list = root.getChilds();
-        XmlCompoundElement c1 = (XmlCompoundElement) list.get(0);
-        List<XmlElement> list1 = c1.getChilds();
-        
         root.commitUpdates();
         
         int i = 0;

@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.deployment.utils.xml.pom;
+package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.io.InputStream;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
 
 /**

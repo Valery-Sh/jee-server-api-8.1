@@ -12,73 +12,34 @@ import org.w3c.dom.NodeList;
  */
 public abstract class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
 
-    protected List<XmlElement> childs;
+    //protected List<XmlElement> childList;
     private Map<String, String> tagMapping;
-
+    protected XmlChilds childs;
+    
     protected AbstractCompoundXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         super(tagName, element, parent);
     }
-    
+    /**
+     * Returns an instance of object of type {@literal org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds}.
+     * If the {@literal childs } property value has not been set yet the 
+     * this method creates a new instance and sets the property value. 
+     * 
+     * @return an Object of type {@link XmlChilds }
+     */
     @Override
-    public List<XmlElement> getChilds() {
+    public XmlChilds getChilds() {
         if (childs == null) {
-            childs = new ArrayList<>();
-            List<Element> domList = getChildDomElements();
-            if ( this instanceof XmlTextElement ) {
-                String text = ((XmlTextElement)this).getText();
-                if (!domList.isEmpty() && text != null) {
-                    throw new IllegalStateException(
-                        " XmlDefaultElement.getChilds(): Can't get child elements since the element has not null text property.");
-                }
-            }
-
-            domList.forEach(el -> {
-                String s = el.getTagName();
-                XmlChildElementFactory f = new XmlChildElementFactory(this);
-                XmlElement xmlEl = f.createXmlElement(el);
-
-                if ( xmlEl == null  ) {
-                    xmlEl = new XmlDefaultElement(el, this);                
-                }
-                
-                if ( (xmlEl instanceof XmlTextElement)   ) {
-                    String content = xmlEl.getElement().getTextContent(); 
-                    if ( ! XmlDocument.hasChildElements(xmlEl.getElement()) &&  content.length() > 0 ) {
-                        ((XmlTextElement) xmlEl).setText(content);
-                    } 
-                }
-                
-                childs.add(xmlEl);
-            });
+            childs = new XmlChilds(this);
         }
         return childs;
-    }
-
-    protected List<Element> getChildDomElements() {
-
-        List<Element> list = new ArrayList<>();
-        if (getElement() != null) {
-            NodeList nl = getElement().getChildNodes();
-            if (nl != null && nl.getLength() > 0) {
-                for (int i = 0; i < nl.getLength(); i++) {
-                    if ((nl.item(i) instanceof Element)) {
-                        Element el = (Element) nl.item(i);
-                        if (!isChildSupported(el.getTagName())) {
-                            continue;
-                        }
-                        list.add(el);
-                    }
-                }
-            }
-        }
-        return list;
-    }
+    }   
+   
     @Override
     public XmlElement cloneXmlElementInstance() {
         XmlCompoundElement p = (XmlCompoundElement) super.cloneXmlElementInstance();
-        List<XmlElement> list = getChilds();
+        List<XmlElement> list = getChilds().list();
         list.forEach(e -> {
-            p.addChild(e.cloneXmlElementInstance());
+            p.getChilds().addChild(e.cloneXmlElementInstance());
         });
         return p;
     }    
@@ -120,9 +81,9 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     public void commitUpdates() {
         super.commitUpdates();
         //
-        // We cannot use getChilds() to scan because one or more elements may be deleted. 
+        // We cannot use getChildElements() to scan because one or more elements may be deleted. 
         //
-        List<XmlElement> list = new ArrayList<>(getChilds());
+        List<XmlElement> list = getChilds().list();
         if ( this instanceof XmlTextElement ) {
             if (list.isEmpty() && ((XmlTextElement)this).getText() != null) {
                 getElement().setTextContent(((XmlTextElement)this).getText());

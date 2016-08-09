@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.netbeans.modules.jeeserver.base.deployment.utils.xml.pom;
+package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import java.io.InputStream;
 import org.junit.After;
@@ -60,14 +60,13 @@ public class DependenciesTest {
     }
 
     /**
-     * Test of getChilds method, of class Dependencies.
+     * Test of getChildElements method, of class Dependencies.
      */
     @Test
     public void testGetChilds() {
         System.out.println("getChilds");
         PomDocument pomDocument = new PomDocument();
         PomRoot pomRoot = pomDocument.getXmlRoot();
-        
         Dependencies dependencies = new Dependencies();
         assertTrue(dependencies.getChilds().isEmpty()); 
         
@@ -91,6 +90,8 @@ public class DependenciesTest {
         InputStream is = this.getClass().getResourceAsStream("resources/pom01_1.xml");
         PomDocument pomDocument = new PomDocument(is);
         PomRoot pomRoot = pomDocument.getXmlRoot();
+        pomDocument.getDomDependencyList();
+        
         
         Dependencies dependencies = pomRoot.getDependencies();
         //

@@ -74,7 +74,7 @@ public class XmlRoot extends AbstractCompoundXmlElement {
      * @return a list of {@link Dependencies } elements.
      */
 /*    @Override
-    public List<XmlElement> getChilds() {
+    public List<XmlElement> getChildElements() {
 
         if (childs == null) {
             childs = new ArrayList<>();
@@ -105,7 +105,7 @@ public class XmlRoot extends AbstractCompoundXmlElement {
         // Create a copy of child list because one or more elements of 
         // the original one may be deleted.
         //
-        List<XmlElement> list = new ArrayList<>(getChilds());
+        List<XmlElement> list = getChilds().list();
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();

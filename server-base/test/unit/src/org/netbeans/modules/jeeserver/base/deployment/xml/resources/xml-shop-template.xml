@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shop>
     <books>
+        <!-- book -->
         <book>First Book</book>
         <book>Second Book</book>
         <book/>
         <pen>
+        <!-- book -->
+            
             <ink-pen>
+        <!-- book -->
+                
                 <color>red</color>
+        <!-- book -->
+                
                 <color>grin</color>
             </ink-pen>    
             <ball-pen>
+        <!-- book -->
+                
                 <color>blue</color>
                 <color>black</color>
             </ball-pen>    

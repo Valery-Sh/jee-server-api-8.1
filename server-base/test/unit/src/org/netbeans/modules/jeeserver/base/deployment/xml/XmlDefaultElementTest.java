@@ -177,14 +177,14 @@ public class XmlDefaultElementTest {
     }
 
     /**
-     * Test of getChilds method, of class XmlDefaultElement.
+     * Test of getChildElements method, of class XmlDefaultElement.
      */
     @Test
     public void testGetChilds() {
         System.out.println("getChilds");
         Map<String,String> tagMapping = new HashMap<>();
         
-        InputStream is = this.getClass().getResourceAsStream("/org/netbeans/modules/jeeserver/base/deployment/utils/xml/pom/resources/xml-shop-template.xml");
+        InputStream is = this.getClass().getResourceAsStream("/org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template.xml");
 
         //XmlDocument xmlDocument = new XmlDocument("shop");
         XmlDocument xmlDocument = new XmlDocument(is);
@@ -203,9 +203,7 @@ public class XmlDefaultElementTest {
         XmlDefaultElement book = new XmlDefaultElement("book");
         books.addChild(book);
         
-        List<XmlElement> result = books0.getChilds();        
-        
-
+ 
         root.commitUpdates();
         xmlDocument.save(Paths.get("d:/0temp"), "shop01");        
         

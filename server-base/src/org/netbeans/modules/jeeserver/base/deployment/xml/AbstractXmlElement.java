@@ -15,8 +15,6 @@ public abstract class AbstractXmlElement implements XmlElement {
     private Element element;
     private XmlCompoundElement parent;
 
-//    private boolean deleted;
-
     protected AbstractXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         this.tagName = tagName;
         this.parent = parent;
@@ -47,7 +45,7 @@ public abstract class AbstractXmlElement implements XmlElement {
     public Element getElement() {
         return element;
     }
-    protected XmlElement findFirstWithDOMElement() {
+    protected XmlElement findFirstParentWithDOMElement() {
         XmlElement foundElement = null;
         XmlElement xmlElement = this;
         while (true) {
@@ -68,7 +66,7 @@ public abstract class AbstractXmlElement implements XmlElement {
         if (getElement() != null) {
             return;
         }
-        XmlElement hasDomElement = findFirstWithDOMElement();
+        XmlElement hasDomElement = findFirstParentWithDOMElement();
         
 //        if (getParent().getElement() != null) {
         if (hasDomElement != null) {
