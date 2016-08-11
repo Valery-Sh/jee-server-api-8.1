@@ -48,7 +48,7 @@ public class PomRootTest {
         InputStream is02 = this.getClass().getResourceAsStream("resources/pom02.xml");
         pomDocument02 = new PomDocument(is02);
 
-        pomDocument = new PomDocument("project");
+        pomDocument = new PomDocument();
 
     }
 
@@ -126,7 +126,7 @@ public class PomRootTest {
         List<Element> domElements = pomDocument.getDomDependencyList();
         assertEquals(domElements.size(),1);        
         
-        domElements = pomDocument.getDomDependencyArtifactList(domElements.get(0));
+        domElements = pomDocument.getDomDependencyChilds(domElements.get(0));
         assertEquals(domElements.size(),3);        
         assertTrue("groupId".equals(domElements.get(0).getTagName()));
         assertTrue("artifactId".equals(domElements.get(1).getTagName()));
@@ -169,15 +169,15 @@ public class PomRootTest {
         String s = type01.getText();        
         List<Element> domElements = pomDocument.getDomDependencyList();
         
-        domElements = pomDocument.getDomDependencyArtifactList(domElements.get(0));
+        domElements = pomDocument.getDomDependencyChilds(domElements.get(0));
         //PomElement toDelete = new DependencyArtifact("type");
         XmlElement toDelete = dependency01.getChilds().get(2);
-        dependency01.deleteChild(toDelete);
+        dependency01.removeChild(toDelete);
         
         pomRoot.commitUpdates();
         
         domElements = pomDocument.getDomDependencyList();
-        domElements = pomDocument.getDomDependencyArtifactList(domElements.get(0));
+        domElements = pomDocument.getDomDependencyChilds(domElements.get(0));
         assertEquals(domElements.size(),2);        
         assertTrue("groupId".equals(domElements.get(0).getTagName()));
         assertTrue("artifactId".equals(domElements.get(1).getTagName()));
@@ -330,12 +330,13 @@ public class PomRootTest {
         pomDocument = new PomDocument();
         PomRoot pomRoot = pomDocument.getXmlRoot();
         assertTrue(pomRoot.isPomDocument());
+        
         //
         // Create in-memory not a pom document
         //
-        pomDocument = new PomDocument("books");
-        pomRoot = pomDocument.getXmlRoot();
-        assertFalse(pomRoot.isPomDocument());
+        //pomDocument = new PomDocument("books");
+        //pomRoot = pomDocument.getXmlRoot();
+        //assertFalse(pomRoot.isPomDocument());
         
     }
     

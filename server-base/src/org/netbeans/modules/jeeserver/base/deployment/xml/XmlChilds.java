@@ -136,7 +136,7 @@ public class XmlChilds {
      * @param child the element to be added
      * @return a parent {@literal  xml element}.
      */
-    public XmlCompoundElement addChild(XmlElement child) {
+    public XmlCompoundElement add(XmlElement child) {
         if (parent instanceof XmlTextElement) {
             if (((XmlTextElement) parent).getText() != null) {
                 throw new IllegalStateException(
@@ -172,7 +172,7 @@ public class XmlChilds {
      * @return a parent object of type {@link XmlCompoundElement } 
      *      of the element to be deleted.
      */
-    public XmlCompoundElement deleteChild(XmlElement child) {
+    public XmlCompoundElement remove(XmlElement child) {
         if (child == null || !contains(child)) {
             return parent;
         }
@@ -213,13 +213,13 @@ public class XmlChilds {
      * @return an object of type {@link XmlCompoundElement } which represents an
      *     object which calls this method (parent element)
      */
-    public XmlCompoundElement replaceChild(XmlElement child, XmlElement newChild) {
+    public XmlCompoundElement replace(XmlElement child, XmlElement newChild) {
         if (newChild == null) {
             throw new  IllegalArgumentException(
                     " XmlChilds.replaceChild: The second parameter of the method can't be null");
         }
         if (child != null && contains(child)) {
-            deleteChild(child);
+            remove(child);
         }
         if (newChild.getElement() != null && XmlDocument.existsInDOM(newChild.getElement())) {
             throw new IllegalStateException("XmlChilds.replaceChild: The newChild parameter is already in DOM tree and cannot be added ");
@@ -232,9 +232,59 @@ public class XmlChilds {
                     + parent.getTagName() + "' ");
         }
 
-        parent.getChilds().addChild(newChild);
+        parent.getChilds().add(newChild);
         return parent;
 
     }
-
+    /**
+     * The path parameter may take two forms. For example
+     * <ul>
+     *    <li>
+     *       "p1/p2/p3". then all child elements with tag name "p3" which
+     *       resides in the parent "p1/p2" will be searched.
+     *    </li>
+     *    <li>
+     *    <li>
+     *       "p1/p2/*". then all child elements which
+     *       resides in the parent "p1/p2" will be searched regardless of tag names.
+     *    </li>
+     *    </li>
+     * </ul>
+     * 
+     * @param from
+     * @param path 
+     * @return 
+     */
+    public static List<XmlElement> findChildsByPath(XmlCompoundElement from, final String path) {
+        final List<XmlElement> result = new ArrayList<>(); 
+        
+        XmlChilds  childs = from.getChilds();
+        String[] paths = path.split("/");
+        
+        String first = paths[0];
+        if ( "*".equals(first) ) {
+            result.addAll(childs.list());
+        } else {
+            List<XmlElement> list =  new ArrayList<>();            
+            List<XmlCompoundElement> clist = new ArrayList<>();            
+            childs.list().forEach(e -> {
+                if ( e.getTagName().equals(first)) {
+                    list.add(e);
+                    if ( e instanceof XmlCompoundElement) {
+                        clist.add((XmlCompoundElement) e);
+                    }
+                }
+                
+            });
+            if ( paths.length == 1 ) {
+                result.addAll(list);
+            } else {
+                String nextPath = path.substring(paths[0].length() + 1);        
+                clist.forEach(e -> {
+                    result.addAll(findChildsByPath(e, nextPath));                
+                });
+            }
+        }
+        return result;
+    }
 }

@@ -29,8 +29,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- *
- * @author Valery Shyshkin
+ * A simple wrapper around a {@literal org.w3c.dom.Document }.
+ * Provides methods for creating and saving objects of type 
+ * {@link Document }. Also provides convenience methods to manipulate
+ * the document's {@literal  DOM Tree }. 
+ * The class can be used independently of the XML API just to process only 
+ * simple {@literal DOM Documents } in more convenient way.
+ * 
  */
 public class XmlDocument {
 
@@ -49,53 +54,8 @@ public class XmlDocument {
         document = XMLUtil.createDocument(rootName, null, null, null);
 
     }
-//org.netbeans.modules.jeeserver.base.deployment.resources    
-    //private Dependencies dependencies = null;
-
-    public XmlDocument(Path pomXml) {
-        this.xmlPath = pomXml;
-        init();
-    }
-    public static boolean hasChildElements(Element parent) {
-        NodeList nl = parent.getChildNodes();
-        boolean result = false;
-        if (nl != null && nl.getLength() > 0) {
-            for (int i = 0; i < nl.getLength(); i++) {
-                if ((nl.item(i) instanceof Element)) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-        
-    }
-    public static List<Element> getChildElements(Element parent) {
-        List<Element> list = new ArrayList<>();
-
-        NodeList nl = parent.getChildNodes();
-
-        if (nl != null && nl.getLength() > 0) {
-            for (int i = 0; i < nl.getLength(); i++) {
-                if ((nl.item(i) instanceof Element)) {
-                    Element el = (Element) nl.item(i);
-                    list.add(el);
-                }
-            }
-        }
-        return list;
-    }
-    
-    public Document getDocument() {
-        return document;
-    }
-
-    public XmlDocument(InputStream pomXmlStream) {
-        init(pomXmlStream);
-    }
-
-    private void init(InputStream pomXmlStream) {
-        document = parse(pomXmlStream);
+    public XmlDocument(InputStream inputStream) {
+        init(inputStream);
     }
 
     public XmlDocument(Document doc) {
@@ -103,77 +63,20 @@ public class XmlDocument {
         Element e;
     }
 
-    
-    public static boolean existsInDOM(Element element) {
-        NodeList nl = element.getOwnerDocument().getElementsByTagName(element.getTagName());
-        if ( nl.getLength() == 0 ) {
-            return false;
-        }
-        boolean found = false;
-        for ( int i=0; i < nl.getLength(); i++) {
-            if ( nl.item(i) == element ) {
-                found = true;
-                break;
-            }
-        }
-        return found;
+    public XmlDocument(Path pomXml) {
+        this.xmlPath = pomXml;
+        init();
     }
     
-    public static List<Element>  getParentList(Element element) {
-        List<Element> list = new ArrayList<>();
-        
-        Element el = element;
-        list.add(el);
-        
-        while (true) {
-            String s = el.getTagName();
-            
-            if (XmlDocument.isRootElement(el) ) {
-                break;
-            }
-            if ( XmlDocument.hasParentElement(el) ) {
-                break;
-            }
-            el = XmlDocument.getParentElement(el);
-            list.add(0, el);
-        }
-        return list;
+    public Document getDocument() {
+        return document;
     }
-    
-    public static Element getParentElement(Element el) {
-        
-        Element result = null;
-        if ( el.getParentNode() != null && (el.getParentNode() instanceof Element)) {
-            result = (Element) el.getParentNode();
-        }
-        return result;
-        
-    }
-    public static boolean hasParentElement(Element el) {
-        return getParentElement(el) != null;
-        
-    }
-    
-    public static List<Element> getChildsByTagName(Element parent, String tagName) {
-        List<Element> childs = new ArrayList<>();
 
-        NodeList nl = parent.getChildNodes();
-        
-        if ( nl.getLength() > 0) {
-            for (int i = 0; i < nl.getLength(); i++) {
-                if ((nl.item(i) instanceof Element)) {
-                    Element el = (Element) nl.item(i);
-                    if ( tagName.equals(el.getTagName())) {
-                        childs.add(el);
-                    }
-                }
-            }
-        }
-        return childs;
-        
+
+    private void init(InputStream pomXmlStream) {
+        document = parse(pomXmlStream);
     }
     
-
     private void init() {
         document = parse();
     }
@@ -244,18 +147,16 @@ public class XmlDocument {
         }
 
     }
-
+    
+    
     public XmlRoot getXmlRoot() {
         assert document != null;
         if ( xmlRoot == null ) {
-            xmlRoot = new XmlRoot(document);
+            xmlRoot = new XmlRoot(this);
         }
         return xmlRoot;
     }
     
-    public static boolean isRootElement(Element element) {
-        return element.getOwnerDocument().getDocumentElement() == element;
-    }
     /**
      * Convenient method to create a DOM Element. Useful for test purpose.
      * @param tagName a tag name to create element
@@ -264,4 +165,127 @@ public class XmlDocument {
     public Element createElement(String tagName) {
         return getDocument().createElement(tagName);
     }
+    
+    
+    //
+    // --------- Static Methods -----------
+    //
+    public static boolean existsInDOM(Element element) {
+        NodeList nl = element.getOwnerDocument().getElementsByTagName(element.getTagName());
+        if ( nl.getLength() == 0 ) {
+            return false;
+        }
+        boolean found = false;
+        for ( int i=0; i < nl.getLength(); i++) {
+            if ( nl.item(i) == element ) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+    public static boolean hasChildElements(Element parent) {
+        NodeList nl = parent.getChildNodes();
+        boolean result = false;
+        if (nl != null && nl.getLength() > 0) {
+            for (int i = 0; i < nl.getLength(); i++) {
+                if ((nl.item(i) instanceof Element)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+        
+    }
+    public static List<Element> getChildElements(Element parent) {
+        List<Element> list = new ArrayList<>();
+
+        NodeList nl = parent.getChildNodes();
+
+        if (nl != null && nl.getLength() > 0) {
+            for (int i = 0; i < nl.getLength(); i++) {
+                if ((nl.item(i) instanceof Element)) {
+                    Element el = (Element) nl.item(i);
+                    list.add(el);
+                }
+            }
+        }
+        return list;
+    }
+    
+    public static List<Element>  getParentChainList(Element element) {
+        List<Element> list = new ArrayList<>();
+        
+        Element el = element;
+        list.add(el);
+        
+        while (true) {
+            
+            if (XmlDocument.isRootElement(el) ) {
+                break;
+            }
+            if ( ! XmlDocument.hasParentElement(el) ) {
+                break;
+            }
+            el = XmlDocument.getParentElement(el);
+            list.add(0, el);
+        }
+        return list;
+    }
+    
+    public static Element getParentElement(Element el) {
+        
+        Element result = null;
+        if ( el.getParentNode() != null && (el.getParentNode() instanceof Element)) {
+            result = (Element) el.getParentNode();
+        }
+        return result;
+        
+    }
+    public static boolean hasParentElement(Element el) {
+        return getParentElement(el) != null;
+        
+    }
+
+    public static Element getFirstChildByTagName(Element parent, String tagName) {
+        Element child = null;
+
+        NodeList nl = parent.getChildNodes();
+        
+        if ( nl.getLength() > 0) {
+            for (int i = 0; i < nl.getLength(); i++) {
+                if ((nl.item(i) instanceof Element)) {
+                    Element el = (Element) nl.item(i);
+                    if ( tagName.equals(el.getTagName())) {
+                        child = el;
+                        break;
+                    }
+                }
+            }
+        }
+        return child;
+    }    
+    public static List<Element> getChildsByTagName(Element parent, String tagName) {
+        List<Element> childs = new ArrayList<>();
+
+        NodeList nl = parent.getChildNodes();
+        
+        if ( nl.getLength() > 0) {
+            for (int i = 0; i < nl.getLength(); i++) {
+                if ((nl.item(i) instanceof Element)) {
+                    Element el = (Element) nl.item(i);
+                    if ( tagName.equals(el.getTagName())) {
+                        childs.add(el);
+                    }
+                }
+            }
+        }
+        return childs;
+        
+    }
+    public static boolean isRootElement(Element element) {
+        return element.getOwnerDocument().getDocumentElement() == element;
+    }
+    
 }

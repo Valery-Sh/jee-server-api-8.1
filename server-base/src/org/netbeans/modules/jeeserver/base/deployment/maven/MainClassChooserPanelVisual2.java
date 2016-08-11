@@ -24,8 +24,9 @@ public class MainClassChooserPanelVisual2 extends javax.swing.JPanel {
     private Project serverProject;
     /**
      * Creates new form MainClassChooserPanelVisual2
-     * @param customizeButton
-     * @param cancelButton
+     * @param customizeButton to customize
+     * @param cancelButton to cancel
+     * @param acceptButton to accept
      */
     public MainClassChooserPanelVisual2(JButton customizeButton,JButton cancelButton, JButton acceptButton) {
         initComponents();

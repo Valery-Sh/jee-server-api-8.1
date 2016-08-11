@@ -2,13 +2,13 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.w3c.dom.Element;
 
@@ -17,7 +17,10 @@ import org.w3c.dom.Element;
  * @author Valery
  */
 public class XmlChildElementFactoryTest {
-
+    
+    private XmlRoot root;
+    Map<String,String> rootMapping;
+    
     public XmlChildElementFactoryTest() {
     }
 
@@ -31,6 +34,17 @@ public class XmlChildElementFactoryTest {
 
     @Before
     public void setUp() {
+        rootMapping = new HashMap<>();
+        rootMapping.put("books",XmlDefaultElement.class.getName());
+        rootMapping.put("books/pen",XmlDefaultElement.class.getName());
+        rootMapping.put("books/book",XmlDefaultTextElement.class.getName());
+        
+        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template.xml");
+
+        XmlDocument xmlDocument = new XmlDocument(is);
+        root = new XmlRoot(xmlDocument); 
+        root.setTagMapping(rootMapping);
+        
     }
 
     @After
@@ -47,7 +61,7 @@ public class XmlChildElementFactoryTest {
         XmlChildElementFactory instance = null;
         XmlElement expResult = null;
 //        XmlElement result = instance.createXmlElement(domElement);
-//        assertEquals(expResult, result);
+//        assertEquals(expResult, null);
     }
 
     /**
@@ -70,29 +84,38 @@ public class XmlChildElementFactoryTest {
         XmlChildElementFactory factory = new XmlChildElementFactory(books);
         XmlElement factoryResult = factory.createXmlElement(book.getElement());
         
-        Element domElement = null;
-        XmlChildElementFactory instance = null;
-        XmlElement expResult = null;
     }
 
     /**
-     * Test of cloneXmlElementInstance method, of class XmlChildElementFactory.
+     * Test of  method createInstamce of class XmlChildElementFactory.
+     * Use tagMapping
      */
     @Test
     public void testCreateInstance_root_mapping() {
         System.out.println("createInstance_root_mapping");
-        Map<String,String> rootMapping = new HashMap<>();
-        rootMapping.put("books",XmlDefaultElement.class.getName());
-        rootMapping.put("books/pen",XmlDefaultElement.class.getName());
-        rootMapping.put("books/book",XmlDefaultTextElement.class.getName());
+        root.setXmlPaths(new XmlPaths(rootMapping));
+        //
+        // Now we create an element of type XmlDefaultElement
+        // with a tag name 'book'
+        //
+        XmlDefaultTextElement book = new XmlDefaultTextElement("book");
+        XmlDefaultElement books = (XmlDefaultElement) root.getChilds().get(0); // this is a 'books' element
+        books.addChild(book);
         
-        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template.xml");
-        //InputStream is = BaseUtil.getResourceAsStream("resources/xml-shop-template.xml");
-        XmlDocument xmlDocument = new XmlDocument(is);
-        XmlRoot root = new XmlRoot(xmlDocument); 
-        root.setTagMapping(rootMapping);
-
+        //
+        // do commitUpdates() just to appenf a new book element to the DOM Tree
+        //
         root.commitUpdates();
+
+        XmlChildElementFactory factory = new XmlChildElementFactory(books);
+        XmlElement factoryResult = factory.createXmlElement(book.getElement());
+        
+        assertNotNull(factoryResult);
+        //
+        //tagMamming maps an element with a tag name 'book' to a class
+        // XmlDefaultTextElement
+        // 
+        assertTrue(factoryResult instanceof XmlDefaultTextElement);
         
         int i = 0;
         

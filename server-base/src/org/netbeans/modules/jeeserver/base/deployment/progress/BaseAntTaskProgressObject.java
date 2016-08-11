@@ -39,6 +39,8 @@ public class BaseAntTaskProgressObject implements Runnable {
      *
      * @param manager the deployment manager the instance of the class is
      * created for.
+     * 
+     * @param executeProperties a properties of type {@link Properties }
      */
     public BaseAntTaskProgressObject(BaseDeploymentManager manager, Properties executeProperties) {
         this.executeProperties = executeProperties;

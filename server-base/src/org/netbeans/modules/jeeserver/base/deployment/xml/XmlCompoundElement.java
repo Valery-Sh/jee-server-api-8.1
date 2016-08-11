@@ -29,25 +29,25 @@ public interface XmlCompoundElement extends XmlElement {
     }
 
     /**
-     * A convenient method which just invokes {@literal getChilds().addChild(child)
-     * }
+     * A convenient method which just invokes {@literal getChilds().add(child)
+ }
      *
      * @param child an element to be added.
      * @return a calling instance of type {@link XmlCompoundElement }.
      */
     default XmlCompoundElement addChild(XmlElement child) {
-        return getChilds().addChild(child);
+        return getChilds().add(child);
     }
 
     /**
-     * A convenient method which just invokes {@literal getChilds().deleteChild(child)
-     * }
+     * A convenient method which just invokes {@literal getChilds().remove(child)
+ }
      *
-     * @param child an element to be deleted.
+     * @param child an element to be removed.
      * @return a calling instance of type {@link XmlCompoundElement }.
      */
-    default XmlCompoundElement deleteChild(XmlElement toDelete) {
-        return getChilds().deleteChild(toDelete);
+    default XmlCompoundElement removeChild(XmlElement toRemove) {
+        return getChilds().remove(toRemove);
     }
 
     /**
@@ -63,7 +63,7 @@ public interface XmlCompoundElement extends XmlElement {
      * object which calls this method (parent element)
      */
     default XmlCompoundElement replaceChild(XmlElement child, XmlElement newChild) {
-        return getChilds().replaceChild(child, newChild);
+        return getChilds().replace(child, newChild);
     }
 
 }

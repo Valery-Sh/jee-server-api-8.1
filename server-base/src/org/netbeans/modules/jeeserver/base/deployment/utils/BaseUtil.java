@@ -856,31 +856,11 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
         return null;
 
     }
-
     /**
-     * Returns an {@literal Image} instance for the specified server id.
-     *
-     * @param serverId the server identifier as defined by an appropriate 
-     *   {@link ServerSpecificsProvider }
-     * @return an {@literal Image} instance for the specified server id.
-     */
-    /*    public static Image getServerImage(String serverId) {
-        if (serverId == null) {
-            return null;
-        }
-        Image image = null;
-        DeploymentFactory[] factories = DeploymentFactoryManager.getInstance().getDeploymentFactories();
-        for (DeploymentFactory df : factories) {
-            if (df instanceof ServerSpecificsProvider) {
-                ServerSpecificsProvider p = (ServerSpecificsProvider) df;
-                if (serverId.equals(p.getServerId())) {
-                    image = p.getSpecifics().getProjectImage(null); // we don't bother of the project
-                    break;
-                }
-            }
-        }
-        return image;
-    }
+     * 
+     * @param projDir a project directory
+     * @return {@literal true } if the project specified by the directory 
+     * is a {@literal  maven } project
      */
     public static boolean isMavenProject(String projDir) {
         Project proj = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(projDir)));
@@ -925,8 +905,7 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
     /**
      * Return a deployment manager object for a given server project.
      *
-     * @param context
-     * @param serverProject a server project
+     * @param context a context
      * @return an object of type {@link ProjectDeploymentManager} if exists.
      * {@literal null} otherwise
      */
@@ -975,8 +954,7 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
     /**
      * Return string {@literal uri} for the given server project
      *
-     * @param context
-     * @param project a server project
+     * @param context a context
      * @return an {@literal uri} as it was used to create an instance of the
      * deployment manager
      */

@@ -110,7 +110,7 @@ public class BaseTargetModuleID implements TargetModuleID {
     /**
      * Retrieve the string representation of the web module URL.
      *
-     * @return the string concatenation <br/>
+     * @return the string concatenation 
      * <code>http://&lt.hostname&gt.:&lt.port&gt.&lt.context-path&gt.</code>
      *
      */

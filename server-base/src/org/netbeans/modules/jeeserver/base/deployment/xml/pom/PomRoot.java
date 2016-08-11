@@ -2,7 +2,6 @@ package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.w3c.dom.Document;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
 
@@ -12,12 +11,11 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
 //public class XmlRoot extends AbstractCompoundXmlElement implements PomRootElement {
 public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
 
-    private final Document document;
+    //private final Document document;
 
 
-    public PomRoot(Document document) {
-        super(document);
-        this.document = document;
+    public PomRoot(PomDocument pomDocument) {
+        super(pomDocument);
         init();
     }
     private void init() {
@@ -55,7 +53,7 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
      * Checks if the given dom element is supported by the api.
      * For example the root may contain such element as {@literal build }.
      * But for now that element is not supported/
-     * @param el a dom element to be checked
+     * @param tagName a tag name to be checked
      * @return {@literal true } if the element is supported 
      */
     @Override

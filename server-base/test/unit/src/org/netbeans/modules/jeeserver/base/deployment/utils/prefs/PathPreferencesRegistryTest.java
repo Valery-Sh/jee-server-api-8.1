@@ -300,6 +300,7 @@ public class PathPreferencesRegistryTest {
 
     /**
      * Test of getProperties method, of class PathPreferencesRegistry.
+     * @throws java.io.IOException
      */
     @Test
     public void testEXTERNAL() throws IOException {

@@ -1,10 +1,8 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -39,7 +37,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         XmlCompoundElement p = (XmlCompoundElement) super.cloneXmlElementInstance();
         List<XmlElement> list = getChilds().list();
         list.forEach(e -> {
-            p.getChilds().addChild(e.cloneXmlElementInstance());
+            p.getChilds().add(e.cloneXmlElementInstance());
         });
         return p;
     }    
@@ -94,6 +92,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();
+            XmlRoot.check(el);
         });
 
     }

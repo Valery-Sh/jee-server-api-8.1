@@ -3,7 +3,6 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
@@ -64,12 +63,13 @@ public class XmlChildElementFactory {
         // find XmlRoot
         //
         XmlRoot root = XmlRoot.findXmlRoot(parent);
-        if (root != null && root.getTagMapping() != null && !root.getTagMapping().isEmpty()) {
+        if (root != null && root.getXmlPaths() != null && !root.getXmlPaths().isEmpty()) {
             //
             // parentList includes all elements starting from root and 
             // ending with domElement
             //
-            List<Element> parentList = XmlDocument.getParentList(domElement);
+            List<Element> parentList = XmlDocument.getParentChainList(domElement);
+
             if (parentList.isEmpty()) {
                 return null; // something wrong. Throw exception ???
             }
@@ -91,12 +91,32 @@ public class XmlChildElementFactory {
                         .append(parentList.get(i).getTagName())
                         .append(slash);
             }
-            className = root.getTagMapping().get(pathBuilder.toString());
+
+            String path = pathBuilder.toString();
+            className = root.getXmlPaths().get(path);
+            if (className == null) {
+                //
+                // We try to use "*" pattern. If "a/b/*"
+                // then for all elements whose path starts with
+                // "a/b" we'll try to find "a/b/*" in XmlPath. 
+                //
+                int idx = path.lastIndexOf("/");
+                if (idx > 0) {
+                    path = path.substring(0, idx) + "/*";
+                    className = root.getXmlPaths().get(path);
+                    if (className == null) {
+                        //
+                        // We try to use "*text" pattern. If "a/b/*text"
+                        // then for all elements whose path starts with
+                        // "a/b" we'll try to find "a/b/*text" in XmlPath. 
+                        //
+                        //path += "text";
+                        className = root.getXmlPaths().get(path);
+                    }
+                }
+            }
         }
         return className;
     }
 
-    protected Map<String, String> getTagMapping() {
-        return null;
-    }
 }

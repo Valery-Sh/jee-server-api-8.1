@@ -121,6 +121,8 @@ public class JspNameUtil {
     
     /**
      * Mangle the specified character to create a legal Java class name.
+     * @param ch a character to be mangled
+     * @return a mangled string
      */
     public static final String mangleChar(char ch) {
         char[] result = new char[5];
@@ -134,6 +136,8 @@ public class JspNameUtil {
     
     /**
      * Test whether the argument is a Java keyword
+     * @param key a key word to be checked
+     * @return  {@literal true } the given parameter is a java key word
      */
     public static boolean isJavaKeyword(String key) {
         return Arrays.binarySearch(JAVA_KEYWORDS, key) >= 0;

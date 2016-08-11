@@ -295,8 +295,9 @@ public class MavenAuxConfig_OLD {
 
     /**
      *
-     * @param project
-     * @return
+     * @param project aa
+     * @param specifiedClass aa
+     * @return aa
      */
     public static MavenAuxConfig_OLD customizeMainClass(Project project, String specifiedClass) {
         return null;

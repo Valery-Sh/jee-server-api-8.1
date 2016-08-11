@@ -413,7 +413,7 @@ BaseUtil.out("0. (((((((((((((((( BaseDeploymentManager getLookup uri = " + uri)
     /**
      * Returns http url as a {@literal String}.
      *
-     * The value returned is a string as: <br/>
+     * The value returned is a string as: 
      * <pre><code>http://&lt..host&gt..:&lt..port&gt..</code></pre>
      *
      * @return Returns http url as a string
