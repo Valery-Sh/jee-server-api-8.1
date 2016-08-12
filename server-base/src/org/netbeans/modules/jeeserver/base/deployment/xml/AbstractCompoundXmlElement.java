@@ -11,7 +11,8 @@ import org.w3c.dom.Element;
 public abstract class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
 
     //protected List<XmlElement> childList;
-    private Map<String, String> tagMapping;
+    //private Map<String, String> tagMapping;
+    private XmlTagMap tagMapping;
     protected XmlChilds childs;
     
     protected AbstractCompoundXmlElement(String tagName) {
@@ -70,7 +71,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     }
 
     @Override
-    public Map<String, String> getTagMapping() {
+    public Map<String, String> getTagMap() {
         return tagMapping;
     }
 

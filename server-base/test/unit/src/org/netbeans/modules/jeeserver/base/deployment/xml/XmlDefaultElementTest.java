@@ -38,20 +38,20 @@ public class XmlDefaultElementTest {
     }
 
     /**
-     * Test of getTagMapping method, of class XmlDefaultElement.
+     * Test of getTagMap method, of class XmlDefaultElement.
      */
     @Test
     public void testGetTagMapping() {
         System.out.println("getTagMapping");
         XmlDefaultElement instance = new XmlDefaultElement("books");
         Map<String, String> expResult = null;        
-        Map<String, String> result = instance.getTagMapping();        
+        Map<String, String> result = instance.getTagMap();        
         assertEquals(expResult, result);
         
         Map<String,String> map = new HashMap<>();
         instance.setTagMapping(map);
         expResult = map;
-        result = instance.getTagMapping();        
+        result = instance.getTagMap();        
         assertEquals(expResult, result);        
     }
 
@@ -64,7 +64,7 @@ public class XmlDefaultElementTest {
         XmlDefaultElement instance = new XmlDefaultElement("books");
         Map<String, String> expResult = new HashMap<>();
         instance.setTagMapping(expResult);        
-        Map<String, String> result = instance.getTagMapping();        
+        Map<String, String> result = instance.getTagMap();        
         assertEquals(expResult, result);
     }
 

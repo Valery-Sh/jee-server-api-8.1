@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public interface XmlCompoundElement extends XmlElement {
 
-    Map<String, String> getTagMapping();
+    Map<String, String> getTagMap();
 
     void setTagMapping(Map<String, String> tagMapping);
 

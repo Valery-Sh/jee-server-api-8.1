@@ -48,8 +48,8 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
      */
     @Override
     public boolean isChildSupported(String tagName) {
-        if (getTagMapping() != null && !getTagMapping().isEmpty()) {
-            return getTagMapping().get(tagName) != null;
+        if (getTagMap() != null && !getTagMap().isEmpty()) {
+            return getTagMap().get(tagName) != null;
         }
         return   !"not-supported".equals(tagName);
     }

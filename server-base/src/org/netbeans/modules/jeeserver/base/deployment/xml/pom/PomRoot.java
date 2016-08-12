@@ -62,8 +62,8 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
         if ( !isPomDocument() ) {
             return true;
         } 
-        if (getTagMapping() != null && !getTagMapping().isEmpty()) {
-            return getTagMapping().get(tagName) != null;
+        if (getTagMap() != null && !getTagMap().isEmpty()) {
+            return getTagMap().get(tagName) != null;
         }
         return false;
     }

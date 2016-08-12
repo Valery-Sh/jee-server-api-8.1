@@ -47,8 +47,8 @@ public class XmlChildElementFactory {
 
     protected String getClassName(Element domElement) {
         String className = null;
-        if (parent.getTagMapping() != null) {
-            className = parent.getTagMapping().get(domElement.getTagName());
+        if (parent.getTagMap() != null) {
+            className = parent.getTagMap().get(domElement.getTagName());
         }
         if (className == null) {
             // try get className from the root
