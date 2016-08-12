@@ -63,7 +63,7 @@ public class XmlChildElementFactory {
         // find XmlBase
         //
         XmlRoot root = (XmlRoot) XmlBase.findXmlRoot(parent);
-        if (root != null && root.getXmlPaths() != null && !root.getXmlPaths().isEmpty()) {
+        if (root != null && root.getTagMap() != null && !root.getTagMap().isEmpty()) {
             //
             // parentList includes all elements starting from root and 
             // ending with domElement
@@ -93,7 +93,7 @@ public class XmlChildElementFactory {
             }
 
             String path = pathBuilder.toString();
-            className = root.getXmlPaths().get(path);
+            className = root.getTagMap().get(path);
             if (className == null) {
                 //
                 // We try to use "*" pattern. If "a/b/*"
@@ -103,7 +103,7 @@ public class XmlChildElementFactory {
                 int idx = path.lastIndexOf("/");
                 if (idx > 0) {
                     path = path.substring(0, idx) + "/*";
-                    className = root.getXmlPaths().get(path);
+                    className = root.getTagMap().get(path);
                     if (className == null) {
                         //
                         // We try to use "*text" pattern. If "a/b/*text"
@@ -111,7 +111,7 @@ public class XmlChildElementFactory {
                         // "a/b" we'll try to find "a/b/*text" in XmlPath. 
                         //
                         //path += "text";
-                        className = root.getXmlPaths().get(path);
+                        className = root.getTagMap().get(path);
                     }
                 }
             }

@@ -6,17 +6,32 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
+ * Represents a root of the {@link XmlDocument }.
+ * The class is aware of {@code DDM Document } and contains few methods to 
+ * manipulate the last. 
+ * 
  * @author Valery Shyshkin
  */
 public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
 
     private final Document document;
-
+    /**
+     * Creates an instance of the class by the given object of type
+     * {@link XmlDocument }.
+     * 
+     * @param xmlDocument the object of type {@link XmlDocument} to create an instance for.
+     */
     public XmlRoot(XmlDocument xmlDocument) {
         super(xmlDocument.getDocument().getDocumentElement().getTagName());
         this.document = xmlDocument.getDocument();
     }
-
+    /**
+     * Returns the object of type {@code org.w3c.dom.Document }.
+     * This class represents the root element of the corresponding 
+     * {@code DOM Document}.
+     * 
+     * @return the object of type {@code org.w3c.dom.Document }.
+     */
     public Document getDocument() {
         return document;
     }
@@ -45,7 +60,8 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
      * Checks if the given dom element is supported by the api. 
      * For example the root may contain such element as 
      * {@literal build }. But for now that element is not 
-     * supported.
+     * supported. <p>
+     * The class implements this method to always return {@code true}. 
      *
      * @return {@literal true } if the element is supported
      */
@@ -96,11 +112,7 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
         if ( parentNode == null ) {
             return;
         }
-        
         parentNode.insertBefore(c, el);
-        
     }
-    
-    
 
 }//class XmlRoot

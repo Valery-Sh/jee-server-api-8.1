@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
  * @author Valery Shyshkin
@@ -19,10 +20,10 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
         init();
     }
     private void init() {
-        Map<String,String> map = new HashMap<>();
+        XmlTagMap map = new XmlTagMap();
         map.put("dependencies", Dependencies.class.getName());
         map.put("properties", PomProperties.class.getName());
-        setTagMapping(map);
+        setTagMap(map);
     }
 
 /*    @Override

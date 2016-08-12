@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 public class XmlChildElementFactoryTest {
     
     private XmlRoot root;
-    Map<String,String> rootMapping;
+    XmlTagMap rootMapping;
     
     public XmlChildElementFactoryTest() {
     }
@@ -34,7 +34,7 @@ public class XmlChildElementFactoryTest {
 
     @Before
     public void setUp() {
-        rootMapping = new HashMap<>();
+        rootMapping = new XmlTagMap();
         rootMapping.put("books",XmlDefaultElement.class.getName());
         rootMapping.put("books/pen",XmlDefaultElement.class.getName());
         rootMapping.put("books/book",XmlDefaultTextElement.class.getName());
@@ -43,7 +43,7 @@ public class XmlChildElementFactoryTest {
 
         XmlDocument xmlDocument = new XmlDocument(is);
         root = new XmlRoot(xmlDocument); 
-        root.setTagMapping(rootMapping);
+        root.setTagMap(rootMapping);
         
     }
 
@@ -73,9 +73,9 @@ public class XmlChildElementFactoryTest {
         XmlDocument xmlDocument = new XmlDocument("shop");
         XmlRoot root = new XmlRoot(xmlDocument);
         XmlDefaultElement books = new XmlDefaultElement("books");
-        Map<String,String> tagMapping = new HashMap<>();
+        XmlTagMap tagMapping = new XmlTagMap();
         tagMapping.put("book", XmlDefaultTextElement.class.getName());
-        books.setTagMapping(tagMapping);
+        books.setTagMap(tagMapping);
         
         root.addChild(books);
         XmlDefaultElement book = new XmlDefaultElement("book");
@@ -93,7 +93,7 @@ public class XmlChildElementFactoryTest {
     @Test
     public void testCreateInstance_root_mapping() {
         System.out.println("createInstance_root_mapping");
-        root.setXmlPaths(new XmlTagMap(rootMapping));
+        root.setTagMap(rootMapping);
         //
         // Now we create an element of type XmlDefaultElement
         // with a tag name 'book'

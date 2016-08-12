@@ -44,12 +44,12 @@ public class XmlDefaultElementTest {
     public void testGetTagMapping() {
         System.out.println("getTagMapping");
         XmlDefaultElement instance = new XmlDefaultElement("books");
-        Map<String, String> expResult = null;        
-        Map<String, String> result = instance.getTagMap();        
+        XmlTagMap expResult = null;        
+        XmlTagMap result = instance.getTagMap();        
         assertEquals(expResult, result);
         
-        Map<String,String> map = new HashMap<>();
-        instance.setTagMapping(map);
+        XmlTagMap map = new XmlTagMap();
+        instance.setTagMap(map);
         expResult = map;
         result = instance.getTagMap();        
         assertEquals(expResult, result);        
@@ -62,9 +62,9 @@ public class XmlDefaultElementTest {
     public void testSetTagMapping() {
         System.out.println("setTagMapping");
         XmlDefaultElement instance = new XmlDefaultElement("books");
-        Map<String, String> expResult = new HashMap<>();
-        instance.setTagMapping(expResult);        
-        Map<String, String> result = instance.getTagMap();        
+        XmlTagMap expResult = new XmlTagMap();
+        instance.setTagMap(expResult);        
+        XmlTagMap result = instance.getTagMap();        
         assertEquals(expResult, result);
     }
 
@@ -101,8 +101,8 @@ public class XmlDefaultElementTest {
         boolean result = instance.isChildSupported("book");
         assertEquals(expResult, result);
         
-        Map<String,String> map = new HashMap<>();
-        instance.setTagMapping(map);
+        XmlTagMap map = new XmlTagMap();
+        instance.setTagMap(map);
         //
         // expResult must be true because the property tagMapping is empty
         // and tagName is not equals to "not-supported".
@@ -181,7 +181,7 @@ public class XmlDefaultElementTest {
     @Test
     public void testGetChilds() {
         System.out.println("getChilds");
-        Map<String,String> tagMapping = new HashMap<>();
+        XmlTagMap tagMapping = new XmlTagMap();
         
         InputStream is = this.getClass().getResourceAsStream("/org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template.xml");
 
@@ -191,11 +191,11 @@ public class XmlDefaultElementTest {
         XmlCompoundElement books0 = (XmlCompoundElement) root.getChilds().get(0);
         
         tagMapping.put("book", XmlDefaultTextElement.class.getName());
-        books0.setTagMapping(tagMapping);
+        books0.setTagMap(tagMapping);
         
         XmlDefaultElement books = new XmlDefaultElement("books");
         tagMapping.put("book", XmlDefaultTextElement.class.getName());
-        books.setTagMapping(tagMapping);
+        books.setTagMap(tagMapping);
         
         
         root.addChild(books);        

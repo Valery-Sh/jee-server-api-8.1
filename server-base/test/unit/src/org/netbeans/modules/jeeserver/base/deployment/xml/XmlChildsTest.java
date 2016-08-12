@@ -364,12 +364,12 @@ public class XmlChildsTest {
         }
 
         @Override
-        public Map<String, String> getTagMap() {
+        public XmlTagMap getTagMap() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void setTagMapping(Map<String, String> tagMapping) {
+        public void setTagMap(XmlTagMap tagMapping) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 

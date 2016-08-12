@@ -276,7 +276,7 @@ public class XmlCompoundElementTest {
 
 
         @Override
-        public Map<String, String> getTagMap() {
+        public XmlTagMap getTagMap() {
             return null;
         }
         
@@ -287,7 +287,7 @@ public class XmlCompoundElementTest {
             return childs;
         }
         @Override
-        public void setTagMapping(Map<String, String> tagMapping) {
+        public void setTagMap(XmlTagMap tagMapping) {
             
         }
 

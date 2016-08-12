@@ -9,9 +9,12 @@ import java.util.Map;
  */
 public interface XmlCompoundElement extends XmlElement {
 
-    Map<String, String> getTagMap();
-
-    void setTagMapping(Map<String, String> tagMapping);
+    //Map<String, String> getTagMap();
+    //void setTagMapping(Map<String, String> tagMapping);
+    XmlTagMap  getTagMap();
+    void setTagMap(XmlTagMap tagMapping);    
+    
+    //void setTagMapping(Map<String, String> tagMapping);
 
     /**
      * Checks whether the given tag name is supported as a child element.

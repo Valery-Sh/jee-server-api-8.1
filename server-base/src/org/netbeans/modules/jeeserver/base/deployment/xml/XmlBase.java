@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
  */
 public class XmlBase extends AbstractCompoundXmlElement {
 
-    private XmlTagMap xmlPaths;
+    private XmlTagMap tagMapping;
     private XmlErrors commitErrors;
     
     /**
@@ -45,12 +45,14 @@ public class XmlBase extends AbstractCompoundXmlElement {
         return root;
     }
 
-    public XmlTagMap getXmlPaths() {
-        return xmlPaths;
+    @Override
+    public XmlTagMap getTagMap() {
+        return tagMapping;
     }
 
-    public void setXmlPaths(XmlTagMap xmlPaths) {
-        this.xmlPaths = xmlPaths;
+    @Override
+    public void setTagMap(XmlTagMap xmlPaths) {
+        this.tagMapping = xmlPaths;
     }
     /**
      * Checks whether a valid tag name of the given object as well as 
@@ -93,11 +95,11 @@ public class XmlBase extends AbstractCompoundXmlElement {
         if (root == null) {
             return errors;
         }
-        if (root.getXmlPaths() == null) {
+        if (root.getTagMap() == null) {
             return errors;
         }
         
-        errors = root.getXmlPaths().check(list);
+        errors = root.getTagMap().check(list);
         if ( root.getCommitErrors() == null ) {
             root.setCommitErrors(new XmlErrors());
         }
@@ -135,7 +137,8 @@ public class XmlBase extends AbstractCompoundXmlElement {
 
     }
     /**
-     * Returns null.
+     * Returns {code null}.
+     * 
      * The class does not perform any operations with {@code DOM Tree }.
      * 
      * @return null
@@ -153,14 +156,16 @@ public class XmlBase extends AbstractCompoundXmlElement {
     public void createDOMElement() {
     }
 
-    /**
-     * Checks if the given tag name is supported by the api. 
+       /**
+     * Checks if the given dom element is supported by the api. 
      * For example the root may contain such element as 
      * {@literal build }. But for now that element is not 
-     * supported.
+     * supported. <p>
+     * The class implements this method to always return {@code true}. 
      *
-     * @return {@literal true } if the tagName is supported
+     * @return {@literal true } if the element is supported
      */
+
     @Override
     public boolean isChildSupported(String tagName) {
         return true;
@@ -203,4 +208,5 @@ public class XmlBase extends AbstractCompoundXmlElement {
     public void setCommitErrors(XmlErrors commitErrors) {
         this.commitErrors = commitErrors;
     }
+
 }//class XmlBase

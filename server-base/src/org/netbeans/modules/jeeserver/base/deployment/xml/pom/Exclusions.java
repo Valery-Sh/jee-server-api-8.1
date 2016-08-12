@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
  *
@@ -32,9 +33,9 @@ public class Exclusions  extends AbstractCompoundXmlElement {
         init();        
     }
     private void init() {
-        Map<String,String> map = new HashMap<>();
+        XmlTagMap map = new XmlTagMap();
         map.put("exclude", Exclude.class.getName());
-        setTagMapping(map);
+        setTagMap(map);
     }
 
 }

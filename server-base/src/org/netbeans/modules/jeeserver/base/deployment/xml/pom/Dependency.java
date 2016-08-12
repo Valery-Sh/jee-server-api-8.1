@@ -7,6 +7,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
  *
@@ -34,7 +35,8 @@ public class Dependency extends AbstractCompoundXmlElement {
         init();
     }
     private void init() {
-        Map<String,String> map = new HashMap<>();
+        XmlTagMap map = new XmlTagMap();
+        map.put("dependency", Dependency.class.getName());
         map.put("groupId", DependencyArtifact.class.getName());
         map.put("artifactId", DependencyArtifact.class.getName());        
         map.put("version", DependencyArtifact.class.getName());        
@@ -42,9 +44,9 @@ public class Dependency extends AbstractCompoundXmlElement {
         map.put("type", DependencyArtifact.class.getName());        
         map.put("optional", DependencyArtifact.class.getName());        
         map.put("systemPath", DependencyArtifact.class.getName());        
-        map.put("exclusions", DependencyArtifact.class.getName());        
+        map.put("exclusions", Exclusions.class.getName());        
 
-        setTagMapping(map);
+        setTagMap(map);
     }
 
     private boolean equals(String s1, String s2) {

@@ -27,7 +27,7 @@ public class XmlTagMap {
         
     }
 
-    protected String put(String path, String clazz) {
+    public String put(String path, String clazz) {
         return map.put(path, clazz);
     }
 

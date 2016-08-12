@@ -7,6 +7,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
  *
@@ -34,9 +35,10 @@ public class Dependencies extends AbstractCompoundXmlElement {
     }
 
     private void init() {
-        Map<String,String> map = new HashMap<>();
+        //Map<String,String> map = new HashMap<>();
+        XmlTagMap map = new XmlTagMap();
         map.put("dependency", Dependency.class.getName());
-        setTagMapping(map);
+        setTagMap(map);
     }
     
     public Dependency findDependency(String groupId,String artifactId, String type) {

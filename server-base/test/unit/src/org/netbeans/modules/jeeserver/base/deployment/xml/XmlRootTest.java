@@ -107,19 +107,19 @@ public class XmlRootTest {
     }
 
     /**
-     * Test of getXmlPaths method, of class XmlRoot.
+     * Test of getTagMap method, of class XmlRoot.
      */
     @Test
     public void testGetPaths() {
         System.out.println("getPaths");
         XmlRoot instance = root;
         XmlTagMap expResult = null;
-        XmlTagMap result = instance.getXmlPaths();
+        XmlTagMap result = instance.getTagMap();
         assertEquals(expResult, result);
         
         expResult = new XmlTagMap();
-        root.setXmlPaths(expResult);
-        result = instance.getXmlPaths();
+        root.setTagMap(expResult);
+        result = instance.getTagMap();
         assertEquals(expResult, result);        
         
     }
@@ -133,9 +133,9 @@ public class XmlRootTest {
         XmlRoot instance = root;
         XmlTagMap expResult = new XmlTagMap();
         
-        root.setXmlPaths(expResult);
+        root.setTagMap(expResult);
         
-        XmlTagMap result = instance.getXmlPaths();
+        XmlTagMap result = instance.getTagMap();
         assertEquals(expResult, result);        
 
     }
@@ -153,7 +153,7 @@ public class XmlRootTest {
         XmlErrors result = XmlRoot.check(toCheck);
         assertTrue(result.isEmpty());
         
-        root.setXmlPaths(new XmlTagMap(rootMapping));
+        root.setTagMap(new XmlTagMap(rootMapping));
         root.commitUpdates();
         assertEquals(root.getCommitErrors().size(), 6);
     }
@@ -172,7 +172,7 @@ public class XmlRootTest {
         XmlErrors result = XmlRoot.check(toCheck);
         assertTrue(result.isEmpty());
         
-        root.setXmlPaths(new XmlTagMap(fullRootMapping));
+        root.setTagMap(new XmlTagMap(fullRootMapping));
         root.commitUpdates();
         assertEquals(root.getCommitErrors().size(), 0);
         
@@ -192,7 +192,7 @@ public class XmlRootTest {
         XmlErrors result = XmlRoot.check(toCheck);
         assertTrue(result.isEmpty());
         
-        root.setXmlPaths(new XmlTagMap(patternRootMapping));
+        root.setTagMap(new XmlTagMap(patternRootMapping));
         root.commitUpdates();
         //assertEquals(0,root.getCommitErrors().size());
         

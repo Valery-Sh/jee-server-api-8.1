@@ -8,6 +8,7 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
  *
@@ -46,7 +47,7 @@ public class Exclude extends AbstractCompoundXmlElement {
 
     }
     private void init() {
-        Map<String,String> map = new HashMap<>();
+        XmlTagMap map = new XmlTagMap();
         map.put("groupId", DependencyArtifact.class.getName());
         map.put("artifactId", DependencyArtifact.class.getName());        
 /*        map.put("version", DependencyArtifact.class.getName());        
@@ -56,7 +57,7 @@ public class Exclude extends AbstractCompoundXmlElement {
         map.put("systemPath", DependencyArtifact.class.getName());        
         map.put("exclusions", DependencyArtifact.class.getName());        
 */
-        setTagMapping(map);
+        setTagMap(map);
     }
 
     private String getChildTagValue(String tagName) {

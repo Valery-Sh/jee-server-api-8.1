@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.util.List;
-import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
@@ -11,8 +10,8 @@ import org.w3c.dom.Element;
 public abstract class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
 
     //protected List<XmlElement> childList;
-    //private Map<String, String> tagMapping;
-    private XmlTagMap tagMapping;
+    //private Map<String, String> tagMap;
+    private XmlTagMap tagMap;
     protected XmlChilds childs;
     
     protected AbstractCompoundXmlElement(String tagName) {
@@ -48,38 +47,54 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     }    
     /**
      * Checks whether the given tag name is supported as a child element. The
-     * method uses the property {@link #tagMapping ) to check.
+     * method uses the property {@link #tagMap ) to check.
      * If map is not {@literal  null{ and is not empty and the result of
-     * {@literal tagMapping.get(tagName) } is {@literal null} the the return
-     * value is {@literal false } otherwise the method returns {@literal true}.
-     *
-     * <p>
-     * If map is null or is empty then if the parameter {@literal tagName}
-     * is equal to {@literal "not-supported"} then the method returns
-     * {@literal false}. Otherwise the returned value is {@literal true}.
-     *
-     * @param tagName the tag name to be checked
+ {@literal tagMap.get(tagName) } is {@literal null} the the return
+ value is {@literal false } otherwise the method returns {@literal true}.
+
+ <p>
+ If map is null or is empty then if the parameter {@literal tagName}
+ is equal to {@literal "not-supported"} then the method returns
+ {@literal false}. Otherwise the returned value is {@literal true}.
+
+ @param tagName the tag name to be checked
      * @return {@literal true} if the given tag name is supported
      *      as a child element of the current element
      */
     @Override
     public boolean isChildSupported(String tagName) {
-        if (tagMapping != null && !tagMapping.isEmpty()) {
-            return tagMapping.get(tagName) != null;
+        if (tagMap != null && !tagMap.isEmpty() && tagMap.get(tagName) != null ) {
+            return tagMap.get(tagName) != null;
+        }
+        
+        XmlBase root = XmlBase.findXmlRoot(this);
+
+        if (root.getTagMap() != null && !root.getTagMap().isEmpty() ) {
+            return root.getTagMap().get(tagName) != null;
         }
         return false;
     }
 
     @Override
-    public Map<String, String> getTagMap() {
-        return tagMapping;
+    public XmlTagMap getTagMap() {
+        return tagMap;
     }
 
     @Override
-    public void setTagMapping(Map<String, String> tagMapping) {
-        this.tagMapping = tagMapping;
+    public void setTagMap(XmlTagMap tagMapping) {
+        this.tagMap = tagMapping;
     }
 
+/*    @Override
+    public Map<String, String> getTagMap() {
+        return tagMap;
+    }
+
+    @Override
+    public void setTagMapping(Map<String, String> tagMap) {
+        this.tagMap = tagMap;
+    }
+*/
     @Override
     public void commitUpdates() {
         super.commitUpdates();
