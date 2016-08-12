@@ -52,13 +52,13 @@ public class XmlPathsTest {
     }
 
     /**
-     * Test of get method, of class XmlPaths.
+     * Test of get method, of class XmlTagMap.
      */
     @Test
     public void testGet() {
         System.out.println("get");
         String path = "";
-        XmlPaths instance = new XmlPaths();
+        XmlTagMap instance = new XmlTagMap();
         String expResult = "";
         String result = instance.get(path);
         assertNotEquals(expResult, result);
@@ -67,7 +67,7 @@ public class XmlPathsTest {
 
 
     /**
-     * Test of check method, of class XmlPaths.
+     * Test of check method, of class XmlTagMap.
      */
     @Test
     public void testCheck() {
@@ -82,14 +82,14 @@ public class XmlPathsTest {
         
         List<XmlElement> parentChainList = XmlRoot.getParentChainList(book);
 
-        XmlPaths instance = new XmlPaths(this.rootMapping);
+        XmlTagMap instance = new XmlTagMap(this.rootMapping);
         //XmlErrors expResult = null;
         XmlErrors result = instance.check(parentChainList);
         assertTrue(result.isEmpty());
         
         XmlElement book01 = new XmlDefaultElement("book01");
         books.addChild(book01);
-        instance = new XmlPaths(rootMapping);
+        instance = new XmlTagMap(rootMapping);
         //XmlErrors expResult = null;
         parentChainList = XmlRoot.getParentChainList(book01);
         result = instance.check(parentChainList);
@@ -97,7 +97,7 @@ public class XmlPathsTest {
         
         XmlElement book02 = new XmlDefaultElement("book");
         books.addChild(book02);
-        instance = new XmlPaths(rootMapping);
+        instance = new XmlTagMap(rootMapping);
         parentChainList = XmlRoot.getParentChainList(book02);
         result = instance.check(parentChainList);
         assertEquals(result.size(),1);        

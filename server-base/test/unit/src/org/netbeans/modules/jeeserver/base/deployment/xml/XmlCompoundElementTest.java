@@ -9,15 +9,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlDocument;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTextElement;
 
 /**
  *
@@ -321,4 +316,21 @@ public class XmlCompoundElementTest {
         }
     }
 
+    
+    /**
+     * Test of getChildElements method, of class XmlCompoundElement. 1.
+     */
+    @Test
+    public void testTemp() {
+        System.out.println("testTemp");
+        XmlDocument xmlDocument = new XmlDocument(getClass()
+                .getResourceAsStream("resources/books01_attr.xml"));
+        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlElement books = root.getChilds().get(0);
+        XmlTagMap p;
+        
+        Element pen01 = xmlDocument.getDocument().getElementById("pen01");
+        books.getAttributes();
+    }
+    
 }

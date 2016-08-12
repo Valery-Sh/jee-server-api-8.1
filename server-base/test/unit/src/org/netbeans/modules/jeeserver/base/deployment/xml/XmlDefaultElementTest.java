@@ -3,7 +3,6 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;

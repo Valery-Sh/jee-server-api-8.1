@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.io.InputStream;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,7 +12,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
 
 /**
@@ -101,6 +99,7 @@ public class XmlElementTest {
         System.out.println("commitUpdates");
         XmlElement instance = new XmlElementImpl("book");
         instance.commitUpdates();
+        
     }
 
     public class XmlElementImpl implements XmlElement {

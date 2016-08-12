@@ -93,7 +93,7 @@ public class XmlChildElementFactoryTest {
     @Test
     public void testCreateInstance_root_mapping() {
         System.out.println("createInstance_root_mapping");
-        root.setXmlPaths(new XmlPaths(rootMapping));
+        root.setXmlPaths(new XmlTagMap(rootMapping));
         //
         // Now we create an element of type XmlDefaultElement
         // with a tag name 'book'

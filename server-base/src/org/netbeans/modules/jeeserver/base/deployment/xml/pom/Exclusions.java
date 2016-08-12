@@ -1,12 +1,9 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractCompoundXmlElement;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
 
 /**

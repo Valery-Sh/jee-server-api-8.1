@@ -60,9 +60,9 @@ public class XmlChildElementFactory {
     protected String getClassNameFromRoot(Element domElement) {
         String className = null;
         //
-        // find XmlRoot
+        // find XmlBase
         //
-        XmlRoot root = XmlRoot.findXmlRoot(parent);
+        XmlRoot root = (XmlRoot) XmlBase.findXmlRoot(parent);
         if (root != null && root.getXmlPaths() != null && !root.getXmlPaths().isEmpty()) {
             //
             // parentList includes all elements starting from root and 

@@ -14,6 +14,10 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     private Map<String, String> tagMapping;
     protected XmlChilds childs;
     
+    protected AbstractCompoundXmlElement(String tagName) {
+        this(tagName,null,null);
+    }
+    
     protected AbstractCompoundXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         super(tagName, element, parent);
     }

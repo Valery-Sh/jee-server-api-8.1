@@ -9,15 +9,15 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.XmlError;
  *
  * @author Valery Shishkin
  */
-public class XmlPaths {
+public class XmlTagMap {
 
     private final Map<String, String> map;
 
-    public XmlPaths() {
+    public XmlTagMap() {
         map = new HashMap<>();
     }
 
-    public XmlPaths(Map<String, String> map) {
+    public XmlTagMap(Map<String, String> map) {
         
         if ( map == null ) {
             this.map = new HashMap<>();

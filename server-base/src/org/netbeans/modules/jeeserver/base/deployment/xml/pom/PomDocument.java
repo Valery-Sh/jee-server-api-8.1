@@ -7,15 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlDocument;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- *
- * @author Valery
+/**
+ * A simple wrapper around a {@literal org.w3c.dom.Document }.
+ * The class inherits {@link XmlDocument } and contains methods to simplify
+ * operations with {@code Maven pom} documents.
+ * Provides methods for creating and saving objects of type 
+ * {@link Document }. Also provides convenience methods to manipulate
+ * the document's {@literal  DOM Tree }. 
+ * The class can be used independently of the XML API just to process only 
+ * simple {@literal DOM Documents } in more convenient way.
+ * 
+ * @author Valery Shyshkin
  */
 public class PomDocument extends XmlDocument {
 
@@ -82,7 +90,7 @@ public class PomDocument extends XmlDocument {
      * @see #setPackaging(java.lang.String) 
      */
     public PomDocument(String... basics) {
-        super();
+//        super();
         init(basics);
         //init(BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/resources/pom-template.xml"));
     }
@@ -325,12 +333,10 @@ public class PomDocument extends XmlDocument {
         return dependencyArtifacts;
     }
 
-    //@Override
-
     /**
-     * Return an instance of the {@link XmlRoot } class.
+     * Return an instance of the {@link PomRoot } class.
      * If an instance doesn't exist then a new one is created.
-     * @return an instance of the {@link XmlRoot } class.
+     * @return an instance of the {@link PomRoot } class.
      */
     @Override
     public PomRoot getXmlRoot() {

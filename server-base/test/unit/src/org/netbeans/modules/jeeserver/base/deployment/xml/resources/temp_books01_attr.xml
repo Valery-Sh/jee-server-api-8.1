@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shop>
-    <books>
+    <books attr01="books_attr01" attr02="books_attr02" >
+        <!-- book -->
         <!-- 
-            book 
-        -->
+               I found the pen and add a comment. 
+               Multy Line
+        -->        
         <book>First Book</book>
         <book>Second Book</book>
         <book/>
-        <pen>
+        <pen id="pen01">
+        <!-- book -->
+            
             <ink-pen>
+        <!-- book -->
+                
                 <color>red</color>
+        <!-- book -->
+                
                 <color>grin</color>
             </ink-pen>    
             <ball-pen>
+        <!-- book -->
+                
                 <color>blue</color>
                 <color>black</color>
             </ball-pen>    
