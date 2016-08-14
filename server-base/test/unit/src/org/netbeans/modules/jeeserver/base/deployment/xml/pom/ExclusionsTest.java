@@ -11,13 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Dependencies;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Dependency;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Exclude;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.Exclusions;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomRoot;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -44,17 +37,6 @@ public class ExclusionsTest {
     public void tearDown() {
     }
 
-    /**
-     * Test of isChildSupported method, of class Exclusions.
-     */
-    @Test
-    public void testIsChildSupported() {
-        System.out.println("isChildSupported");
-        PomDocument pomDocument = new PomDocument();
-        Element el = pomDocument.getDocument().createElement("exclude");
-        Exclusions exclusions = new Exclusions();
-        assertTrue(exclusions.isChildSupported(el.getTagName())); 
-    }
 
     /**
      * Test of getChildElements method, of class Exclusions.

@@ -1,9 +1,7 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.XmlError;
 
 /**
  *
@@ -12,9 +10,10 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.XmlError;
 public class XmlTagMap {
 
     private final Map<String, String> map;
-
+    private String defaultClass;
+    
     public XmlTagMap() {
-        map = new HashMap<>();
+        this(new HashMap<>());
     }
 
     public XmlTagMap(Map<String, String> map) {
@@ -24,9 +23,22 @@ public class XmlTagMap {
         } else {
             this.map = map;
         }
+        //defaultClass = XmlDefaultElement.class.getName();        
         
     }
+    
+    public boolean isTagPathSupported(String tagPath) {
+        
+        if (getDefaultClass() != null) {
+            return true;
+        }
 
+        if (null != get(tagPath)) {
+            return true;
+        }
+        return false;
+    }
+    
     public String put(String path, String clazz) {
         return map.put(path, clazz);
     }
@@ -55,53 +67,12 @@ public class XmlTagMap {
         return map.containsValue(clazz);
     }
 
-    public XmlErrors check(List<XmlElement> parentChainList) {
-        XmlErrors errors = new XmlErrors();
-        if (isEmpty()) {
-            return errors;
-        }
-        String rp = rootRelativePath(parentChainList);
-        String clazz = get(rp);
-        XmlElement elem = parentChainList.get(parentChainList.size() - 1);
-        String msg = "Error. Element class=" 
-                + elem.getClass().getName()
-                + ". Root relative path='" + rp + "'";
-        
-        if (clazz == null) {
-            msg += ". Invalid tag name '"
-                    + elem.getTagName() + "'";
-            XmlError error = new XmlError(msg,
-                    new XmlErrors.InvalidTagNameException(msg), parentChainList);
-            errors.addError(error);
-        } else if ( ! clazz.equals(elem.getClass().getName())) {
-            msg += ". Invalid class name. Must be " 
-                    + clazz; 
-            XmlError error = new XmlError(msg,
-                    new XmlErrors.InvalidClassNameException(msg), parentChainList);                    
-            errors.addError(error);
-        }
-        return errors;
+    public String getDefaultClass() {
+        return defaultClass;
     }
 
-    /**
-     * Create path relative to the root as a string.
-     *
-     * @param parentChainList a list of {@literal  XmlElement}
-     * @return a concatenation of tag names separated by a slash. The first
-     * symbol cannot be slash.
-     */
-    public static String rootRelativePath(List<XmlElement> parentChainList) {
-        StringBuilder pathBuilder = new StringBuilder();
-        String slash = "/";
-        for (int i = 1; i < parentChainList.size(); i++) {
-            if (i == parentChainList.size() - 1) {
-                slash = "";
-            }
-
-            pathBuilder
-                    .append(parentChainList.get(i).getTagName())
-                    .append(slash);
-        }
-        return pathBuilder.toString();
+    public void setDefaultClass(String defaultClass) {
+        this.defaultClass = defaultClass;
     }
+            
 }

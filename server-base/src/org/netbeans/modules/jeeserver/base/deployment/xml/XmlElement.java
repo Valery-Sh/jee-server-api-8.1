@@ -20,6 +20,8 @@ public interface XmlElement {
     
     void commitUpdates();
     
+    //void check();    
+    
     XmlCompoundElement getParent();
     
     void setParent(XmlCompoundElement parent);

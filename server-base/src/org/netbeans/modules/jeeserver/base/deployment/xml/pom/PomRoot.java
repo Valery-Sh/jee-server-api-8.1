@@ -24,6 +24,7 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
         map.put("dependencies", Dependencies.class.getName());
         map.put("properties", PomProperties.class.getName());
         setTagMap(map);
+        getTagMap().setDefaultClass(null);
     }
 
 /*    @Override
@@ -57,17 +58,16 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
      * @param tagName a tag name to be checked
      * @return {@literal true } if the element is supported 
      */
-    @Override
+/*    @Override
     public boolean isChildSupported(String tagName) {
         //if ( ! "project".equals(getElement().getTagName()) ) {
         if ( !isPomDocument() ) {
             return true;
         } 
-        if (getTagMap() != null && !getTagMap().isEmpty()) {
-            return getTagMap().get(tagName) != null;
-        }
-        return false;
+        return getTagMap().get(tagName) != null;
+        
     }
+*/    
     
     
     public boolean isPomDocument() {

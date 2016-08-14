@@ -19,5 +19,5 @@ public class XmlDefaultTextElement extends AbstractXmlTextElement {
     protected XmlDefaultTextElement(String tagName, XmlCompoundElement parent) {
         super(tagName, null, parent);
     }
-    
+
 }

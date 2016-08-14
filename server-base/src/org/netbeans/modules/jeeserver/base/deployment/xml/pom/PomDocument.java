@@ -201,7 +201,6 @@ public class PomDocument extends XmlDocument {
         init(is);
     }
 
-
     private void init(InputStream pomXmlStream) {
         document = parse(pomXmlStream);
     }

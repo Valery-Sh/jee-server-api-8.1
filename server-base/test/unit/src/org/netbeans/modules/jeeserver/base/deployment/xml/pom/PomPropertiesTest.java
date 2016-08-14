@@ -37,19 +37,6 @@ public class PomPropertiesTest {
     public void tearDown() {
     }
 
-    /**
-     * Test of isChildSupported method, of class PomProperties.
-     * The only {@literal property } DOM Element is supported as a child. 
-     *
-     */
-    @Test
-    public void testIsChildSupported() {
-        System.out.println("isChildSupported");
-        PomDocument pomDocument = new PomDocument();
-        Element el = pomDocument.getDocument().createElement("property");
-        PomProperties properties = new PomProperties();
-        assertTrue(properties.isChildSupported(el.getTagName())); 
-    }
 
     /**
      * Test of getChildElements method, of class PomProperties.

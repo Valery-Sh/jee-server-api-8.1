@@ -2,8 +2,6 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +44,7 @@ public class XmlDefaultElementTest {
         XmlDefaultElement instance = new XmlDefaultElement("books");
         XmlTagMap expResult = null;        
         XmlTagMap result = instance.getTagMap();        
-        assertEquals(expResult, result);
+        assertNotEquals(expResult, result);
         
         XmlTagMap map = new XmlTagMap();
         instance.setTagMap(map);
@@ -68,83 +66,65 @@ public class XmlDefaultElementTest {
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of isChildSupported method, of class XmlDefaultElement.
-     * We expect that the method {@link XmlDefaultElement#isChildSupported(java.lang.String)
-     * does following:
-     * 
-     * <ul>
-     *    <li>
-     *       If the tagMapping is null or is empty then:
-     *       If the given tagName equals to "not-suppoted" then the 
-     *       method returns {@literal false }. Otherwise it returns {@literal true }
-     *    </li>
-     *    <li>
-     *      If the tagMapping is not null or is not empty then:
-     *       Tries get the value by the given tagName from the tagMapping
-     *       property. If we get {@literal null } value then the method returns
-     *       {@literal false }. otherwise it returns {@literal true }
-     *    </li>
-     * </ul>
-     */
+
     @Test
-    public void testIsChildSupported() {
-        System.out.println("isChildSupported");
+    public void testCheck() {
+        System.out.println("check");
+        //XmlDocument xmlDocument = new XmlDocument("shop");
+        XmlBase root = new XmlBase("shop");
+        root.getTagMap().put("books", XmlDefaultElement.class.getName());
+        root.getTagMap().put("books/book", XmlDefaultTextElement.class.getName());
+        root.getTagMap().setDefaultClass(null);          
+        
         String tagName = "books";
-        
-        XmlDefaultElement instance = new XmlDefaultElement(tagName);
-        //
-        // expResult must be true because the property tagMapping is null
-        // and tagName is not equals to "not-supported".
-        //
-        boolean expResult = true;
-        boolean result = instance.isChildSupported("book");
-        assertEquals(expResult, result);
-        
-        XmlTagMap map = new XmlTagMap();
-        instance.setTagMap(map);
-        //
-        // expResult must be true because the property tagMapping is empty
-        // and tagName is not equals to "not-supported".
-        //
-        expResult = true;
-        result = instance.isChildSupported("book");
-        assertEquals(expResult, result);
-
-        //
-        // expResult must be true because the property tagMapping contains
-        // not null value for the key "book"
-        //
-        expResult = true;
-        map.put("book", "");
-        result = instance.isChildSupported("book");
-        assertEquals(expResult, result);
+        XmlDefaultElement books = new XmlDefaultElement(tagName);
         
         //
-        // expResult must be false because the property tagMapping 
-        // doesn't contain  not null value for the key "chapter"
+        // Create an element with a tag name 'boooooook'. 
+        // The tag name 'boooooook' is not supported
+        // It is an error.
         //
-        expResult = false;
-        result = instance.isChildSupported("chapter");
-        assertEquals(expResult, result);
-
+        XmlDefaultElement errorElement = new XmlDefaultElement("boooooook");
+        books.addChild(errorElement);
+        
+        root.addChild(books);        
+        
+        
+        root.check();
+        XmlErrors errors = root.getCheckErrors();                
+        assertEquals(1, errors.size());
+        
+        root.getTagMap().setDefaultClass(XmlDefaultElement.class.getName());         
+        
+        root.check();
+        
+        errors = root.getCheckErrors();
+        assertEquals(0, errors.size());
         //
-        // expResult must be true because the property tagMapping 
-        // is empty and "chapter" is not equals to "not-supported"
+        // Set defaultClass to null
         //
-        expResult = true;
-        map.remove("book");
-        result = instance.isChildSupported("chapter");
-        assertEquals(expResult, result);
+        root.getTagMap().setDefaultClass(null);
         //
-        // expResult must be false because the property tagMapping 
-        // is empty and the parameter is equals to "not-supported"
+        // Create an element with a tag name 'book'. 
+        // The tag name 'book' is supported but we create invalid class. Must be 
+        // XmlDefaultTextElement. It is an error.
         //
-        expResult = true;
-        result = instance.isChildSupported("not-chapter");
-        assertEquals(expResult, result);
-    }
-
+        XmlCompoundElement book = new XmlDefaultElement("book");
+   //
+        // Create an element with a tag name 'chapter'. 
+        // The tag name 'chapter' is not supported.
+        // It is an error.
+        //        
+        XmlDefaultTextElement chapter = new XmlDefaultTextElement("chapter");
+        book.addChild(chapter);
+        books.addChild(book);
+        
+        root.check();
+        errors = root.getCheckErrors();
+        assertEquals(3, errors.size());        
+    }    
+    
+    
     /**
      * Test of commitUpdates method, of class XmlDefaultElement.
      * We are testing this method due to the fact that the class 
@@ -154,6 +134,7 @@ public class XmlDefaultElementTest {
     public void testCommitUpdates() {
         System.out.println("commitUpdates");
         XmlDocument xmlDocument = new XmlDocument("shop");
+        
         XmlRoot root = new XmlRoot(xmlDocument);
         XmlDefaultElement books = new XmlDefaultElement("books");
         root.addChild(books);        

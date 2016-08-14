@@ -39,6 +39,7 @@ public class Dependencies extends AbstractCompoundXmlElement {
         XmlTagMap map = new XmlTagMap();
         map.put("dependency", Dependency.class.getName());
         setTagMap(map);
+        getTagMap().setDefaultClass(null);
     }
     
     public Dependency findDependency(String groupId,String artifactId, String type) {

@@ -36,6 +36,7 @@ public class Exclusions  extends AbstractCompoundXmlElement {
         XmlTagMap map = new XmlTagMap();
         map.put("exclude", Exclude.class.getName());
         setTagMap(map);
+        getTagMap().setDefaultClass(null);
     }
 
 }

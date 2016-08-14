@@ -1,5 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
+import java.util.List;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,6 +15,7 @@ import org.w3c.dom.Node;
  */
 public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
 
+    
     private final Document document;
     /**
      * Creates an instance of the class by the given object of type
@@ -65,11 +67,11 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
      *
      * @return {@literal true } if the element is supported
      */
-    @Override
+/*    @Override
     public boolean isChildSupported(String tagName) {
         return true;
     }
-
+*/
     /**
      * Adds the comment lines after the last child node of the target.
      * 
@@ -115,4 +117,25 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
         parentNode.insertBefore(c, el);
     }
 
+    /**
+     * When working with a {@literal xml document } we can create, add, modify
+     * or remove elements that are not actually {@literal  DOM Tree }
+     * members. For each child element of type {@literal XmlElement }
+     * sets it's parent as this object and invokes child's
+     * {@literal  commitUpdates} method and then calls 
+     * {@link  #generateErrors(org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement) }.
+     */
+    @Override
+    public void commitUpdates() {
+
+        setCommitErrors(new XmlErrors());
+
+        List<XmlElement> list = getChilds().list();
+        list.forEach(el -> {
+            el.setParent(this);
+            el.commitUpdates();
+            XmlBase.generateErrors(el);
+        });
+    }
+    
 }//class XmlRoot

@@ -2,6 +2,7 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -11,10 +12,10 @@ import org.w3c.dom.Element;
  */
 public class XmlChildElementFactory {
 
-    private final XmlCompoundElement parent;
+    private final XmlCompoundElement xmlParent;
 
-    public XmlChildElementFactory(XmlCompoundElement parent) {
-        this.parent = parent;
+    public XmlChildElementFactory(XmlCompoundElement xmlParent) {
+        this.xmlParent = xmlParent;
     }
 
     public XmlElement createXmlElement(Element domElement) {
@@ -35,8 +36,8 @@ public class XmlChildElementFactory {
             Class<?> clazz = Class.forName(className);
             Constructor<?> ctor = clazz.getDeclaredConstructor(Element.class, XmlCompoundElement.class);
             ctor.setAccessible(true);
-            element = (XmlElement) ctor.newInstance(new Object[]{domElement, parent});
-            //newInstance(ctor, new Object[]{domElement, parent});
+            element = (XmlElement) ctor.newInstance(new Object[]{domElement, xmlParent});
+            //newInstance(ctor, new Object[]{domElement, xmlParent});
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException ex) {
             element = null;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
@@ -47,22 +48,81 @@ public class XmlChildElementFactory {
 
     protected String getClassName(Element domElement) {
         String className = null;
-        if (parent.getTagMap() != null) {
-            className = parent.getTagMap().get(domElement.getTagName());
+        
+        if (xmlParent.getTagMap() != null) {
+            className = xmlParent.getTagMap().get(domElement.getTagName());
         }
+        
+        if (className == null) {
+            // try get className from the root
+            List<XmlCompoundElement> parentChain = new ArrayList<>();
+            parentChain.add(xmlParent);
+            className = getClassNameFromParent(parentChain, domElement);
+        }
+        
+        
+        if ( className == null ) {
+            if ( xmlParent.getTagMap().getDefaultClass() != null ) {
+                className = xmlParent.getTagMap().getDefaultClass();
+            } else {
+                className = getDefaultClassNameFromParent(xmlParent);
+            }
+        }
+        
+        
+/*        
         if (className == null) {
             // try get className from the root
             className = getClassNameFromRoot(domElement);
         }
+*/
         return className;
     }
-
+    protected String getDefaultClassNameFromParent(XmlCompoundElement el) {
+        String className = null;
+        
+        if ( el.getParent() == null ) {
+            return null;
+        }
+        
+        className = el.getParent().getTagMap().getDefaultClass();
+        
+        if ( className == null ) {
+            className = getDefaultClassNameFromParent(el.getParent());
+        }
+                
+        return className;
+    }
+    
+    protected String getClassNameFromParent(List<XmlCompoundElement> parentChain , Element domElement) {
+        String className = null;
+        
+        XmlCompoundElement xmlEl = parentChain.get(0);
+        
+        if ( xmlEl.getParent() == null ) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for ( int i=0; i < parentChain.size(); i++) {
+            sb.append(parentChain.get(i).getTagName())
+                    .append("/");
+        }
+        sb.append(domElement.getTagName());
+        
+        className = xmlEl.getParent().getTagMap().get(sb.toString());
+        if ( className == null ) {
+            parentChain.add(0,xmlEl.getParent());
+            className = getClassNameFromParent(parentChain, domElement);
+        }
+                
+        return className;
+    }
     protected String getClassNameFromRoot(Element domElement) {
         String className = null;
         //
         // find XmlBase
         //
-        XmlRoot root = (XmlRoot) XmlBase.findXmlRoot(parent);
+        XmlRoot root = (XmlRoot) XmlBase.findXmlRoot(xmlParent);
         if (root != null && root.getTagMap() != null && !root.getTagMap().isEmpty()) {
             //
             // parentList includes all elements starting from root and 

@@ -10,8 +10,6 @@ import static org.junit.Assert.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
-import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
 
 /**
@@ -36,7 +34,7 @@ public class XmlElementTest {
 
     @Before
     public void setUp() {
-        InputStream is = this.getClass().getResourceAsStream("resources/doc01.xml");
+        InputStream is = this.getClass().getResourceAsStream("resources/temp_doc01.xml");
         pomDocument = new PomDocument(is);
         document = pomDocument.getDocument();
         NodeList nl = document.getElementsByTagName("parentTag01");
@@ -169,5 +167,17 @@ public class XmlElementTest {
             }
 
         }
+/*        @Override
+        public void check() {
+            if (getParent() == null) {
+                throw new NullPointerException(
+                        " The element '" + getTagName() + "' doesn't have a parent element");
+            }
+            
+
+        }
+*/
+        
+        
     }
 }

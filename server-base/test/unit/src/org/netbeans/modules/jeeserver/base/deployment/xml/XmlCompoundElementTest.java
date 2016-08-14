@@ -1,18 +1,14 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -42,7 +38,7 @@ public class XmlCompoundElementTest {
     /**
      * Test of isChildSupported method, of class XmlCompoundElement.
      */
-    @Test
+/*    @Test
     public void testIsChildSupported() {
         System.out.println("isChildSupported");
         Element el = null;
@@ -56,7 +52,7 @@ public class XmlCompoundElementTest {
         assertFalse(result);
 
     }
-
+*/
     /**
      * Test of getChildElements method, of class XmlCompoundElement. 1.
      */
@@ -106,16 +102,18 @@ public class XmlCompoundElementTest {
         XmlDocument pd = new XmlDocument("books");
         XmlRoot root = pd.getXmlRoot();
         //
-        // create <book> DOM Element and append it to thr root
+        // create <book> DOM Element and append it to the root
         //
         Element bookElement = pd.getDocument().createElement("book");
         root.getElement().appendChild(bookElement);
+
         //
         // create <chapter> DOM Element and append it to thr bookElement
         //
         Element chapter01 = pd.getDocument().createElement("chapter");
         chapter01.setTextContent("chapter number 1");
         bookElement.appendChild(chapter01);
+        
         
         //
         //
@@ -187,6 +185,7 @@ public class XmlCompoundElementTest {
         private String tagName;
         private Element element;
         private XmlCompoundElement parent;
+        private XmlTagMap tagMap;
 
         public XmlCompoundElementImpl(String tagName) {
             this(tagName, null, null);
@@ -200,21 +199,16 @@ public class XmlCompoundElementTest {
             this.tagName = tagName;
             this.element = element;
             this.parent = parent;
+            tagMap = new XmlTagMap(); 
         }
 
         protected XmlCompoundElementImpl(Element element, XmlCompoundElement parent) {
             this.tagName = element.getTagName();
             this.element = element;
             this.parent = parent;
+            tagMap = new XmlTagMap(); 
         }
 
-        @Override
-        public boolean isChildSupported(String tagName) {
-            if ("not-supported".equals(tagName)) {
-                return false;
-            }
-            return true;
-        }
 
         @Override
         public String getTagName() {
@@ -245,6 +239,23 @@ public class XmlCompoundElementTest {
 
         }
 
+/*        @Override
+        public void check() {
+            if (getParent() == null) {
+                throw new NullPointerException(
+                        " The element '" + getTagName() + "' doesn't have a parent element");
+            }
+            //
+            // We cannot use getChildElements() to scan because one or more elements may be deleted. 
+            //
+            List<XmlElement> list = getChilds().list();
+            list.forEach(el -> {
+                el.setParent(this);
+                 XmlRoot.check(el);
+            });
+
+        }
+  */      
         @Override
         public XmlCompoundElement getParent() {
             return this.parent;
@@ -277,7 +288,7 @@ public class XmlCompoundElementTest {
 
         @Override
         public XmlTagMap getTagMap() {
-            return null;
+            return tagMap;
         }
         
         public XmlChilds getChilds() {
@@ -288,7 +299,7 @@ public class XmlCompoundElementTest {
         }
         @Override
         public void setTagMap(XmlTagMap tagMapping) {
-            
+            this.tagMap = tagMapping;
         }
 
     } //class
@@ -324,7 +335,7 @@ public class XmlCompoundElementTest {
     public void testTemp() {
         System.out.println("testTemp");
         XmlDocument xmlDocument = new XmlDocument(getClass()
-                .getResourceAsStream("resources/books01_attr.xml"));
+                .getResourceAsStream("resources/temp_books01_attr.xml"));
         XmlRoot root = xmlDocument.getXmlRoot();
         XmlElement books = root.getChilds().get(0);
         XmlTagMap p;

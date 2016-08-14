@@ -1,9 +1,7 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractCompoundXmlElement;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
@@ -47,6 +45,7 @@ public class Dependency extends AbstractCompoundXmlElement {
         map.put("exclusions", Exclusions.class.getName());        
 
         setTagMap(map);
+        getTagMap().setDefaultClass(null);
     }
 
     private boolean equals(String s1, String s2) {

@@ -13,19 +13,23 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     //private Map<String, String> tagMap;
     private XmlTagMap tagMap;
     protected XmlChilds childs;
-    
+
     protected AbstractCompoundXmlElement(String tagName) {
-        this(tagName,null,null);
+        this(tagName, null, null);
+       
     }
-    
+
     protected AbstractCompoundXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         super(tagName, element, parent);
+         tagMap = new XmlTagMap();
     }
+
     /**
-     * Returns an instance of object of type {@literal org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds}.
-     * If the {@literal childs } property value has not been set yet the 
-     * this method creates a new instance and sets the property value. 
-     * 
+     * Returns an instance of object of type
+     * {@literal org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds}.
+     * If the {@literal childs } property value has not been set yet the this
+     * method creates a new instance and sets the property value.
+     *
      * @return an Object of type {@link XmlChilds }
      */
     @Override
@@ -34,8 +38,8 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
             childs = new XmlChilds(this);
         }
         return childs;
-    }   
-   
+    }
+
     @Override
     public XmlElement cloneXmlElementInstance() {
         XmlCompoundElement p = (XmlCompoundElement) super.cloneXmlElementInstance();
@@ -44,37 +48,42 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
             p.getChilds().add(e.cloneXmlElementInstance());
         });
         return p;
-    }    
+    }
+
     /**
      * Checks whether the given tag name is supported as a child element. The
      * method uses the property {@link #tagMap ) to check.
-     * If map is not {@literal  null{ and is not empty and the result of
- {@literal tagMap.get(tagName) } is {@literal null} the the return
- value is {@literal false } otherwise the method returns {@literal true}.
-
- <p>
- If map is null or is empty then if the parameter {@literal tagName}
- is equal to {@literal "not-supported"} then the method returns
- {@literal false}. Otherwise the returned value is {@literal true}.
-
- @param tagName the tag name to be checked
+ If map is not {@literal  null{ and is not empty and the result of
+     * {@literal tagMap.get(tagName) } is {@literal null} the the return
+     * value is {@literal false } otherwise the method returns {@literal true}.
+     *
+     * <p>
+     * If map is null or is empty then if the parameter {@literal tagName}
+     * is equal to {@literal "not-supported"} then the method returns
+     * {@literal false}. Otherwise the returned value is {@literal true}.
+     *
+     * @param tagName the tag name to be checked
      * @return {@literal true} if the given tag name is supported
      *      as a child element of the current element
      */
-    @Override
+/*    @Override
     public boolean isChildSupported(String tagName) {
-        if (tagMap != null && !tagMap.isEmpty() && tagMap.get(tagName) != null ) {
-            return tagMap.get(tagName) != null;
-        }
         
-        XmlBase root = XmlBase.findXmlRoot(this);
+        if (tagMap.getDefaultClass() != null) {
+            return true;
+        }
 
-        if (root.getTagMap() != null && !root.getTagMap().isEmpty() ) {
-            return root.getTagMap().get(tagName) != null;
+        if (null != tagMap.get(tagName)) {
+            return true;
+        } 
+        
+        if (getParent() != null) {
+            return getParent().isChildSupported(getTagName() + "/" + tagName);
         }
         return false;
-    }
 
+    }
+*/
     @Override
     public XmlTagMap getTagMap() {
         return tagMap;
@@ -85,7 +94,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         this.tagMap = tagMapping;
     }
 
-/*    @Override
+    /*    @Override
     public Map<String, String> getTagMap() {
         return tagMap;
     }
@@ -94,7 +103,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     public void setTagMapping(Map<String, String> tagMap) {
         this.tagMap = tagMap;
     }
-*/
+     */
     @Override
     public void commitUpdates() {
         super.commitUpdates();
@@ -102,19 +111,38 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         // We cannot use getChildElements() to scan because one or more elements may be deleted. 
         //
         List<XmlElement> list = getChilds().list();
-        if ( this instanceof XmlTextElement ) {
-            if (list.isEmpty() && ((XmlTextElement)this).getText() != null) {
-                getElement().setTextContent(((XmlTextElement)this).getText());
+        if (this instanceof XmlTextElement) {
+            if (list.isEmpty() && ((XmlTextElement) this).getText() != null) {
+                getElement().setTextContent(((XmlTextElement) this).getText());
                 return;
             }
         }
-        
+
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();
+            XmlRoot.generateErrors(el);
+        });
+
+    }
+    
+/*    @Override
+    public void check() {
+        super.check();
+
+        List<XmlElement> list = getChilds().list();
+        if (this instanceof XmlTextElement) {
+            if (list.isEmpty() && ((XmlTextElement) this).getText() != null) {
+                return;
+            }
+        }
+
+        list.forEach(el -> {
+            el.setParent(this);
+            el.check();
             XmlRoot.check(el);
         });
 
     }
-
+*/
 }

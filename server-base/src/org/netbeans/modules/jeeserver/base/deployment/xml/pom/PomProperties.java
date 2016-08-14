@@ -36,6 +36,7 @@ public class PomProperties extends AbstractCompoundXmlElement {
         XmlTagMap map = new XmlTagMap();
         map.put("property", Property.class.getName());
         setTagMap(map);
+        getTagMap().setDefaultClass(null);
     }
 
 }

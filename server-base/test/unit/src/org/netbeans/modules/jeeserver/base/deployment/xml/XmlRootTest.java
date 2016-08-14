@@ -72,7 +72,7 @@ public class XmlRootTest {
 
         xmlDocument = new XmlDocument(is);
         root = new XmlRoot(xmlDocument); 
-        //root.setTagMapping(rootMapping);
+
         
         
 
@@ -115,7 +115,7 @@ public class XmlRootTest {
         XmlRoot instance = root;
         XmlTagMap expResult = null;
         XmlTagMap result = instance.getTagMap();
-        assertEquals(expResult, result);
+        assertNotEquals(expResult, result);
         
         expResult = new XmlTagMap();
         root.setTagMap(expResult);
@@ -128,7 +128,7 @@ public class XmlRootTest {
      * Test of setPaths method, of class XmlRoot.
      */
     @Test
-    public void testSetPaths() {
+    public void testSetTagNap() {
         System.out.println("setPaths");
         XmlRoot instance = root;
         XmlTagMap expResult = new XmlTagMap();
@@ -140,22 +140,61 @@ public class XmlRootTest {
 
     }
 
+
+    /**
+     * Test of check method, of class XmlTagMap.
+     */
+    @Test
+    public void testCheck_list_chain() {
+        System.out.println("check_chain");
+        
+        XmlCompoundElement books = new XmlDefaultElement("books");
+        root.addChild(books);
+        
+        XmlElement book = new XmlDefaultTextElement("book");
+        books.addChild(book);
+        
+        
+        List<XmlElement> parentChainList = XmlRoot.getParentChainList(book);
+
+//        XmlTagMap instance = new XmlTagMap(this.rootMapping);
+        
+        //XmlErrors expResult = null;
+        XmlErrors result = root.getnerateErrors(parentChainList);
+        assertTrue(result.isEmpty());
+        
+        XmlElement book01 = new XmlDefaultElement("book01");
+        books.addChild(book01);
+        root.setTagMap(new XmlTagMap(this.rootMapping));
+        //XmlErrors expResult = null;
+        parentChainList = XmlRoot.getParentChainList(book01);
+        result = root.getnerateErrors(parentChainList);
+        assertEquals(result.size(),1);
+        
+        XmlElement book02 = new XmlDefaultElement("book");
+        books.addChild(book02);
+        
+        parentChainList = XmlRoot.getParentChainList(book02);
+        result = root.getnerateErrors(parentChainList);
+        assertEquals(result.size(),1);        
+    }
+    
     /**
      * Test of check method, of class XmlRoot.
      */
     @Test
-    public void testCheck() {
-        System.out.println("check");
-        XmlElement books = new XmlDefaultElement("books");
+    public void testCheck_XmlElement() {
+        System.out.println("check_XmlElement");
+        XmlElement books = new XmlDefaultElement("boooooks");
         root.addChild(books);
         
         XmlElement toCheck = books;
-        XmlErrors result = XmlRoot.check(toCheck);
+        XmlErrors result = XmlBase.generateErrors(toCheck);
         assertTrue(result.isEmpty());
         
         root.setTagMap(new XmlTagMap(rootMapping));
         root.commitUpdates();
-        assertEquals(root.getCommitErrors().size(), 6);
+        assertEquals(1,root.getCheckErrors().size());
     }
     /**
      * Test of check method, of class {@literal XmlRoot}.
@@ -169,12 +208,12 @@ public class XmlRootTest {
         root.addChild(books);
         
         XmlElement toCheck = books;
-        XmlErrors result = XmlRoot.check(toCheck);
+        XmlErrors result = XmlRoot.generateErrors(toCheck);
         assertTrue(result.isEmpty());
         
         root.setTagMap(new XmlTagMap(fullRootMapping));
         root.commitUpdates();
-        assertEquals(root.getCommitErrors().size(), 0);
+        assertEquals(root.getCheckErrors().size(), 0);
         
     }
     /**
@@ -189,12 +228,12 @@ public class XmlRootTest {
         root.addChild(books);
         
         XmlElement toCheck = books;
-        XmlErrors result = XmlRoot.check(toCheck);
+        XmlErrors result = XmlRoot.generateErrors(toCheck);
         assertTrue(result.isEmpty());
         
         root.setTagMap(new XmlTagMap(patternRootMapping));
         root.commitUpdates();
-        //assertEquals(0,root.getCommitErrors().size());
+        //assertEquals(0,root.getCheckErrors().size());
         
     }
 

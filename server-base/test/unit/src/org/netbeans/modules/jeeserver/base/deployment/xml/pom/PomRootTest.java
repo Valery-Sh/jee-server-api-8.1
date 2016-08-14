@@ -291,15 +291,6 @@ public class PomRootTest {
      * must return {@literal  true} if the parameter specified
      * corresponds to the {@literal dependencies ) tag. 
      */
-    @Test
-    public void testIsChildSupported() {
-        System.out.println("isChildSupported");
-        pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
-        Element el = pomDocument.getDocument().createElement("dependencies");
-        
-        assertTrue(pomRoot.isChildSupported(el.getTagName())); 
-    }
 
     /**
      * Test of getChildElements method, of class XmlRoot.

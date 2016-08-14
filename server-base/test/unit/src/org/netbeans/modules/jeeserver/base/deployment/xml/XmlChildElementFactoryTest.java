@@ -1,8 +1,7 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -43,8 +42,6 @@ public class XmlChildElementFactoryTest {
 
         XmlDocument xmlDocument = new XmlDocument(is);
         root = new XmlRoot(xmlDocument); 
-        root.setTagMap(rootMapping);
-        
     }
 
     @After
@@ -91,9 +88,11 @@ public class XmlChildElementFactoryTest {
      * Use tagMapping
      */
     @Test
-    public void testCreateInstance_root_mapping() {
-        System.out.println("createInstance_root_mapping");
+    public void testCreateInstance_root_mapping_all_supopoted() {
+        System.out.println("createInstance_root_mapping_all_supopoted");
         root.setTagMap(rootMapping);
+        root.getTagMap().setDefaultClass(XmlDefaultElement.class.getName());
+        
         //
         // Now we create an element of type XmlDefaultElement
         // with a tag name 'book'
@@ -117,16 +116,38 @@ public class XmlChildElementFactoryTest {
         // 
         assertTrue(factoryResult instanceof XmlDefaultTextElement);
         
+        List<XmlElement> list = XmlBase.findChildsByPath(root, "books/pen/ink-pen");
+        assertEquals(1,list.size());
+        assertTrue(list.get(0) instanceof XmlDefaultElement);
+    
+        XmlElement otherElement = new XmlDefaultTextElement("boook");
+        books.addChild(otherElement);
+        list = XmlBase.findChildsByPath(root, "books/boook");
+        assertTrue(list.get(0) instanceof XmlDefaultTextElement);
+        
+        
+        
         int i = 0;
         
-/*        
-        XmlChildElementFactory factory = new XmlChildElementFactory(books);
-        XmlElement factoryResult = factory.createXmlElement(book.getElement());
-        
-        Element domElement = null;
-        XmlChildElementFactory instance = null;
-        XmlElement expResult = null;
-    
-*/  
     }
+    
+    /**
+     * Test of  method createInstamce of class XmlChildElementFactory.
+     * Use tagMapping
+     */
+    @Test
+    public void testCreateInstance_root_mapping_not_all_supopoted() {
+        System.out.println("createInstance_root_mapping_not_all_supopoted");
+        root.setTagMap(rootMapping);
+        rootMapping.setDefaultClass(null);
+        //
+        // do commitUpdates() just to appenf a new book element to the DOM Tree
+        //
+        //root.commitUpdates();
+        List<XmlElement> list = XmlBase.findChildsByPath(root, "books/pen/ink-pen");
+        //assertEquals(0,list.size());
+
+        
+    }
+    
 }

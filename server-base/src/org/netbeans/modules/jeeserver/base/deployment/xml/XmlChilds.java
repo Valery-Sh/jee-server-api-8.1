@@ -12,11 +12,11 @@ import org.w3c.dom.NodeList;
 public class XmlChilds {
 
     private final List<XmlElement> childs;
-    private final XmlCompoundElement parent;
+    private final XmlCompoundElement childsOwner;
 
-    public XmlChilds(XmlCompoundElement parent) {
+    public XmlChilds(XmlCompoundElement childsOwner) {
         childs = new ArrayList<>();
-        this.parent = parent;
+        this.childsOwner = childsOwner;
         init();
     }
 
@@ -32,13 +32,12 @@ public class XmlChilds {
 
         domList.forEach(el -> {
             String s = el.getTagName();
-            XmlChildElementFactory f = new XmlChildElementFactory(parent);
+            XmlChildElementFactory f = new XmlChildElementFactory(childsOwner);
             XmlElement xmlEl = f.createXmlElement(el);
 
-            if (xmlEl == null) {
-                xmlEl = new XmlDefaultElement(el, parent);
-            }
-
+//            if (xmlEl == null) {
+//                xmlEl = new XmlDefaultElement(el, childsOwner);
+//            }
             if ((xmlEl instanceof XmlTextElement)) {
                 String content = xmlEl.getElement().getTextContent();
                 if (!XmlDocument.hasChildElements(xmlEl.getElement()) && content.length() > 0) {
@@ -54,13 +53,14 @@ public class XmlChilds {
     protected List<Element> getChildDomElements() {
 
         List<Element> list = new ArrayList<>();
-        if (parent.getElement() != null) {
-            NodeList nl = parent.getElement().getChildNodes();
+        if (childsOwner.getElement() != null) {
+            NodeList nl = childsOwner.getElement().getChildNodes();
             if (nl != null && nl.getLength() > 0) {
                 for (int i = 0; i < nl.getLength(); i++) {
                     if ((nl.item(i) instanceof Element)) {
                         Element el = (Element) nl.item(i);
-                        if (!parent.isChildSupported(el.getTagName())) {
+                        //if (!childsOwner.isChildSupported(el.getTagName())) {
+                        if (!isChildSupported(childsOwner, el.getTagName())) {
                             continue;
                         }
                         list.add(el);
@@ -71,10 +71,22 @@ public class XmlChilds {
         return list;
     }
 
+    protected boolean isChildSupported(XmlCompoundElement xmlElement, String tagName) {
+        boolean result = xmlElement.getTagMap().isTagPathSupported(tagName);
+        if (result) {
+            return true;
+        }
+        if (xmlElement.getParent() == null) {
+            return false;
+        }
+        String path = xmlElement.getTagName() + "/" + tagName;
+        return isChildSupported(xmlElement.getParent(), path);
+
+    }
+
     public List<XmlElement> list() {
         return new ArrayList(childs);
     }
-
 
     public XmlElement get(int index) {
         return childs.get(index);
@@ -96,31 +108,30 @@ public class XmlChilds {
     //
     //
     /**
-     * Appends the specified {@literal  xml element } to the end of an internal collection.
-     * 
+     * Appends the specified {@literal  xml element } to the end of an internal
+     * collection.
+     *
      * <ul>
-     *    <li>
-     *      Sets the 'parent' property of the child.
-     *    </li>  
-     *    <li>
-     *      If the child is already in the internal collections then the method
-     *      does
-     *      nothing.
-     *    </li>  
-     *    <li>
-     *      The method doesn't change the DOM Tree and doesn't create 
-     *      DOM Elements.
-     *    </li>
+     * <li>
+     * Sets the 'childsOwner' property of the child.
+     * </li>
+     * <li>
+     * If the child is already in the internal collections then the method does
+     * nothing.
+     * </li>
+     * <li>
+     * The method doesn't change the DOM Tree and doesn't create DOM Elements.
+     * </li>
      * </ul>
-     * 
+     *
      * <p>
-     * The method may throw an {@link IllegalStateException } when the 
+     * The method may throw an {@link IllegalStateException } when the
      * conditions below are all satisfied:
      * <ul>
-     *    <li>
-     *      a parent element is an instance of  {@link XmlTextElement } 
-     *      and the parent's 'text' property is not {@literal null }.
-     *    </li>
+     * <li>
+     * a childsOwner element is an instance of {@link XmlTextElement }
+     * and the childsOwner's 'text' property is not {@literal null }.
+     * </li>
      * </ul>
      *
      * <p>
@@ -131,14 +142,14 @@ public class XmlChilds {
      * <p>
      * Also the method may throw an {@link IllegalArgumentException }
      * in case when the tagName property of the child is not supported by the
-     * parent {@literal  xml element }.
+     * childsOwner {@literal  xml element }.
      *
      * @param child the element to be added
-     * @return a parent {@literal  xml element}.
+     * @return a childsOwner {@literal  xml element}.
      */
     public XmlCompoundElement add(XmlElement child) {
-        if (parent instanceof XmlTextElement) {
-            if (((XmlTextElement) parent).getText() != null) {
+        if (childsOwner instanceof XmlTextElement) {
+            if (((XmlTextElement) childsOwner).getText() != null) {
                 throw new IllegalStateException(
                         "XmlCompoundElement.addChild(): can't add child since the element has not emty text content");
             }
@@ -148,54 +159,57 @@ public class XmlChilds {
             throw new IllegalArgumentException(" The parameter is already in DOM tree and cannot be added ");
         }
         if (contains(child)) {
-            return parent;
+            return childsOwner;
         }
-        if (!parent.isChildSupported(child.getTagName())) {
+        //        if (!childsOwner.isChildSupported(child.getTagName())) {
+        if ( XmlBase.findXmlRoot(childsOwner) != null && !isChildSupported(childsOwner, child.getTagName())) {
             throw new IllegalStateException(" XmlCompoundElement.addChild: The child element with a tag name '"
                     + child.getTagName()
-                    + "' is not supported for the parent named as '"
-                    + parent.getTagName() + "' ");
+                    + "' is not supported for the childsOwner named as '"
+                    + childsOwner.getTagName() + "' ");
         }
-        parent.beforeAddChild(child);
-        child.setParent(parent);
+
+        childsOwner.beforeAddChild(child);
+        child.setParent(childsOwner);
         childs.add(child);
-        return parent;
+        return childsOwner;
 
     }
 
     /**
-     * Deletes a given element from an internal collection.
-     * If the internal collections already contains such an element then the 
-     * method does nothing.
-     * @param child an object to be deleted. 
-     * 
-     * @return a parent object of type {@link XmlCompoundElement } 
-     *      of the element to be deleted.
+     * Deletes a given element from an internal collection. If the internal
+     * collections already contains such an element then the method does
+     * nothing.
+     *
+     * @param child an object to be deleted.
+     *
+     * @return a childsOwner object of type {@link XmlCompoundElement }
+     * of the element to be deleted.
      */
     public XmlCompoundElement remove(XmlElement child) {
         if (child == null || !contains(child)) {
-            return parent;
+            return childsOwner;
         }
         if (child.getElement() != null && child.getElement().getParentNode() != null) {
             XmlDocument.getParentElement(child.getElement()).removeChild(child.getElement());
         }
         childs.remove(child);
 
-        return parent;
+        return childsOwner;
     }
 
     /**
      * Replaces the child element specified by the first parameter with a new
-     * element as specified by the second parameter. 
-     * If an element specified by the first parameter cannot be found in the 
-     * child list of the parent element then the newChild specified by the 
-     * second parameter is just added to the child list.
+     * element as specified by the second parameter. If an element specified by
+     * the first parameter cannot be found in the child list of the childsOwner
+     * element then the newChild specified by the second parameter is just added
+     * to the child list.
      *
      * <p>
-     * The method may throw an {@link IllegalStateException } when a parent
+     * The method may throw an {@link IllegalStateException } when a childsOwner
      * element where the newChild is adding to is an instance of  
-     * {@link XmlTextElement } and the parent's 'text' property is not 
-     * {@literal null }.
+ {@link XmlTextElement } and the childsOwner's 'text' property is not 
+ {@literal null }.
      *
      * <p>
      * The method may throw an {@link IllegalArgumentException }
@@ -205,17 +219,17 @@ public class XmlChilds {
      * <p>
      * Also the method may throw an {@link IllegalArgumentException }
      * in case when the tagName property of the newChild is not supported by the
-     * parent {@literal  xml element }.
-     * 
-
+     * childsOwner {@literal  xml element }.
+     *
+     *
      * @param child the element to be replaced
      * @param newChild the element to replace an existing one
      * @return an object of type {@link XmlCompoundElement } which represents an
-     *     object which calls this method (parent element)
+     * object which calls this method (childsOwner element)
      */
     public XmlCompoundElement replace(XmlElement child, XmlElement newChild) {
         if (newChild == null) {
-            throw new  IllegalArgumentException(
+            throw new IllegalArgumentException(
                     " XmlChilds.replaceChild: The second parameter of the method can't be null");
         }
         if (child != null && contains(child)) {
@@ -224,64 +238,66 @@ public class XmlChilds {
         if (newChild.getElement() != null && XmlDocument.existsInDOM(newChild.getElement())) {
             throw new IllegalStateException("XmlChilds.replaceChild: The newChild parameter is already in DOM tree and cannot be added ");
         }
-
-        if (!parent.isChildSupported(newChild.getTagName())) {
+//isChildSupported(childsOwner,newChild.getTagName())
+//        if (!childsOwner.isChildSupported(newChild.getTagName())) {
+        if (XmlBase.findXmlRoot(childsOwner) != null && !isChildSupported(childsOwner, newChild.getTagName())) {
             throw new IllegalStateException(" XmlChilds.replaceChild: The child element with a tag name '"
                     + newChild.getTagName()
-                    + "' is not supported for the parent named as '"
-                    + parent.getTagName() + "' ");
+                    + "' is not supported for the childsOwner named as '"
+                    + childsOwner.getTagName() + "' ");
         }
 
-        parent.getChilds().add(newChild);
-        return parent;
+        childsOwner.getChilds().add(newChild);
+        return childsOwner;
 
     }
+
     /**
      * The path parameter may take two forms. For example
      * <ul>
-     *    <li>
-     *       "p1/p2/p3". then all child elements with tag name "p3" which
-     *       resides in the parent "p1/p2" will be searched.
-     *    </li>
-     *    <li>
-     *    <li>
-     *       "p1/p2/*". then all child elements which
-     *       resides in the parent "p1/p2" will be searched regardless of tag names.
-     *    </li>
-     *    </li>
+     * <li>
+     * "p1/p2/p3". then all child elements with tag name "p3" which resides in
+     * the childsOwner "p1/p2" will be searched.
+     * </li>
+     * <li>
+     * <li>
+     * "p1/p2/*". then all child elements which resides in the childsOwner
+     * "p1/p2" will be searched regardless of tag names.
+     * </li>
+     * </li>
      * </ul>
-     * 
+     *
      * @param from
-     * @param path 
-     * @return 
+     * @param path
+     * @return
      */
     public static List<XmlElement> findChildsByPath(XmlCompoundElement from, final String path) {
-        final List<XmlElement> result = new ArrayList<>(); 
-        
-        XmlChilds  childs = from.getChilds();
+        final List<XmlElement> result = new ArrayList<>();
+
+        XmlChilds childs = from.getChilds();
         String[] paths = path.split("/");
-        
+
         String first = paths[0];
-        if ( "*".equals(first) ) {
+        if ("*".equals(first)) {
             result.addAll(childs.list());
         } else {
-            List<XmlElement> list =  new ArrayList<>();            
-            List<XmlCompoundElement> clist = new ArrayList<>();            
+            List<XmlElement> list = new ArrayList<>();
+            List<XmlCompoundElement> clist = new ArrayList<>();
             childs.list().forEach(e -> {
-                if ( e.getTagName().equals(first)) {
+                if (e.getTagName().equals(first)) {
                     list.add(e);
-                    if ( e instanceof XmlCompoundElement) {
+                    if (e instanceof XmlCompoundElement) {
                         clist.add((XmlCompoundElement) e);
                     }
                 }
-                
+
             });
-            if ( paths.length == 1 ) {
+            if (paths.length == 1) {
                 result.addAll(list);
             } else {
-                String nextPath = path.substring(paths[0].length() + 1);        
+                String nextPath = path.substring(paths[0].length() + 1);
                 clist.forEach(e -> {
-                    result.addAll(findChildsByPath(e, nextPath));                
+                    result.addAll(findChildsByPath(e, nextPath));
                 });
             }
         }

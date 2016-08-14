@@ -1,8 +1,5 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author Valery Shyshkin
@@ -23,7 +20,7 @@ public interface XmlCompoundElement extends XmlElement {
      * @return {@literal true} if the given tag name is supported as a child
      * element of the current element
      */
-    boolean isChildSupported(String tagName);
+    //boolean isChildSupported(String tagName);
 
     XmlChilds getChilds();
 
@@ -46,7 +43,7 @@ public interface XmlCompoundElement extends XmlElement {
      * A convenient method which just invokes {@literal getChilds().remove(child)
  }
      *
-     * @param child an element to be removed.
+     * @param toRemove the element to be removed
      * @return a calling instance of type {@link XmlCompoundElement }.
      */
     default XmlCompoundElement removeChild(XmlElement toRemove) {

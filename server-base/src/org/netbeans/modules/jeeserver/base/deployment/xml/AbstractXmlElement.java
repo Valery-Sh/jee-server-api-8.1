@@ -97,7 +97,14 @@ public abstract class AbstractXmlElement implements XmlElement {
         }
 
     }
-
+/*    @Override
+    public void check() {
+        if ( getParent() == null ) {
+            throw new NullPointerException(
+               " AbstractXmlElement.check: The element '" + getTagName() + "' doesn't have a parent element");
+        }
+    }
+*/
 
     @Override
     public String getTagName() {
