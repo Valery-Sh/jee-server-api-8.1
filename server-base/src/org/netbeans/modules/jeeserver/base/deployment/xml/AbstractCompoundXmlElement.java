@@ -8,15 +8,12 @@ import org.w3c.dom.Element;
  * @author Valery Shyshkin
  */
 public abstract class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
-
-    //protected List<XmlElement> childList;
-    //private Map<String, String> tagMap;
+    
     private XmlTagMap tagMap;
     protected XmlChilds childs;
 
     protected AbstractCompoundXmlElement(String tagName) {
         this(tagName, null, null);
-       
     }
 
     protected AbstractCompoundXmlElement(String tagName, Element element, XmlCompoundElement parent) {
@@ -25,9 +22,9 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
     }
 
     /**
-     * Returns an instance of object of type
-     * {@literal org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds}.
-     * If the {@literal childs } property value has not been set yet the this
+     * Returns an instance of an object of type
+     * {@link XmlChilds}.
+     * If the {@code childs } property value has not been set yet the this
      * method creates a new instance and sets the property value.
      *
      * @return an Object of type {@link XmlChilds }
@@ -39,7 +36,69 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         }
         return childs;
     }
+    /**
+     * Return the value as specifies by the static method 
+     * {@code XmlChilds.findChildsByPath((String) }.
+     * 
+     * 
+     * @param path the string representation of items separated by the slash
+     * @return a collection of elements of type XmlElement.  
+     * 
+     * @see XmlChilds#findChildsByPath(org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement, java.lang.String) 
+     */
+    
+    /**
+     * The path parameter may take two forms. For example
+     * <ul>
+     * <li>
+     *   "p1/p2/p3". then all child elements with tag name "p3" which resides in
+     *   the owner "p1/p2" will be searched.
+     * </li>
+     * <li>
+     *   "p1/p2/*". then all child elements which resides in the owner
+     *   "p1/p2" will be searched regardless of tag names.
+     * </li>
+     * </ul>
+     *
+     * @param from
+     * @param path
+     * @return
+     */
+    
+/*    public List<XmlElement> findElementsByPath(String path) {
+        final List<XmlElement> result = new ArrayList<>();
 
+        XmlChilds childs = getChilds();
+        String[] paths = path.split("/");
+
+        String first = paths[0];
+        if ("*".equals(first)) {
+            result.addAll(childs.list());
+        } else {
+            List<XmlElement> list = new ArrayList<>();
+            List<XmlCompoundElement> clist = new ArrayList<>();
+            childs.list().forEach(e -> {
+                if (e.getTagName().equals(first)) {
+                    list.add(e);
+                    if (e instanceof XmlCompoundElement) {
+                        clist.add((XmlCompoundElement) e);
+                    }
+                }
+
+            });
+            if (paths.length == 1) {
+                result.addAll(list);
+            } else {
+                String nextPath = path.substring(paths[0].length() + 1);
+                clist.forEach(e -> {
+                    result.addAll(e.findChildsByPath(nextPath));
+                });
+            }
+        }
+        return result;
+
+    }
+*/
     @Override
     public XmlElement cloneXmlElementInstance() {
         XmlCompoundElement p = (XmlCompoundElement) super.cloneXmlElementInstance();
@@ -49,67 +108,37 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         });
         return p;
     }
-
     /**
-     * Checks whether the given tag name is supported as a child element. The
-     * method uses the property {@link #tagMap ) to check.
- If map is not {@literal  null{ and is not empty and the result of
-     * {@literal tagMap.get(tagName) } is {@literal null} the the return
-     * value is {@literal false } otherwise the method returns {@literal true}.
-     *
-     * <p>
-     * If map is null or is empty then if the parameter {@literal tagName}
-     * is equal to {@literal "not-supported"} then the method returns
-     * {@literal false}. Otherwise the returned value is {@literal true}.
-     *
-     * @param tagName the tag name to be checked
-     * @return {@literal true} if the given tag name is supported
-     *      as a child element of the current element
+     * Getter method of the  property {@link #tagMap}.
+     * Never {@code null}
+     * @return the property tagMap
+     * 
+     * @see XmlTagMap
      */
-/*    @Override
-    public boolean isChildSupported(String tagName) {
-        
-        if (tagMap.getDefaultClass() != null) {
-            return true;
-        }
-
-        if (null != tagMap.get(tagName)) {
-            return true;
-        } 
-        
-        if (getParent() != null) {
-            return getParent().isChildSupported(getTagName() + "/" + tagName);
-        }
-        return false;
-
-    }
-*/
     @Override
     public XmlTagMap getTagMap() {
         return tagMap;
     }
-
+   /**
+     * Setter method of the  property {@link #tagMap}.
+     * 
+     * @param tagMap can't be null otherwise NullPointerException is thrown
+     * @see XmlTagMap
+     */
     @Override
-    public void setTagMap(XmlTagMap tagMapping) {
-        this.tagMap = tagMapping;
-    }
-
-    /*    @Override
-    public Map<String, String> getTagMap() {
-        return tagMap;
-    }
-
-    @Override
-    public void setTagMapping(Map<String, String> tagMap) {
+    public void setTagMap(XmlTagMap tagMap) {
+        if ( tagMap == null ) {
+            throw new NullPointerException("AbstractCompoundElement,setTagMap(XmlTagMap). The parameter can't be null");
+        }
         this.tagMap = tagMap;
     }
+    /**
+     * 
      */
     @Override
     public void commitUpdates() {
         super.commitUpdates();
-        //
-        // We cannot use getChildElements() to scan because one or more elements may be deleted. 
-        //
+
         List<XmlElement> list = getChilds().list();
         if (this instanceof XmlTextElement) {
             if (list.isEmpty() && ((XmlTextElement) this).getText() != null) {
@@ -121,28 +150,7 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();
-            XmlRoot.generateErrors(el);
         });
-
     }
-    
-/*    @Override
-    public void check() {
-        super.check();
 
-        List<XmlElement> list = getChilds().list();
-        if (this instanceof XmlTextElement) {
-            if (list.isEmpty() && ((XmlTextElement) this).getText() != null) {
-                return;
-            }
-        }
-
-        list.forEach(el -> {
-            el.setParent(this);
-            el.check();
-            XmlRoot.check(el);
-        });
-
-    }
-*/
 }

@@ -4,7 +4,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Class allows to define permissible tag names for elements and corresponding 
+ * names of the classes that implement the interface {@link XmlElement}.
+ * Every object of type {@link XmlCompoundElement} contains a read-only property
+ * with a  name {@code  tagMap}. You can specify one or more key/value pairs
+ * and put them into the internal collection of the {@code  XmlTag} object. 
+ * Suppose we create an instance of the {@code  XmlCompoundElement}: <p>
+ * <pre>
+ *   XmlCompoundXmlImpl books = new XmlCompoundElement("books");
+ * </pre>
+ * And now you can add child to the {@code books} element: 
+ * <pre>
+ *   BookElement book = new BookElementElement("book");
+ *   books.addChild(book);
+ * </pre> 
+ * This way you can add an element of any type and with any tag name. But what 
+ * if you want to restrict the number of element types and there tag names? 
+ * To achieve this goal you can specify: <p>
+ * <pre>
+ *   XmlCompoundXmlImpl books = new XmlCompoundElement("books");
+ *   books.getTagMap()
+ *       .put("book", BookElementElement.class.getName()
+ * 
+ *   BookElement book = new BookElement("book");
+ *   books.addChild(book);
+ * </pre> <p>
+ * After this you can't execute the code below:
+ * <p>
+ * <pre>
+ *    NodepadElement notepad = new NodepadElement("book");
+ *    books.addChild(nodepad);
+ * </pre>
+ * An exception will be thrown because the class {@code NodepadElement} can't be 
+ * found in the {@code tagMap} of the {@code books} element. The exception 
+ * appears and if we try to execute the code : <p>
+ * <pre>
+ *    BookElementElement book01 = new BookElementElement("booooook");
+ *    books.addChild(book01);
+ * </pre>
+ * <p>
+ * This happens because there is no tag with a name {@code "booooook"} defined
+ * in the {@tagMap} of the {@code books}.
+ * 
+ * @see XmlCompoundElement#getTagMap() 
  * @author Valery Shishkin
  */
 public class XmlTagMap {
@@ -23,8 +65,6 @@ public class XmlTagMap {
         } else {
             this.map = map;
         }
-        //defaultClass = XmlDefaultElement.class.getName();        
-        
     }
     
     public boolean isTagPathSupported(String tagPath) {
@@ -33,14 +73,12 @@ public class XmlTagMap {
             return true;
         }
 
-        if (null != get(tagPath)) {
-            return true;
-        }
-        return false;
+        return null != get(tagPath);
     }
     
-    public String put(String path, String clazz) {
-        return map.put(path, clazz);
+    public XmlTagMap put(String path, String clazz) {
+        map.put(path, clazz);
+        return this;
     }
 
     protected String remove(String path) {

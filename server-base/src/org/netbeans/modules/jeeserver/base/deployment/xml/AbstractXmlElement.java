@@ -8,18 +8,28 @@ import org.w3c.dom.Element;
  * @author Valery Shyshkin
  */
 public abstract class AbstractXmlElement implements XmlElement {
-
-    //protected abstract List<PomElement> getChilds();
-
+    /**
+     * The tag name of the element.
+     */
     private final String tagName;
+    /**
+     * The {@code DOM Element} this element is bound to..
+     */
     private Element element;
+    /**
+     * The parent element of {@code this} element.
+     */
     private XmlCompoundElement parent;
-
+    /**
+     * A collection of {@code attributes} of this element. Never {@code null}.
+     */
+    private final XmlAttributes attributes;
+            
     protected AbstractXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         this.tagName = tagName;
         this.parent = parent;
         this.element = element;
-
+        this.attributes = new XmlAttributes(this);
     }
     /**
      * The method must be private. For use in addChild method only.
@@ -45,6 +55,12 @@ public abstract class AbstractXmlElement implements XmlElement {
     public Element getElement() {
         return element;
     }
+
+    @Override
+    public XmlAttributes getAttributes() {
+        return attributes;
+    }
+    
     protected XmlElement findFirstParentWithDOMElement() {
         XmlElement foundElement = null;
         XmlElement xmlElement = this;
@@ -79,9 +95,23 @@ public abstract class AbstractXmlElement implements XmlElement {
         }
 
         this.element = doc.createElement(getTagName());
-
     }
-    
+    /**
+     * Does work to create a {@code DOM Element} and append it to
+     * a {@code Dom Tree}.
+     * Fist checks whether the element has a {@link #parent}. If 
+     * the parent property is {@code null } then a {@code NullPointerException} 
+     * is thrown. 
+     * <p>If the property {@link #element } is null then creates
+     * a new element of type {@code org.w3c.dom.Element} and sets the property.
+     * <p>
+     * If this element implements {@link XmlTextElement} then sets if necessary
+     * the {@code textContent} property of the DOM element.
+     * <p>
+     * Copies values of {@link #attributes} to the the {@code DOM element}.
+     * <p>
+     * Appends the DOM {@link element} to the {@code DOM Tree}. 
+     */
     @Override
     public void commitUpdates() {
         if ( getParent() == null ) {
@@ -92,20 +122,23 @@ public abstract class AbstractXmlElement implements XmlElement {
         if (getElement() == null) {
             createDOMElement();
         }
+        if ( (this instanceof XmlTextElement) && ! ((this instanceof XmlCompoundElement))) {
+            if ( null != ((XmlTextElement)this).getText()) {
+                getElement().setTextContent(((XmlTextElement) this).getText());
+//                return;
+            }
+        }
+        
+        this.getAttributes().copyTo(element);        
         if (parentEl != null && ! XmlDocument.hasParentElement(getElement())) {
             parentEl.appendChild(getElement());
         }
 
     }
-/*    @Override
-    public void check() {
-        if ( getParent() == null ) {
-            throw new NullPointerException(
-               " AbstractXmlElement.check: The element '" + getTagName() + "' doesn't have a parent element");
-        }
-    }
-*/
-
+    /**
+     * Returns the tag name of the element.
+     * @return the tag name of the element.
+     */
     @Override
     public String getTagName() {
         return tagName;

@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.InvalidClassNameException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -36,24 +37,43 @@ public class XmlChildsTest {
     @After
     public void tearDown() {
     }
+    /**
+     * Test of checkElement method, of class XmlChilds. 
+     */
+    @Test
+    public void testCheckElement() {
+        
+    }
 
     /**
-     * Test of add method, of class XmlCompoundElement. If the child is already
+     * Test of findElementClass method, of class XmlChilds. 
+     */
+    @Test
+    public void testFindElementClass() {
+        
+    }
+    
+    /**
+     * Test of add method, of class XmlChilds. If the child is already
      * in a child list then the method does nothing. The property
-     * {@literal parent} of the added child element is set to the to the value
+     * {@code parent} of the added child element is set to the to the value
      * of the object that calls the method.
      */
     @Test
     public void testAddChild() {
         System.out.println("add");
         XmlBase root = new XmlBase("books");
+        
         //
         // add must return the root
         //
         XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
+        //book.addChild(new XmlDefaultTextElement("ch01"));
+        
         XmlCompoundElement bookParent = root.getChilds().add(book);
         assertTrue(root == bookParent);
-
+        
+        
         XmlCompoundElementImpl chapter01 = new XmlCompoundElementImpl("chapter01");
         XmlCompoundElement chapter01Parent = book.getChilds().add(chapter01);
 
@@ -67,49 +87,177 @@ public class XmlChildsTest {
         //
         assertTrue(book == chapter01.getParent());
     }
-
     /**
-     * Test of {@literal add } method, of class XmlCompoundElement when try to
-     * add an element with not supported tag name.
+     * Test of add method, of class XmlChilds
      */
-    @Test(expected = IllegalStateException.class)
-    public void testAddChild_not_supported() {
-        System.out.println("addChild_not_supported");
+    @Test(expected = InvalidClassNameException.class)
+    public void testAdd_supported_with_root_other_class() {
+        System.out.println("add()");
+        XmlBase root = new XmlBase("shop");
+        root.getTagMap()
+                .put("books", XmlCompoundElementImpl.class.getName())
+                .put("books/pen", XmlCompoundElementImpl.class.getName())
+                .put("books/book", XmlDefaultTextElement.class.getName());
+        
 
-        XmlBase root = new XmlBase("books");
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        root.addChild(books);                
+        
         //
-        // Configure root tagMap with a single supported tag name
-        // wich equals to 'book' and the property 'defaultClass' set to null. 
-        // 
-
-        root.getTagMap().put("book", XmlCompoundTextElementImpl.class.getName());
-        root.getTagMap().setDefaultClass(null);
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'book' element
         //
-        // Create and add an element with not supported tag name
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        
         //
-        XmlCompoundElementImpl book = new XmlCompoundElementImpl("boooook");
-        root.getChilds().add(book);
+        // Try add  the 'book' element of type XmlDefaultTextElement class.
+        // Despite the fact that the required class name of the 'book' element
+        // is defined in the 'root' this will cause an Exception. 
+        // And this is because the 'book' tag is defined in the parent and
+        // other upper parents are not considered.
         //
-        // add must throw IllegalArgumentException since 
-        // XmlCompoundElementImpl implements isChildSupported method
-        // in a way that "test-not-supported" cannot be used.
-        //
-        //XmlCompoundElementImpl chapter01 = new XmlCompoundElementImpl("test-not-supported");
-        //book.getChilds().add(chapter01);
-
+        XmlDefaultTextElement book = new XmlDefaultTextElement("book");
+        books.addChild(book);
     }
 
     /**
-     * Test of add method, of class XmlCompoundElement which implements 
+     * Test of add method, of class XmlChilds
+     */
+    @Test(expected = InvalidClassNameException.class)
+    public void testAdd_supported_no_root_other_class() {
+        System.out.println("add()");
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'book' element
+        //
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        
+        //
+        // Try add  the 'book' element of type XmlDefaultTextElement class.
+        // Despite the fact that the required class name of the 'book' element
+        // is defined in the 'root' this will cause an Exception. 
+        // And this is because the 'book' tag is defined in the parent and
+        // other upper parents are not considered.
+        //
+        XmlDefaultTextElement book = new XmlDefaultTextElement("book");
+        books.addChild(book);
+    }
+    /**
+     * Test of add method, of class XmlChilds
+     */
+    @Test(expected = InvalidClassNameException.class)
+    public void testAdd_supported_no_root_other_class_1() {
+        System.out.println("add()");
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'book' element
+        //
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
+        books.addChild(book);
+        
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'chapter' element
+        //
+        books.getTagMap().put("book/chapter", XmlCompoundElementImpl.class.getName());        
+        //
+        // Try add  the 'chapter' element of type XmlDefaultTextElement class.
+        // Despite the fact that the required class name of the 'chapter' element
+        // is defined in the 'books' this will cause an Exception. 
+        // 
+        // And this is because:
+        //  1. The 'chapter' tag is not defined in the immediate parent - 'book'
+        //     The tagMap object of the 'book' element has a defaultClass 
+        //     property set to null (default)
+        //  2. The 'chapter' tag is defined in the next parent - 'books' with a 
+        //     class name XmlCompoundElementImpl but we use the class 
+        //     XmlDefaultTextElement.
+        //
+        XmlDefaultTextElement chapter = new XmlDefaultTextElement("chapter");
+        book.addChild(chapter);
+        
+        
+        
+    }
+
+    /**
+     * Test of add method, of class XmlChilds
+     */
+    @Test //(expected = InvalidClassNameException.class)
+    public void testAdd_supported_no_root_other_class_2() {
+        System.out.println("add()");
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'book' element
+        //
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
+        book.getTagMap().setDefaultClass(XmlCompoundElementImpl.class.getName());
+        books.addChild(book);
+        
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'chapter' element
+        //
+        books.getTagMap().put("book/chapter", XmlCompoundElementImpl.class.getName());        
+        //
+        // Try add  the 'chapter' element of type XmlDefaultTextElement class.
+        // The 'add' method  doesn't trow an Exception.
+        // 
+        // And this is because:
+        //     The 'chapter' tag is not defined in the immediate parent - 'book'
+        //     The tagMap object of the 'book' element has a defaultClass 
+        //     property set to XmlCompoundElementImpl and therefore allows 
+        //     any class for child elements of the 'book'.
+        //
+        XmlDefaultTextElement chapter = new XmlDefaultTextElement("chapter");
+        book.addChild(chapter);
+    }
+    /**
+     * Test of add method, of class XmlChilds
+     */
+    @Test //(expected = InvalidClassNameException.class)
+    public void testAdd_supported_no_root_other_class_3() {
+        System.out.println("add()");
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        XmlBase root = new XmlBase("shop");
+        root.addChild(books);
+        
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap of the 'books' element for the 'book' element
+        //
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
+        books.addChild(book);
+        
+        //
+        // Try add  the 'chapter' element of type XmlDefaultTextElement class.
+        // The 'add' method  doesn't throw an Exception.
+        // 
+        // And this is because:
+        //     The 'chapter' tag is not defined in the parent elements. 
+        //     And the uppermost element 'books' is not added to the root of type
+        //     XmlBase.
+        //
+        XmlDefaultTextElement chapter = new XmlDefaultTextElement("chapter");
+        book.addChild(chapter);
+    }
+    /**
+     * Test of add method, of class XmlCompoundElement which implements
      * XmlTextElement and it's text property is set to not null
-     * 
+     *
      */
     @Test(expected = IllegalStateException.class)
     public void testAddChild_text_parent() {
         System.out.println("addChild_text_parent()");
-        
+
         XmlBase root = new XmlBase("books");
-        
+
         //
         // Creates an element and set it's text property to not null value.
         //
@@ -208,7 +356,6 @@ public class XmlChildsTest {
         //
         // add must return the root
         //
-
         XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
         root.getChilds().add(book);
 
@@ -234,7 +381,7 @@ public class XmlChildsTest {
 
     /**
      * Test of replace method, of class XmlChilds. The second parameter
-     * (newChild) must not be {@literal null}. Otherwise {@link NullPointerException
+     * (newChild) must not be {@code null}. Otherwise {@link NullPointerException
      * } must be thrown.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -258,7 +405,7 @@ public class XmlChildsTest {
 
     /**
      * Test of replace method, of class XmlChilds. The second parameter
-     * (newChild) must not be {@literal null}. Otherwise {@link NullPointerException
+     * (newChild) must not be {@code null}. Otherwise {@link NullPointerException
      * } must be thrown.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -286,35 +433,9 @@ public class XmlChildsTest {
     }
 
     /**
-     * Test of {@literal replace } method, of class XmlCompoundElement when try
-     * to replace an element with a newChild whose tagName is not supported .
-     */
-    /*    @Test(expected = IllegalStateException.class)
-    public void testRepalceChild_not_supported() {
-        System.out.println("replaceChild_not_supported");
-        XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
-        
-        XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
-        root.getChilds().add(book);
-
-        XmlCompoundElementImpl chapter01 = new XmlCompoundElementImpl("test-not-supported");
-        book.getChilds().add(chapter01);
-
-        //
-        // replace must throw IllegalArgumentException since 
-        // XmlCompoundElementImpl implements isChildSupported method
-        // in a way that "test-not-supported" cannot be used.
-        //
-        XmlCompoundElementImpl newChild = new XmlCompoundElementImpl("test-not-supported");
-        book.getChilds().replace(chapter01, newChild);
-        
-    }
-     */
-    /**
-     * Test of {@literal findChildsByPath } method, of class XmlCompoundElement
-     * when try to replace an element with a newChild whose tagName is not
-     * supported .
+     * Test of {@code findElementsByPath } method, of class
+     * XmlCompoundElement when try to replace an element with a newChild whose
+     * tagName is not supported .
      */
     @Test
     public void testFindChildsByPath() {
@@ -328,35 +449,211 @@ public class XmlChildsTest {
         // Find all child elements of the 'books' element
         // we know there are four elements 
         //
-        List<XmlElement> result = XmlChilds.findChildsByPath(books, "*");
-        assertEquals(result.size(), 4);
+        List<XmlElement> result = books.getChilds().findChildsByPath("*");
+        assertEquals(4, result.size() );
         //
         // Find all child elements of the 'books' element
         // with a tag name "book". There are three elements.
         //
-        result = XmlChilds.findChildsByPath(books, "book");
-        assertEquals(result.size(), 3);
+        result = books.getChilds().findChildsByPath("book");
+        assertEquals(3,result.size());
 
         //
         // Find all child elements of the 'books' element
         // with a tag name "pen". There are one element.
         //
-        result = XmlChilds.findChildsByPath(books, "pen");
+        result = books.getChilds().findChildsByPath("pen");
         assertEquals(1, result.size());
 
         //
         // Find all child elements of the 'books/pen' element
         // regardless of the tag name. There are two elements.
         //
-        result = XmlChilds.findChildsByPath(books, "pen/*");
+        result = books.getChilds().findChildsByPath("pen/*");
         assertEquals(2, result.size());
 
         //
         // Find all child elements of the 'books/pen element
         // with a tag name "ink-pen" tag name. There are one element.
         //
-        result = XmlChilds.findChildsByPath(books, "pen/ink-pen");
+        result = books.getChilds().findChildsByPath("pen/ink-pen");
         assertEquals(1, result.size());
+
+    }
+    /**
+     * Test of {@code findElementsByPath } method, of class
+     * XmlCompoundElement when try to replace an element with a newChild whose
+     * tagName is not supported .
+     */
+    @Test
+    public void testFindChildsByPath_1() {
+        System.out.println("findChildsByPath");
+        //
+        // Has tow tags with a name 'pen'
+        //
+        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template_1.xml");
+
+        XmlDocument xmlDocument = new XmlDocument(is);
+        XmlRoot root = new XmlRoot(xmlDocument);
+        XmlCompoundElement books = (XmlCompoundElement) root.getChilds().get(0);
+        //
+        // Find all child elements of the 'books' element
+        // we know there are five elements 
+        //
+        List<XmlElement> result = books.getChilds().findChildsByPath("*");
+        assertEquals(5,result.size());
+        //
+        // Find all child elements of the 'books' element
+        // with a tag name "book". There are three elements.
+        //
+        result = books.getChilds().findChildsByPath("book");
+        assertEquals(3,result.size());
+
+        //
+        // Find all child elements of the 'books' element
+        // with a tag name "pen". There are two elements.
+        //
+        result = books.getChilds().findChildsByPath("pen");
+        assertEquals(2, result.size());
+
+        //
+        // Find all child elements of the 'books/pen' element
+        // regardless of the tag name. There are four elements.
+        //
+        result = books.getChilds().findChildsByPath("pen/*");
+        assertEquals(4, result.size());
+
+        //
+        // Find all child elements of the 'books/pen element
+        // with a tag name "ink-pen" tag name. There are two elements.
+        //
+        result = books.getChilds().findChildsByPath("pen/ink-pen");
+        assertEquals(2, result.size());
+
+    }
+
+    /**
+     * Test of {@code findElementsByPath } method, of class
+     * XmlCompoundElement when try to replace an element with a newChild whose
+     * tagName is not supported .
+     */
+    @Test
+    public void testRelativePath() {
+        System.out.println("relativePath(XmlElement)");
+        //
+        // Has tow tags with a name 'pen'
+        //
+        InputStream is = BaseUtil.getResourceAsStream("org/netbeans/modules/jeeserver/base/deployment/xml/resources/xml-shop-template_1.xml");
+
+        XmlDocument xmlDocument = new XmlDocument(is);
+        XmlRoot root = new XmlRoot(xmlDocument);
+        XmlCompoundElement books = (XmlCompoundElement) root.getChilds().get(0);
+        XmlCompoundElement book = (XmlCompoundElement) books.getChilds().get(0);        
+        //
+        // Find all child elements of the 'books' element
+        // we know there are five elements 
+        //
+        String result = books.getChilds().relativePath(book);
+        String expResult = "book";
+        assertEquals(expResult,result);
+        //
+        // Find all child elements of the 'books' element
+        // with a tag name "book". There are three elements.
+        //
+
+        //
+        // Find all child elements of the 'books' element
+        // with a tag name "pen". There are two elements.
+        //
+
+        //
+        // Find all child elements of the 'books/pen' element
+        // regardless of the tag name. There are four elements.
+        //
+
+
+        //
+        // Find all child elements of the 'books/pen element
+        // with a tag name "ink-pen" tag name. There are two elements.
+        //
+
+    }
+    
+    
+    /**
+     * Test of check method, of class XmlCompoundElement
+     */
+    @Test
+    public void testCheck_not_supported_tag() {
+        System.out.println("check()");
+        XmlErrors errors;
+        //
+        // The root tagMap specifies that any element is supported.
+        // Also it defines a default class with a name XmlDefaultElement
+        //
+        XmlBase root = new XmlBase("shop");
+       
+        XmlDefaultElement books = new XmlDefaultElement("books");
+
+
+        //
+        // We actually use XmlDefaultTextElement class for the 'book' element.
+        // But the 'books' tagMap specifies the class XmlCompoundElementImpl
+        // An error with a code == '210' wil appear.
+        //
+        XmlDefaultTextElement book = new XmlDefaultTextElement("book");
+        books.addChild(book);
+        //root.getTagMap().setDefaultClass(null);        
+        root.addChild(books);
+        
+        errors = books.getChilds().check();
+        //
+        // A warning with (code 210)  
+        //
+        assertEquals(1, errors.size());
+        assertEquals("100", errors.getErrorList().get(0).getErrorCode());
+
+        //XmlErrors newerrors = books.getChilds().newcheck();
+        //
+        // A warning with (code 210)  
+        //
+        //assertEquals(1, newerrors.size());
+        //assertEquals("100", newerrors.getErrorList().get(0).getErrorCode());
+        
+    }
+
+    /**
+     * Test of check method, of class XmlCompoundElement
+     */
+    @Test
+    public void testCheck_not_supported_tag_with_root() {
+        System.out.println("check()");
+        XmlBase root = new XmlBase("shop");
+        root.getTagMap()
+                .put("books", XmlCompoundElementImpl.class.getName())
+                .put("books/pen", XmlCompoundElementImpl.class.getName())
+                .put("books/book", XmlDefaultTextElement.class.getName());
+        
+
+        XmlCompoundElementImpl books = new XmlCompoundElementImpl("books");
+        XmlDefaultTextElement book = new XmlDefaultTextElement("book");
+        books.addChild(book);
+        //
+        // We define XmlCompoundElementImpl class 
+        // in the tagMap for the 'book' element
+        //
+        books.getTagMap().put("book", XmlCompoundElementImpl.class.getName());        
+        //
+        // Now add 'books' to the root. We do so because otherwise
+        // the line books.addChild(book) will cause an Exception.
+        //
+        root.addChild(books);         
+        XmlErrors errors = books.getChilds().check();
+        //
+        // An error with (code 210)  
+        //
+        assertEquals(1, errors.size());
+        assertEquals("210", errors.getErrorList().get(0).getErrorCode());
 
     }
 

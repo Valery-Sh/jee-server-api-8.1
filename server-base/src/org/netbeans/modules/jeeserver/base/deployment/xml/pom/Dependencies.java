@@ -1,9 +1,7 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractCompoundXmlElement;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
@@ -61,4 +59,20 @@ public class Dependencies extends AbstractCompoundXmlElement {
         }
         return result;
     }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if ( this == other) {
+            return true;
+        }
+        
+        boolean result = false;
+        Dependencies o = (Dependencies) other;
+        
+        return o.getChilds().list().equals(this.getChilds().list());
+    }
+    
 }

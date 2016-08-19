@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.w3c.dom.Element;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlRoot;
 
 /**
  *
@@ -35,18 +37,22 @@ public class DependenciesTest {
     public void tearDown() {
     }
     /**
-     * Test of isChildSupported method, of class Dependencies.
+     * Test of isChildTagNameSupported method, of class Dependencies.
      * The only {@literal dependency } DOM Element is supported as a child. 
      *
      */
     @Test
     public void testIsChildSupported() {
         System.out.println("isChildSupported");
-/*        PomDocument pomDocument = new PomDocument();
-        Element el = pomDocument.getDocument().createElement("dependency");
+        PomDocument pomDocument = new PomDocument(getClass().getResourceAsStream("resources/pom01_1.xml"));
+        XmlRoot root = pomDocument.getXmlRoot();
+        String c = root.getTagMap().getDefaultClass();
+        
+        XmlElement build = root.findFirstElementByPath("build");
+        
         Dependencies dependencies = new Dependencies();
-        assertTrue(dependencies.isChildSupported(el.getTagName())); 
-*/        
+//        assertTrue(dependencies.isChildTagNameSupported(el.getTagName())); 
+        
     }
 
     /**

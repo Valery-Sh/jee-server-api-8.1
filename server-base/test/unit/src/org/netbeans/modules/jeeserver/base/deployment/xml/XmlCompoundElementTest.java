@@ -40,15 +40,15 @@ public class XmlCompoundElementTest {
      */
 /*    @Test
     public void testIsChildSupported() {
-        System.out.println("isChildSupported");
+        System.out.println("isChildTagNameSupported");
         Element el = null;
         XmlCompoundElement instance = new XmlCompoundElementImpl("myTagName");
-        boolean result = instance.isChildSupported("anyTagName");
+        boolean result = instance.isChildTagNameSupported("anyTagName");
         assertTrue(result);
         //
         // 
         //
-        result = instance.isChildSupported("not-supported");
+        result = instance.isChildTagNameSupported("not-supported");
         assertFalse(result);
 
     }
@@ -300,6 +300,11 @@ public class XmlCompoundElementTest {
         @Override
         public void setTagMap(XmlTagMap tagMapping) {
             this.tagMap = tagMapping;
+        }
+
+        @Override
+        public XmlAttributes getAttributes() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
     } //class

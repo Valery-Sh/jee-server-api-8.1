@@ -14,14 +14,14 @@ import org.w3c.dom.NodeList;
 
 /**
 /**
- * A simple wrapper around a {@literal org.w3c.dom.Document }.
+ * A simple wrapper around a {@code org.w3c.dom.Document }.
  * The class inherits {@link XmlDocument } and contains methods to simplify
  * operations with {@code Maven pom} documents.
  * Provides methods for creating and saving objects of type 
  * {@link Document }. Also provides convenience methods to manipulate
- * the document's {@literal  DOM Tree }. 
+ * the document's {@code  DOM Tree }. 
  * The class can be used independently of the XML API just to process only 
- * simple {@literal DOM Documents } in more convenient way.
+ * simple {@code DOM Documents } in more convenient way.
  * 
  * @author Valery Shyshkin
  */
@@ -59,7 +59,7 @@ public class PomDocument extends XmlDocument {
      *
      * </ul>
      *
-     * If the {@literal basics} parameter is not specified then then the
+     * If the {@code basics} parameter is not specified then then the
      * following defaults are accepted:
      * <ul>
      * <li>modelVersion = 4.0.0</li>

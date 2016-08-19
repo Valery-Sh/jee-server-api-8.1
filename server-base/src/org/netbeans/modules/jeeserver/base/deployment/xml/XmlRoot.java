@@ -40,7 +40,7 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
 
 
     /**
-     * Return a DOM element which this object is a wrapper of.
+     * Return a {@code DOM element} which this object is a wrapper of.
      * 
      * @return the value of document.getDocumentElement() where the document 
      *   is a DOM Document
@@ -49,29 +49,6 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
     public Element getElement() {
         return document.getDocumentElement();
     }
-
-    /**
-     * The method overrides the method of the base class 
-     * and does nothing.
-     */
-    @Override
-    public void createDOMElement() {
-    }
-
-    /**
-     * Checks if the given dom element is supported by the api. 
-     * For example the root may contain such element as 
-     * {@literal build }. But for now that element is not 
-     * supported. <p>
-     * The class implements this method to always return {@code true}. 
-     *
-     * @return {@literal true } if the element is supported
-     */
-/*    @Override
-    public boolean isChildSupported(String tagName) {
-        return true;
-    }
-*/
     /**
      * Adds the comment lines after the last child node of the target.
      * 
@@ -118,24 +95,51 @@ public class XmlRoot extends XmlBase {//AbstractCompoundXmlElement {
     }
 
     /**
-     * When working with a {@literal xml document } we can create, add, modify
-     * or remove elements that are not actually {@literal  DOM Tree }
-     * members. For each child element of type {@literal XmlElement }
-     * sets it's parent as this object and invokes child's
-     * {@literal  commitUpdates} method and then calls 
-     * {@link  #generateErrors(org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement) }.
+     * Just call the method {@link #commitUpdates(boolean) } with an argument
+     * value {@code true }.
+     * @see #commitUpdates(boolean) 
+     * 
      */
     @Override
     public void commitUpdates() {
-
-        setCommitErrors(new XmlErrors());
-
+        commitUpdates(true);
+    }
+    /**
+     * When working with a {@code xml document } we can create, add, modify
+     * or remove elements that are not actually {@code  DOM Tree }
+     * members. For each child element of type {@code XmlElement }
+     * sets it's parent as this object and invokes child's
+     * {@code  commitUpdates} method. 
+     * 
+     * @param throwException if true then the method {@link #check() } is called
+     *   and an exception may be thrown as a result of checking.
+     */
+    @Override
+    public void commitUpdates(boolean throwException) {
+        
         List<XmlElement> list = getChilds().list();
         list.forEach(el -> {
             el.setParent(this);
             el.commitUpdates();
-            XmlBase.generateErrors(el);
         });
-    }
-    
+        if ( ! throwException ) {
+            return;
+        }
+
+        XmlErrors errors = check();
+        
+        if ( errors.isEmpty() ) {
+            return;
+        }
+        errors.getErrorList().forEach( er -> {
+            if ( ! er.isWarning()) {
+                RuntimeException ex = er.getException();
+                if ( ex != null ) {
+                    throw ex;
+                }
+            }
+        });
+        
+        
+    }    
 }//class XmlRoot

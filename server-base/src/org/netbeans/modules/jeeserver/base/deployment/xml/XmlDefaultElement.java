@@ -16,46 +16,13 @@ public class XmlDefaultElement extends AbstractCompoundXmlElement implements Xml
 
     protected XmlDefaultElement(Element element, XmlCompoundElement parent) {
         super(element.getTagName(), element, parent);
-        init();
     }
 
     protected XmlDefaultElement(String tagName, XmlCompoundElement parent) {
         super(tagName, null, parent);
-        init();
     }
 
-    private void init() {
 
-    }
-
-    /**
-     * Checks whether the given tag name is supported as a child element. The
-     * method invokes {@link AbstractCompoundXmlElement#isChildSupported(java.lang.String)
-     * and if the last returns {@literal true } then this method returns
-     * {@literal true }. Otherwise if the  parameter value equals
-     * to the string value of {@literal  "not-supported" } then it returns
-     * {@literal false } otherwise it return {@literal true }.
-     *
-     * @param tagName the tag name to be checked
-     * @return {@literal true} if the given tag name is supported
-     *      as a child element of the current element
-     */
-/*    @Override
-    public boolean isChildSupported(String tagName) {
-        
-        if (getTagMap() != null && !getTagMap().isEmpty() ) {
-            return getTagMap().get(tagName) != null;
-        }
-        
-        XmlBase root = XmlBase.findXmlRoot(this);
-
-        if (root != null && root.getTagMap() != null && !root.getTagMap().isEmpty() ) {
-            return root.getTagMap().get(root.getRootPath(this, tagName)) != null;            
-        }
-
-        return ! "not-supported".equals(tagName);
-    }
-*/
     @Override
     public String getText() {
         return text;

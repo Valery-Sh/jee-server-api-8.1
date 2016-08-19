@@ -2,6 +2,8 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlChilds.ParentVisitor;
 import org.w3c.dom.Element;
 
 /**
@@ -13,9 +15,6 @@ import org.w3c.dom.Element;
  */
 public class XmlBase extends AbstractCompoundXmlElement {
 
-    //private XmlTagMap tagMap;
-    private XmlErrors checkErrors;
-
     /**
      * Create a new instance of the class by the given {@code tagName}
      *
@@ -23,60 +22,127 @@ public class XmlBase extends AbstractCompoundXmlElement {
      */
     public XmlBase(String tagName) {
         super(tagName);
-        getTagMap().setDefaultClass(XmlDefaultElement.class.getName());
-        
+        init();
+
     }
+
     private void init() {
         getTagMap().setDefaultClass(XmlDefaultElement.class.getName());
     }
-    //public static XmlElement getElementByPath(X)
+
     /**
      * Creates and return a string of tag names separated by slash.
+     * The last item of the result is the last element of the 
+     * {@code tagNames} array. And the first item is a tag name of the uppermost
+     * parent of the element specified by the parameter. If the element has no
+     * parent then the first item is a tag name of the element itself.
      * 
-     * @param el
-     * @param tagNames
-     * @return
+     * @param element an object of type XmlElement
+     * @param tagNames an array of additional tag names to build result string
+     * @return a string of tag names separated by slash.
      */
-    public String getRootPath(XmlElement el, String... tagNames) {
-        List<XmlElement> parentChainList = XmlBase.getParentChainList(el);
+/*    public String getParentChainList_1(XmlElement element, String... tagNames) {
+        StringBuilder sb = new StringBuilder();
+        
+        return sb.toString();
+    }    
+    public String getParentChainList_old(XmlElement element, String... tagNames) {
+        List<XmlElement> parentChainList = XmlBase.getParentChainList(element);
         if (parentChainList.isEmpty()) {
             return null;
         }
         if (parentChainList.get(0) != this) {
             return null;
         }
-        
-        String rp = rootRelativePath(parentChainList);
+
+        String rp = toStringPath(parentChainList, false);
         StringBuilder pathBuilder = new StringBuilder(rp);
-        for ( String tag : tagNames ) {
+
+        for (String tag : tagNames) {
             pathBuilder
                     .append("/")
                     .append(tag);
         }
-        return pathBuilder.toString();
+        String result = pathBuilder.toString();
+        if (result.startsWith("/")) {
+            result = result.substring(1);
+        }
+        return result;
     }
+*/
     /**
      * The path parameter may take two forms. For example
      * <ul>
-     *    <li>
-     *       "p1/p2/p3". then all child elements with tag name "p3" which
-     *       resides in the parent "p1/p2" will be searched.
-     *    </li>
-     *    <li>
-     *    <li>
-     *       "p1/p2/*". then all child elements which
-     *       resides in the parent "p1/p2" will be searched regardless of tag names.
-     *    </li>
-     *    </li>
+     * <li>
+     * "p1/p2/p3". then all child elements with tag name "p3" which resides in
+     * the parent "p1/p2" will be searched.
+     * </li>
+     * <li>
+     * <li>
+     * "p1/p2/*". then all child elements which resides in the parent "p1/p2"
+     * will be searched regardless of tag names.
+     * </li>
+     * </li>
      * </ul>
-     * 
+     *
      * @param from
-     * @param path 
+     * @param path
+     * @return
+     */
+    public static List<XmlElement> findElementsByPath(XmlCompoundElement from, final String path) {
+        return from.getChilds().findChildsByPath(path);
+        //return XmlChilds.findChildsByPath(from, path);
+    }
+    /**
+     * Return the value as specifies by the static method 
+     * {@code XmlChilds.findChildsByPath((String) }.
+     * 
+     * 
+     * @param path the string representation of items separated by the slash
+     * @return a collection of elements of type XmlElement.  
+     * 
+     * @see XmlChilds#findChildsByPath(org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement, java.lang.String) 
+     */
+    public List<XmlElement> findElementsByPath(String path) {
+        return findElementsByPath(this, path);
+    }
+    /**
+     * 
+     * @param path
      * @return 
      */
-    public static List<XmlElement> findChildsByPath(XmlCompoundElement from, final String path) {
-        return XmlChilds.findChildsByPath(from, path);
+    public XmlElement findFirstElementByPath(String path) {
+        List<XmlElement> list = findElementsByPath(this, path);
+        return list == null || list.isEmpty() ? null : list.get(0);
     }
+
+    public List<XmlElement> findElementsByPath(String path, Predicate<XmlElement> predicate) {
+        List<XmlElement> list = findElementsByPath(path);
+        List<XmlElement> result = new ArrayList<>();
+        list.forEach(el -> {
+            if (predicate.test(el)) {
+                result.add(el);
+            }
+        });
+        return result;
+    }
+
+    public List<XmlElement> findChilds(XmlElement parent, Predicate<XmlElement> predicate) {
+        final List<XmlElement> result = new ArrayList<>();
+
+        if (!(parent instanceof XmlCompoundElement)) {
+            return result;
+        }
+        XmlChilds childs = ((XmlCompoundElement) parent).getChilds();
+
+        childs.list().forEach(el -> {
+            if (predicate.test(el)) {
+                result.add(el);
+            }
+        });
+        return result;
+    }
+
     /**
      *
      * @param xmlElement
@@ -97,150 +163,47 @@ public class XmlBase extends AbstractCompoundXmlElement {
         }
         return root;
     }
-    
-    //@Override
-    public void check() {
-        
-        checkErrors = new XmlErrors();
 
-        List<XmlElement> list = getChilds().list();
-        list.forEach(el -> {
-            el.setParent(this);
-            XmlBase.check(el);
-            XmlBase.generateErrors(el);
-        });
-    }
     /**
      * Just invokes the {@link #check() ) method.
      */
     @Override
     public void commitUpdates() {
-        check();
-    }    
-    
-    public static void check(XmlElement element) {
-        if ( element.getParent() == null ) {
-            throw new NullPointerException(
-               " XmlChilds.check: The xml element '" + element.getTagName() + "' doesn't have a parent element");
-        }
-        if ( ! (element instanceof XmlCompoundElement )) {
+        commitUpdates(true);
+    }
+
+    public void commitUpdates(boolean throwException) {
+
+        if (!throwException) {
             return;
         }
-        XmlCompoundElement compoundElement = (XmlCompoundElement) element;
-        List<XmlElement> list = compoundElement.getChilds().list();
-        if (compoundElement instanceof XmlTextElement) {
-            if (list.isEmpty() && ((XmlTextElement) compoundElement).getText() != null) {
-                return;
-            }
-        }
+        
+        XmlErrors errors = check();
 
-        list.forEach(el -> {
-            el.setParent(compoundElement);
-            XmlBase.check(el);
-            XmlRoot.generateErrors(el);
+        if (errors.isEmpty()) {
+            return;
+        }
+        errors.getErrorList().forEach(er -> {
+            if (!er.isWarning()) {
+                RuntimeException ex = er.getException();
+                if (ex != null) {
+                    throw ex;
+                }
+            }
         });
 
     }
-    
-    /**
-     * Checks whether a valid tag name of the given object as well as the class
-     * that was used to create an instance of type {@literal XmlElement}.
-     *
-     * To achieve the correct result, you must be sure that a given element can
-     * be used to build a path from the root to this element. This means that
-     * the chain of calls such as
-     * <pre>
-     *    toCheck().getParent().getParent() ...
-     * </pre> will give the root of {@literal XmlDocument }. This is true for
-     * example, when the method is called after the execution of the method 
-     * {@link XmlBase#commitUpdates() }.
-     *
-     * <p>
-     * The method is automatically called for each child when a method {@link XmlCompoundElement#commitUpdates()
-     * }. All errors are accumulated in the list collection of the {@literal XmlBase
-     * }
-     * element. To access this collection you can call the method
-     * {@link XmlBase#getCheckErrors() }.-
-     *
-     * @param toCheck the object to be checked
-     * @return an object that describes possible errors found during checking.
-     * If no error found then the method {@link XmlErrors#isEmpty() } returns {@literal true
-     * }
-     *
-     * @see XmlTagMap
-     * @see XmlErrors
-     */
-    public static XmlErrors generateErrors(XmlElement toCheck) {
 
+    public XmlErrors check(XmlElement element) {
         XmlErrors errors = new XmlErrors();
-
-        List<XmlElement> list = getParentChainList(toCheck);
-        
-        XmlBase root = (XmlBase) list.get(0);
-        if (root == null) {
-            return errors;
-        }     
-        
-        if (!(list.get(0) instanceof XmlBase)) {
-            return errors;
+        if (element.getParent() != null) {
+            errors = element.getParent().getChilds().checkElement(element);
         }
-      
-        if (root.getTagMap() == null) {
-            return errors;
-        }
-
-        errors = root.getnerateErrors(list);
-        
-        if (root.getCheckErrors() == null) {
-            root.setCommitErrors(new XmlErrors());
-        }
-        root.getCheckErrors().merge(errors);
-
         return errors;
     }
-    /**
-     * 
-     * Checks  whether the given list of elements represents 
-     * a valid chain of  parent elements.
-     * The element with an index 0 must be a reference to this object.
-     * The last element is a start element of the parent chain.  
-     * The method builds a string relative path as specified by the method 
-     * {@link #rootRelativePath(java.util.List) } and checks it against 
-     * the property {@code tagMap}.
-     * 
-     * @param parentChainList the list to be checked
-     * 
-     * @return  the object of type XmlErrors.
-     * 
-     * @see #generateErrors(org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement) 
-     */
-    public XmlErrors getnerateErrors(List<XmlElement> parentChainList) {
-        XmlErrors errors = new XmlErrors();
-        if (getTagMap().isEmpty() || getTagMap().getDefaultClass() != null ) {
-            return errors;
-        }
-        String rp = rootRelativePath(parentChainList);
-        String clazz = getTagMap().get(rp);
-        
-        XmlElement elem = parentChainList.get(parentChainList.size() - 1);
-        String msg = "Error. Element class=" 
-                + elem.getClass().getName()
-                + ". Root relative path='" + rp + "'";
-        
-        if (clazz == null) {
-            msg += ". Invalid tag name '"
-                    + elem.getTagName() + "'";
-            XmlErrors.XmlError error = new XmlErrors.XmlError(msg,
-                    new XmlErrors.InvalidTagNameException(msg), parentChainList);
-            errors.addError(error);
-        } else if ( ! clazz.equals(elem.getClass().getName())) {
-            msg += ". Invalid class name. Must be " 
-                    + clazz; 
-            XmlErrors.XmlError error = new XmlErrors.XmlError(msg,
-                    new XmlErrors.InvalidClassNameException(msg), parentChainList);                    
-            errors.addError(error);
-        }
-        return errors;
+
+    public XmlErrors check() {
+        return getChilds().check();
     }
 
     /**
@@ -250,15 +213,21 @@ public class XmlBase extends AbstractCompoundXmlElement {
      * @param leaf the element that ends the result of the method.
      * @return a list of elements.
      */
-    public static List<XmlElement> getParentChainList(XmlElement leaf) {
+    public static List<XmlElement> getParentChainList(XmlElement leaf) {   
+        List<XmlElement> list = new ArrayList<>();
+        ParentVisitor v = new ParentVisitor();
+        v.visit(leaf, el -> {
+            list.add(0,el);
+        });
+        return list;
+    } 
+/*    public static List<XmlElement> getParentChainList_old(XmlElement leaf) {
         List<XmlElement> list = new ArrayList<>();
 
         XmlElement el = leaf;
         list.add(el);
 
         while (true) {
-            String s = el.getTagName();
-
             if (el instanceof XmlBase) {
                 break;
             }
@@ -271,7 +240,7 @@ public class XmlBase extends AbstractCompoundXmlElement {
         return list;
 
     }
-
+*/
     /**
      * Returns {code null}.
      *
@@ -290,61 +259,4 @@ public class XmlBase extends AbstractCompoundXmlElement {
     @Override
     public void createDOMElement() {
     }
-
-    /**
-     * Checks if the given dom element is supported by the api. For example the
-     * root may contain such element as {@literal build }. But for now that
-     * element is not supported.
-     * <p>
-     * The class implements this method to always return {@code true}.
-     *
-     * @return {@literal true } if the element is supported
-     */
-/*    @Override
-    public boolean isChildSupported(String tagName) {
-        return true;
-    }
-*/
-
-    /**
-     * Returns an object representing the error that appeared during the {@code commitUpdates
-     * } process.
-     *
-     * @return the object that represents errors
-     */
-    public XmlErrors getCheckErrors() {
-        return checkErrors;
-    }
-
-    /**
-     *
-     * @param commitErrors the object to be set.
-     */
-    public void setCommitErrors(XmlErrors commitErrors) {
-        this.checkErrors = commitErrors;
-    }
-
-
-    /**
-     * Create path relative to the root as a string.
-     *
-     * @param parentChainList a list of {@literal  XmlElement}
-     * @return a concatenation of tag names separated by a slash. The first
-     * symbol cannot be slash.
-     */
-    public static String rootRelativePath(List<XmlElement> parentChainList) {
-        StringBuilder pathBuilder = new StringBuilder();
-        String slash = "/";
-        for (int i = 1; i < parentChainList.size(); i++) {
-            if (i == parentChainList.size() - 1) {
-                slash = "";
-            }
-
-            pathBuilder
-                    .append(parentChainList.get(i).getTagName())
-                    .append(slash);
-        }
-        return pathBuilder.toString();
-    }
-    
 }//class XmlBase

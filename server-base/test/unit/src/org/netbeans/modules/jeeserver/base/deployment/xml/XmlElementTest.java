@@ -88,16 +88,16 @@ public class XmlElementTest {
     }
 
     /**
-     * Test of commitUpdates method, of class XmlElement.
-     * Must throw {@link NullPointerException }. Each element must have a parent
-     * element to allow apply {@link XmlElement#commitUpdate } method
+     * Test of commitUpdates method, of class XmlElement. Must throw {@link NullPointerException
+     * }. Each element must have a parent element to allow apply {@link XmlElement#commitUpdate
+     * } method
      */
-   @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testCommitUpdates() {
         System.out.println("commitUpdates");
         XmlElement instance = new XmlElementImpl("book");
         instance.commitUpdates();
-        
+
     }
 
     public class XmlElementImpl implements XmlElement {
@@ -167,7 +167,8 @@ public class XmlElementTest {
             }
 
         }
-/*        @Override
+
+        /*        @Override
         public void check() {
             if (getParent() == null) {
                 throw new NullPointerException(
@@ -176,8 +177,12 @@ public class XmlElementTest {
             
 
         }
-*/
-        
-        
+         */
+
+        @Override
+        public XmlAttributes getAttributes() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
     }
 }

@@ -29,11 +29,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * A simple wrapper around a {@literal org.w3c.dom.Document }. Provides methods
+ * A simple wrapper around a {@code org.w3c.dom.Document }. Provides methods
  * for creating and saving objects of type {@link Document }. Also provides
- * convenience methods to manipulate the document's {@literal  DOM Tree }. The
- * class can be used independently of the XML API just to process only simple {@literal DOM Documents
- * } in more convenient way.
+ * convenience methods to manipulate the document's {@code  DOM Tree }. The
+ * class can be used independently of the XML API just to process only simple 
+ * {@code DOM Documents } in more convenient way.
  *
  */
 public class XmlDocument {

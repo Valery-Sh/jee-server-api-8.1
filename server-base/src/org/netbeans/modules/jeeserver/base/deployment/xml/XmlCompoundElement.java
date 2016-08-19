@@ -6,21 +6,9 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
  */
 public interface XmlCompoundElement extends XmlElement {
 
-    //Map<String, String> getTagMap();
-    //void setTagMapping(Map<String, String> tagMapping);
     XmlTagMap  getTagMap();
     void setTagMap(XmlTagMap tagMapping);    
     
-    //void setTagMapping(Map<String, String> tagMapping);
-
-    /**
-     * Checks whether the given tag name is supported as a child element.
-     *
-     * @param tagName the tag name to be checked
-     * @return {@literal true} if the given tag name is supported as a child
-     * element of the current element
-     */
-    //boolean isChildSupported(String tagName);
 
     XmlChilds getChilds();
 
@@ -29,7 +17,7 @@ public interface XmlCompoundElement extends XmlElement {
     }
 
     /**
-     * A convenient method which just invokes {@literal getChilds().add(child)
+     * A convenient method which just invokes {@code getChilds().add(child)
  }
      *
      * @param child an element to be added.
@@ -40,8 +28,7 @@ public interface XmlCompoundElement extends XmlElement {
     }
 
     /**
-     * A convenient method which just invokes {@literal getChilds().remove(child)
- }
+     * A convenient method which just invokes {@code getChilds().remove(child)}
      *
      * @param toRemove the element to be removed
      * @return a calling instance of type {@link XmlCompoundElement }.

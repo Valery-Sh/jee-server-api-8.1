@@ -102,6 +102,9 @@ public class Dependency extends AbstractCompoundXmlElement {
         if (other == null) {
             return false;
         }
+        if ( this == other) {
+            return true;
+        }
         boolean b = false;
         String thisType = getType();
         if ( thisType == null  ) {

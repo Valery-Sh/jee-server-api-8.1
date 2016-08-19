@@ -2,7 +2,6 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -19,7 +18,7 @@ public class XmlChildElementFactory {
     }
 
     public XmlElement createXmlElement(Element domElement) {
-        XmlElement element = null;
+        XmlElement element;
         element = createInstance(domElement);
 
         return element;
@@ -46,12 +45,60 @@ public class XmlChildElementFactory {
         return element;
     }
 
-    protected String getClassName(Element domElement) {
-        String className = null;
-        
-        if (xmlParent.getTagMap() != null) {
-            className = xmlParent.getTagMap().get(domElement.getTagName());
+    /*    protected String relativePath(List<XmlElement> list) {
+        //String path = "";
+        StringBuilder pathBuilder = new StringBuilder();
+        String slash = "/";
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+                slash = "";
+            }
+            pathBuilder
+                    .append(list.get(i).getTagName());
+            pathBuilder.append(slash);
         }
+        return pathBuilder.toString();
+    }
+     */
+    protected String getClassName(Element domElement) {
+
+        String result = "";
+        String tagName = domElement.getTagName();
+        XmlCompoundElement el = xmlParent;
+        String path = tagName;
+
+        while (true) {
+
+            XmlTagMap map = el.getTagMap();
+            if (map.get(path) != null) {
+                // found class
+                result = map.get(path);
+                break;
+            } else if (map.getDefaultClass() != null) {
+                // found default class
+                result = map.getDefaultClass();
+                break;
+            }
+
+            if (el.getParent() == null) {
+                break;
+            }
+
+            path = el.getTagName() + "/" + path;
+            el = el.getParent();
+
+        }// while
+
+        return result;
+    }
+
+    /*    protected String getClassName(Element domElement) {
+        String className = null;
+//        if ( true ) {
+//            className = findElementClass(xmlParent, domElement.getTagName());
+//            return className;
+//        }
+        className = xmlParent.getTagMap().get(domElement.getTagName());
         
         if (className == null) {
             // try get className from the root
@@ -70,53 +117,49 @@ public class XmlChildElementFactory {
         }
         
         
-/*        
-        if (className == null) {
-            // try get className from the root
-            className = getClassNameFromRoot(domElement);
-        }
-*/
         return className;
     }
-    protected String getDefaultClassNameFromParent(XmlCompoundElement el) {
+     */
+/*    protected String getDefaultClassNameFromParent(XmlCompoundElement el) {
         String className = null;
-        
-        if ( el.getParent() == null ) {
+
+        if (el.getParent() == null) {
             return null;
         }
-        
+
         className = el.getParent().getTagMap().getDefaultClass();
-        
-        if ( className == null ) {
+
+        if (className == null) {
             className = getDefaultClassNameFromParent(el.getParent());
         }
-                
+
         return className;
     }
-    
-    protected String getClassNameFromParent(List<XmlCompoundElement> parentChain , Element domElement) {
+
+    protected String getClassNameFromParent(List<XmlCompoundElement> parentChain, Element domElement) {
         String className = null;
-        
+
         XmlCompoundElement xmlEl = parentChain.get(0);
-        
-        if ( xmlEl.getParent() == null ) {
+
+        if (xmlEl.getParent() == null) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        for ( int i=0; i < parentChain.size(); i++) {
+        for (int i = 0; i < parentChain.size(); i++) {
             sb.append(parentChain.get(i).getTagName())
                     .append("/");
         }
         sb.append(domElement.getTagName());
-        
+
         className = xmlEl.getParent().getTagMap().get(sb.toString());
-        if ( className == null ) {
-            parentChain.add(0,xmlEl.getParent());
+        if (className == null) {
+            parentChain.add(0, xmlEl.getParent());
             className = getClassNameFromParent(parentChain, domElement);
         }
-                
+
         return className;
     }
+*/
     protected String getClassNameFromRoot(Element domElement) {
         String className = null;
         //

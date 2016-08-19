@@ -166,6 +166,7 @@ public class PomRootTest {
         PomRoot pomRoot = initPomRoot(pomDocument);
         
         pomRoot.commitUpdates();
+        
         String s = type01.getText();        
         List<Element> domElements = pomDocument.getDomDependencyList();
         
@@ -178,7 +179,7 @@ public class PomRootTest {
         
         domElements = pomDocument.getDomDependencyList();
         domElements = pomDocument.getDomDependencyChilds(domElements.get(0));
-        assertEquals(domElements.size(),2);        
+        assertEquals(2,domElements.size());        
         assertTrue("groupId".equals(domElements.get(0).getTagName()));
         assertTrue("artifactId".equals(domElements.get(1).getTagName()));
         //assertTrue("type".equals(domElements.get(2).getTagName()));
