@@ -73,7 +73,7 @@ public class PomRootTest {
     DependencyArtifact type01;
     
     protected PomRoot initPomRoot(PomDocument pd) {
-        PomRoot pomRoot = pd.getXmlRoot();
+        PomRoot pomRoot = pd.getRoot();
 
         dependencies01 = new Dependencies();
         dependency01 = new Dependency();
@@ -167,7 +167,7 @@ public class PomRootTest {
         
         pomRoot.commitUpdates();
         
-        String s = type01.getText();        
+        String s = type01.getTextContent();        
         List<Element> domElements = pomDocument.getDomDependencyList();
         
         domElements = pomDocument.getDomDependencyChilds(domElements.get(0));
@@ -194,7 +194,7 @@ public class PomRootTest {
     @Test
     public void testGetElement() {
         System.out.println("getElement");
-        PomRoot instance = pomDocument01.getXmlRoot();
+        PomRoot instance = pomDocument01.getRoot();
         Element expResult = pomDocument01.getDocument().getDocumentElement();
         Element result = instance.getElement();
         assertEquals(expResult, result);
@@ -207,7 +207,7 @@ public class PomRootTest {
     @Test
     public void testCreateElement() {
         System.out.println("createElement");
-        PomRoot instance = pomDocument01.getXmlRoot();
+        PomRoot instance = pomDocument01.getRoot();
         Element expResult = pomDocument01.getDocument().getDocumentElement();
         instance.createDOMElement();
         Element result = instance.getElement();
@@ -225,7 +225,7 @@ public class PomRootTest {
 /*    @Test
     public void testMarkDeleted() {
         System.out.println("setDeleted");
-        XmlRoot instance = pomDocument01.getXmlRoot();
+        XmlRoot instance = pomDocument01.getRoot();
         
         instance.markDeleted(true);
         assertFalse(instance.isMarkedDeleted()); // markDeleted doen't change the value
@@ -244,7 +244,7 @@ public class PomRootTest {
 /*    @Test
     public void testIsMarkedDeleted() {
         System.out.println("isDeleted");
-        XmlRoot instance = pomDocument01.getXmlRoot();
+        XmlRoot instance = pomDocument01.getRoot();
         instance.markDeleted(true);
         assertFalse(instance.isMarkedDeleted());
         instance.markDeleted(false);
@@ -260,7 +260,7 @@ public class PomRootTest {
         System.out.println("getDependencies");
         
         pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         //
         // The DOM Tree doesn't contain dependencies tag still.
         //
@@ -277,7 +277,7 @@ public class PomRootTest {
         System.out.println("getDependencies");
         
         pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         pomRoot.addChild(new Dependencies());
         //
         // The the child list now contains Dependencies element.
@@ -300,7 +300,7 @@ public class PomRootTest {
     public void testGetChilds() {
         System.out.println("getChilds");
         pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         //
         // No dependencies tag still
         //
@@ -320,14 +320,14 @@ public class PomRootTest {
         // Create document from a pom.xml template resource file
         //
         pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         assertTrue(pomRoot.isPomDocument());
         
         //
         // Create in-memory not a pom document
         //
         //pomDocument = new PomDocument("books");
-        //pomRoot = pomDocument.getXmlRoot();
+        //pomRoot = pomDocument.getRoot();
         //assertFalse(pomRoot.isPomDocument());
         
     }

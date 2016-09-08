@@ -7,8 +7,8 @@ import org.w3c.dom.Element;
  *
  * @author Valery Shyshkin
  */
-public abstract class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
-    
+public class AbstractCompoundXmlElement extends AbstractXmlElement implements XmlCompoundElement {
+
     private XmlTagMap tagMap;
     protected XmlChilds childs;
 
@@ -18,14 +18,30 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
 
     protected AbstractCompoundXmlElement(String tagName, Element element, XmlCompoundElement parent) {
         super(tagName, element, parent);
-         tagMap = new XmlTagMap();
+        tagMap = new XmlTagMap();
     }
 
     /**
-     * Returns an instance of an object of type
-     * {@link XmlChilds}.
-     * If the {@code childs } property value has not been set yet the this
-     * method creates a new instance and sets the property value.
+     * Sets the property {@code element } to null for thex element and all it's
+     * child elements recursively. Removes the DOM element from it's parent
+     * node.
+     *
+     * @return The previous value of the element
+     */
+
+    @Override
+    public Element nullElement() {
+        Element old = super.nullElement();
+        childs.list().forEach(e -> {
+            e.nullElement();
+        });
+        return old;
+    }
+
+    /**
+     * Returns an instance of an object of type {@link XmlChilds}. If the {@code childs
+     * } property value has not been set yet the this method creates a new
+     * instance and sets the property value.
      *
      * @return an Object of type {@link XmlChilds }
      */
@@ -36,104 +52,48 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
         }
         return childs;
     }
-    /**
-     * Return the value as specifies by the static method 
-     * {@code XmlChilds.findChildsByPath((String) }.
-     * 
-     * 
-     * @param path the string representation of items separated by the slash
-     * @return a collection of elements of type XmlElement.  
-     * 
-     * @see XmlChilds#findChildsByPath(org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement, java.lang.String) 
-     */
-    
-    /**
-     * The path parameter may take two forms. For example
-     * <ul>
-     * <li>
-     *   "p1/p2/p3". then all child elements with tag name "p3" which resides in
-     *   the owner "p1/p2" will be searched.
-     * </li>
-     * <li>
-     *   "p1/p2/*". then all child elements which resides in the owner
-     *   "p1/p2" will be searched regardless of tag names.
-     * </li>
-     * </ul>
-     *
-     * @param from
-     * @param path
-     * @return
-     */
-    
-/*    public List<XmlElement> findElementsByPath(String path) {
-        final List<XmlElement> result = new ArrayList<>();
 
-        XmlChilds childs = getChilds();
-        String[] paths = path.split("/");
-
-        String first = paths[0];
-        if ("*".equals(first)) {
-            result.addAll(childs.list());
-        } else {
-            List<XmlElement> list = new ArrayList<>();
-            List<XmlCompoundElement> clist = new ArrayList<>();
-            childs.list().forEach(e -> {
-                if (e.getTagName().equals(first)) {
-                    list.add(e);
-                    if (e instanceof XmlCompoundElement) {
-                        clist.add((XmlCompoundElement) e);
-                    }
-                }
-
-            });
-            if (paths.length == 1) {
-                result.addAll(list);
-            } else {
-                String nextPath = path.substring(paths[0].length() + 1);
-                clist.forEach(e -> {
-                    result.addAll(e.findChildsByPath(nextPath));
-                });
-            }
+    /*    @Override
+    public XmlCompoundElement getClone() {
+        XmlCompoundElement p = (XmlCompoundElement) super.getClone();
+        if ( this instanceof XmlTextElement ) {
+            ((XmlTextElement) p).setText(((XmlTextElement)this).getTextContent());
         }
-        return result;
-
-    }
-*/
-    @Override
-    public XmlElement cloneXmlElementInstance() {
-        XmlCompoundElement p = (XmlCompoundElement) super.cloneXmlElementInstance();
         List<XmlElement> list = getChilds().list();
         list.forEach(e -> {
-            p.getChilds().add(e.cloneXmlElementInstance());
+            p.getChilds().add(e.getClone());
         });
         return p;
     }
+     */
     /**
-     * Getter method of the  property {@link #tagMap}.
-     * Never {@code null}
+     * Getter method of the property {@link #tagMap}. Never {@code null}
+     *
      * @return the property tagMap
-     * 
+     *
      * @see XmlTagMap
      */
     @Override
     public XmlTagMap getTagMap() {
         return tagMap;
     }
-   /**
-     * Setter method of the  property {@link #tagMap}.
-     * 
+
+    /**
+     * Setter method of the property {@link #tagMap}.
+     *
      * @param tagMap can't be null otherwise NullPointerException is thrown
      * @see XmlTagMap
      */
     @Override
     public void setTagMap(XmlTagMap tagMap) {
-        if ( tagMap == null ) {
+        if (tagMap == null) {
             throw new NullPointerException("AbstractCompoundElement,setTagMap(XmlTagMap). The parameter can't be null");
         }
         this.tagMap = tagMap;
     }
+
     /**
-     * 
+     *
      */
     @Override
     public void commitUpdates() {
@@ -141,8 +101,8 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
 
         List<XmlElement> list = getChilds().list();
         if (this instanceof XmlTextElement) {
-            if (list.isEmpty() && ((XmlTextElement) this).getText() != null) {
-                getElement().setTextContent(((XmlTextElement) this).getText());
+            if (list.isEmpty() && ((XmlTextElement) this).getTextContent() != null) {
+                getElement().setTextContent(((XmlTextElement) this).getTextContent());
                 return;
             }
         }
@@ -152,5 +112,21 @@ public abstract class AbstractCompoundXmlElement extends AbstractXmlElement impl
             el.commitUpdates();
         });
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb
+                .append(System.lineSeparator())
+                .append("---------------------------")
+                .append(System.lineSeparator())
+                .append("tagMap.size() = ")
+                .append(tagMap.size())
+                .append(System.lineSeparator())
+                .append("childs.size() = ")
+                .append(childs.size());
+        return sb.toString();
+    }
+
 
 }

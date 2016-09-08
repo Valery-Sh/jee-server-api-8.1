@@ -199,7 +199,7 @@ public class XmlDocument {
      *
      * @return an instance of the {@link XmlRoot } class.
      */
-    public XmlRoot getXmlRoot() {
+    public XmlRoot getRoot() {
         assert document != null;
         if (xmlRoot == null) {
             xmlRoot = new XmlRoot(this);
@@ -349,5 +349,21 @@ public class XmlDocument {
     public static boolean isRootElement(Element element) {
         return element.getOwnerDocument().getDocumentElement() == element;
     }
-
+    
+/*    public static void disconnect(XmlElement el) {
+        Element domEl = el.getElement();
+        if ( domEl == null ) {
+            return;
+        }
+        if ( domEl.getParentNode() != null ) {
+            domEl.getParentNode().removeChild(domEl);
+        }
+        el.nullElement();
+        if ( el instanceof XmlCompoundElement) {
+            ((XmlCompoundElement) el).getChilds().list().forEach(e ->{
+                disconnect(e);
+            });
+        }
+    }
+*/
 }

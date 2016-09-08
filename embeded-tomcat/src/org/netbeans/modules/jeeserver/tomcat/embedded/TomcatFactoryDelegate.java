@@ -5,14 +5,14 @@
  */
 package org.netbeans.modules.jeeserver.tomcat.embedded;
 
-import org.netbeans.modules.jeeserver.base.deployment.FactoryDelegate;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
+import org.netbeans.modules.jeeserver.base.embedded.EmbeddedFactoryDelegate;
 
 /**
  *
  * @author Valery
  */
-public class TomcatFactoryDelegate extends FactoryDelegate{
+public class TomcatFactoryDelegate extends EmbeddedFactoryDelegate{
 
     public TomcatFactoryDelegate(String serverId) {
         super(serverId);

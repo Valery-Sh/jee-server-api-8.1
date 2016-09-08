@@ -1,9 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 /**
  *

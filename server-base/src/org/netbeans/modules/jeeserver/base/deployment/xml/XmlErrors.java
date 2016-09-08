@@ -9,10 +9,10 @@ import java.util.List;
  */
 public class XmlErrors {
 
-    private final List<XmlError> errorList = new ArrayList();
+    private final List<XmlError> errorList = new ArrayList<>();
 
     public List<XmlError> getErrorList() {
-        return new ArrayList(errorList);
+        return new ArrayList<>(errorList);
     }
 
     public void addError(XmlError error) {

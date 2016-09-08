@@ -14,11 +14,15 @@ import org.w3c.dom.Node;
 public class XmlAttributes {
     
     private final Map<String,String> attributes;
-    private final XmlElement xmlElement;
+    //private final XmlElement xmlElement;
 
-    public XmlAttributes(XmlElement xmlElement) {
+/*    public XmlAttributes(XmlElement xmlElement) {
         attributes = new HashMap<>();
         this.xmlElement = xmlElement;
+    }
+*/    
+    public XmlAttributes() {
+        attributes = new HashMap<>();
     }
     
     public XmlAttributes put(String attrName, String attrValue) {
@@ -26,7 +30,7 @@ public class XmlAttributes {
         return this;
     }
     public XmlAttributes putAll(XmlAttributes attrs) {
-        attributes.putAll(attrs.getAttributes());
+        attributes.putAll(attrs.toMap());
         return this;
     }
     public String get(String attrName) {
@@ -43,7 +47,7 @@ public class XmlAttributes {
         return attributes.isEmpty();
     }
     
-    public  Map<String,String> getAttributes() {
+    public  Map<String,String> toMap() {
         Map<String,String> map =  new HashMap<>();        
         map.putAll(attributes);
         return map;
@@ -113,7 +117,7 @@ public class XmlAttributes {
         if ( xmlElement.getElement() == null ) {
             return map;
         }
-        NamedNodeMap nodeMap = xmlElement.getElement().getAttributes();
+        NamedNodeMap nodeMap = xmlElement.getElement().toMap();
 
         if ( nodeMap == null || nodeMap.getLength() == 0 ) {
             return map;

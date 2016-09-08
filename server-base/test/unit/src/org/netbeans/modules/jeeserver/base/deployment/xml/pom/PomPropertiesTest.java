@@ -45,13 +45,13 @@ public class PomPropertiesTest {
     public void testGetChilds() {
         System.out.println("getChilds");
         PomDocument pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         
         PomProperties properties = new PomProperties();
         assertTrue(properties.getChilds().isEmpty()); 
         
         pomRoot.addChild(properties);
-        Property property = new Property();
+        Property property = new Property("api.version");
         
         properties.addChild(property);
         assertTrue(properties.getChilds().size() == 1); 

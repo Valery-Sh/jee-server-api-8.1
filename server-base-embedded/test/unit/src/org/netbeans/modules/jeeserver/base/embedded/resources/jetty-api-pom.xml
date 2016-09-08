@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jetty-supported-api>
+    <properties>
+        <command.manager.version>[1.3.1-SNAPSHOT,)</command.manager.version>
+        <nb.server.version>9.3.6.v20151106</nb.server.version>
+    </properties>
+    <server>
+        <server-version-properties>
+            <server-version>
+                <name>
+                    nb.server.version
+                </name>
+                <value>
+                    9.3.6.v20151106
+                </value>
+            </server-version>
+            <command-manager-version>
+                <name>
+                    command.manager.version
+                </name>
+                <value>
+                    [1.3.1,)
+                </value>
+            </command-manager-version>            
+        </server-version-properties>
+        
+        <server-versions>
+            9.3.7.v20160115, 9.3.6.v20151106
+        </server-versions>
+    </server>    
+    <api-set>
+        <api name="standard" >
+            <displayName>
+                Base API
+            </displayName>
+            <description>
+                The API is required for normal work af any Embedded Server
+            </description>
+            <!-- false is a default value -->
+            <alwaysRequired>
+                true
+            </alwaysRequired>
+        </api>
+        <api name = "jsp-jndi-annotations">
+            <displayName>Annotations, JSP, JNDI API</displayName>
+            <description>The API enables the use of annototionas and jsp pages in Web applications</description>
+        </api>
+        <api name= "jsf-mojarra">
+            <displayName>Java ServerFaces</displayName>
+            <description>The API enables the use of jsf facelets or (and) jsp pages in Web applications</description>
+        </api>    
+        <api name="cdi-weld">
+            <displayName>Context and Dependency Injection</displayName>
+            <description>The API enables the use of the Weld CDI for servlets</description>
+        </api>   
+        <api name="apache-jstl">
+            <displayName>Apache JSTL</displayName>
+            <description>Apache JSTL API</description>
+        </api>        
+        <api name = "jersey">
+            <displayName>JAX-RS Jersey API</displayName>
+            <description>The implementation of the JAX-RS API</description>
+            <api-versions>
+                <version-property-name>jersey.version</version-property-name>
+                <displayName>Jersey API Versions</displayName>
+                <versions>2.22.1,2.21.1</versions>
+            </api-versions>
+            <api-versions>
+                <version-property-name>javax.ws.rs.version</version-property-name>
+                <displayName>API used to create RESTful service resources</displayName>
+                <versions>2.0.1</versions>
+            </api-versions>
+        </api>        
+        <api name ="angularBeans">
+            <displayName>AngularBeans API</displayName>
+            <description>Enables the usage of AngularJS in Java EE through CDI</description>
+            <api-versions>
+                <version-property-name>angularBeans.version</version-property-name>
+                <displayName>AngularBeans API Versions</displayName>
+                <versions>1.0.2-RELEASE</versions>
+            </api-versions>
+        </api>        
+        
+    </api-set>
+    
+    <dependencies api="standard">
+        <dependency>
+            <groupId>org.netbeans.plugin.support.embedded</groupId>
+            <artifactId>jetty-9-embedded-command-manager</artifactId>
+            <version>${command.manager.version}</version>
+            <exclusions>
+                <!-- comment for maven-2 -->
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <!-- uncomment for maven-2 
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-deploy</artifactId>
+                </exclusion>
+                -->
+            </exclusions>
+            
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.aggregate</groupId>
+            <artifactId>jetty-all</artifactId>
+            <version>${nb.server.version}</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+    <dependencies api="jsf-mojarra">    
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.faces</artifactId>
+            <version>2.2.11</version>
+        </dependency>
+    </dependencies>
+       
+    <!-- jsp, jndi, annotations -->     
+    
+    <dependencies api="jsp-jndi-annotations" >
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>javax.mail.glassfish</artifactId>
+            <version>1.4.1.v201005082020</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>apache-jsp</artifactId>
+            <version>${nb.server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>org.eclipse.jdt.core</artifactId>
+            <version>3.8.2.v20130121</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jasper</groupId>
+            <artifactId>apache-el</artifactId>
+            <version>8.0.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jasper</groupId>
+            <artifactId>apache-jsp</artifactId>
+            <version>8.0.27</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>el-impl</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+        </dependency>
+        
+    </dependencies>
+    
+    <!-- CDI -->
+    <dependencies api="cdi-weld" >
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.interceptor</groupId>
+            <artifactId>javax.interceptor-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.classfilewriter</groupId>
+            <artifactId>jboss-classfilewriter</artifactId>
+            <version>1.0.5.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.1.3.GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-api</artifactId>
+            <version>2.2.SP3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-core-impl</artifactId>
+            <version>2.2.9.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-core-jsf</artifactId>
+            <version>2.2.14.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.environment</groupId>
+            <artifactId>weld-environment-common</artifactId>
+            <version>2.2.9.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-core</artifactId>
+            <version>2.2.9.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-spi</artifactId>
+            <version>2.2.SP3</version>
+        </dependency>
+    </dependencies>
+    
+    <!-- Apache JSTL -->
+    
+    <dependencies api="apache-jstl">
+        <dependency>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-impl</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.taglibs</groupId>
+            <artifactId>taglibs-standard-spec</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+    </dependencies>    
+    
+    <!--  Jersey REST -->
+    
+    <dependencies api="jersey">
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.bundles.repackaged</groupId>
+            <artifactId>jersey-guava</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.cdi</groupId>
+            <artifactId>jersey-cdi1x</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <!-- angularBeans -->
+    
+    <dependencies api="angularBeans">
+        <dependency>
+            <groupId>com.github.bessemHmidi</groupId>
+            <artifactId>angularBeans</artifactId>
+            <version>${angularBeans.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main</directory>
+                <includes>
+                    <include>**/nbdeployment/wars/**/*</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</jetty-supported-api>

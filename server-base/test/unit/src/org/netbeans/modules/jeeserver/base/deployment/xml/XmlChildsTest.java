@@ -282,7 +282,7 @@ public class XmlChildsTest {
     public void testAddChild_element_in_DOM() {
         System.out.println("addChild__element_in_DOM");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
         //
         // Create a DOM element with a tagName equalt to 'book'.
         // Append a created element toe the root DOM element.
@@ -305,7 +305,7 @@ public class XmlChildsTest {
     public void testRemove() {
         System.out.println("remove");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
         //
         // Create a DOM element with a tag name 'book' and then 
         // create  an XmlElement for it.
@@ -352,7 +352,7 @@ public class XmlChildsTest {
     public void testReplaceChild() {
         System.out.println("replaceChild");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
         //
         // add must return the root
         //
@@ -388,7 +388,7 @@ public class XmlChildsTest {
     public void testReplaceChild_newChild_null() {
         System.out.println("replaceChild_newChild_null");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
 
         XmlCompoundElementImpl book = new XmlCompoundElementImpl("book");
         root.getChilds().add(book);
@@ -412,7 +412,7 @@ public class XmlChildsTest {
     public void testReplaceChild_newChild_in_DOM() {
         System.out.println("replaceChild_newChild_in_DOM");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
 
         Element bookDomElement = xmlDocument.createElement("book");
         root.getElement().appendChild(bookDomElement);
@@ -656,7 +656,83 @@ public class XmlChildsTest {
         assertEquals("210", errors.getErrorList().get(0).getErrorCode());
 
     }
+    /**
+     * Test of check method, of class XmlChild
+     */
+/*    @Test
+    public void testMerge() {
+        System.out.println("merge");
+        XmlBase root = new XmlBase("shop");
 
+        XmlDefaultElement books = new XmlDefaultElement("books");
+        XmlDefaultElement book = new XmlDefaultElement("book");
+        books.addChild(book);
+
+        //
+        // Now add 'books' to the root. We do so because otherwise
+        // the line books.addChild(book) will cause an Exception.
+        //
+        root.addChild(books);         
+        //
+        // To Merge
+        //
+        XmlDefaultElement mbooks = new XmlDefaultElement("books");
+        XmlDefaultElement mbook = new XmlDefaultElement("book");
+        mbook.getAttributes().put("attr1", "attr1Value");
+        mbooks.addChild(mbook);
+        
+        books.getChilds().merge(mbooks.getChilds());
+        
+        assertEquals("attr1Value",books.getChilds().get(0).getAttributes().get("attr1"));
+        
+        //
+        // Now add 'books' to the root. We do so because otherwise
+        // the line books.addChild(book) will cause an Exception.
+        //
+        
+        
+    }
+*/
+        /**
+     * Test of check method, of class XmlChild
+     */
+  /*  @Test
+    public void testMerge_predicate() {
+        System.out.println("merge(XmlChilds, BiPredicate)");
+        XmlBase root = new XmlBase("shop");
+
+        XmlDefaultElement books = new XmlDefaultElement("books");
+        XmlDefaultElement book = new XmlDefaultElement("book");
+        books.addChild(book);
+
+        //
+        // Now add 'books' to the root. We do so because otherwise
+        // the line books.addChild(book) will cause an Exception.
+        //
+        root.addChild(books);         
+        //
+        // To Merge
+        //
+        XmlDefaultElement mbooks = new XmlDefaultElement("books");
+        XmlDefaultElement mbook = new XmlDefaultElement("book");
+        mbook.getAttributes().put("attr1", "attr1Value");
+        mbooks.addChild(mbook);
+        
+
+        assertNotEquals("attr1Value",books.getChilds().get(0).getAttributes().get("attr1"));        
+        
+        books.getChilds().merge(mbooks.getChilds(), (el1, el2) -> {
+            
+            boolean b =  false;
+            if ( el1.equals(el2)) {
+                b = true;
+            }
+            return b;
+        } );
+        
+        assertEquals("attr1Value",books.getChilds().get(0).getAttributes().get("attr1"));
+    }
+*/
     public static class XmlCompoundElementImpl extends AbstractCompoundXmlElement {
 
         public XmlCompoundElementImpl(String tagName) {
@@ -678,7 +754,7 @@ public class XmlChildsTest {
         }
 
         @Override
-        public String getText() {
+        public String getTextContent() {
             return text;
         }
 

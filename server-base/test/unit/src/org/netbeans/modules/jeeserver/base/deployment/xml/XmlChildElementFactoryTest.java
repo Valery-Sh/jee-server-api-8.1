@@ -112,19 +112,14 @@ public class XmlChildElementFactoryTest {
         // 
         assertTrue(factoryResult instanceof XmlDefaultTextElement);
         
-        List<XmlElement> list = XmlBase.findElementsByPath(root, "books/pen/ink-pen");
+        List<XmlElement> list = root.findElementsByPath("books/pen/ink-pen");
         assertEquals(1,list.size());
         assertTrue(list.get(0) instanceof XmlDefaultElement);
     
         XmlElement otherElement = new XmlDefaultTextElement("boook");
         books.addChild(otherElement);
-        list = XmlBase.findElementsByPath(root, "books/boook");
+        list = root.findElementsByPath("books/boook");
         assertTrue(list.get(0) instanceof XmlDefaultTextElement);
-        
-        
-        
-        int i = 0;
-        
     }
     
     /**
@@ -198,7 +193,7 @@ public class XmlChildElementFactoryTest {
         // do commitUpdates() just to appenf a new book element to the DOM Tree
         //
         //root.commitUpdates();
-        List<XmlElement> list = XmlBase.findElementsByPath(root, "books/pen/ink-pen");
+        List<XmlElement> list = root.findElementsByPath("books/pen/ink-pen");
         //assertEquals(0,list.size());
         
     }

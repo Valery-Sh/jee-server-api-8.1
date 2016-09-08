@@ -18,7 +18,6 @@ package org.netbeans.modules.jeeserver.jetty.embedded;
 
 import java.awt.Image;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -37,15 +36,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
-import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
-import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.deployment.utils.Copier;
 import org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
-import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
@@ -57,7 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import sun.util.calendar.BaseCalendar;
 
 /**
  *
@@ -76,15 +70,14 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
 
     public static final String JETTY_SHUTDOWN_KEY = "netbeans";
     
-//    public static final String JETTY_JAR_POSTFIX = "-command-manager";
-    
-    private List<FileChangeListener> fileListeners = new ArrayList<>();
+//    private final List<FileChangeListener> fileListeners = new ArrayList<>();
      
     private final String uid;
     
     public Jetty9Specifics() {
          uid = UUID.randomUUID().toString();
     }
+
     
     @Override
     public boolean shutdownCommand(BaseDeploymentManager dm) {
@@ -94,9 +87,10 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
         }
         boolean result = false;
 
-        //ServerInstanceProperties sp = BaseUtils.getServerProperties(serverProject);
         String key = JETTY_SHUTDOWN_KEY;
+        
         //for future String pkey = sp.getServerConfigProperties().getProperty("jetty-shutdown-key");
+        
         String pkey = null;
         if (pkey != null) {
             key = pkey;
@@ -110,9 +104,6 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
             connection.setRequestMethod("POST");
             int code = connection.getResponseCode();
             LOG.log(Level.FINE, "Server Internal Shutdown response code is {0}", code); //NOI18N
-//            if (code == 404) {
-//                result = true;
-//            }
         } catch (SocketException e) {
             LOG.log(Level.FINE, "The server is not running (SocketException)"); //NOI18N
         } catch (IOException e) {
@@ -150,7 +141,7 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
         HttpURLConnection connection = null;
         String result = null;
         try {
-            //String urlstr = "/jeeserver/manager?deploy=" + l + "&cp=" + c;
+
             String urlstr = "/jeeserver/manager?" + cmd;
             BaseUtil.out("Jetty9Specifics: deployCommand urlStr=" + urlstr);
             URL url = new URL(dm.buildUrl() + urlstr);
@@ -217,20 +208,10 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
         return sb.toString().trim();
     }
 
-//    private String buildUrl(Project p) {
-//        return BaseUtils.managerOf(p.getLookup()).buildUrl();
-    //return "http://" + sp.getHost() + ":" + sp.getHttpPort();
-//    }
     @Override
     public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
         return new JettyFindJspServlet((BaseDeploymentManager) dm);
     }
-
-/*    @Override
-    public Image getProjectImage(Project serverProject) {
-        return ImageUtilities.loadImage(IMAGE2);
-    }
-*/    
     @Override
     public Image getServerImage(Project serverProject) {
         return ImageUtilities.loadImage(IMAGE2);
@@ -303,13 +284,10 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
                     switch (el.getAttribute("name")) {
                         case "contextPath":
                             result.setProperty("contextPath", el.getTextContent());
-                            //BaseUtils.out("1. Utils.getContextProperties el.getTextContext()=" + el.getTextContent());
                             found++;
                             break;
                         case "war":
                             result.setProperty("war", el.getTextContent());
-                            //BaseUtils.out("2. Utils.getContextProperties el.getTextContext()=" + el.getTextContent());
-
                             found++;
                             break;
                         case "getCopyDir":
@@ -324,7 +302,6 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
             }
 
         } catch (IOException | DOMException | SAXException ex) {
-            BaseUtil.out("Jetty9Specifics getContextProperties EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, ex.getMessage());
         }
         return result;
@@ -355,24 +332,20 @@ public class Jetty9Specifics implements EmbeddedServerSpecifics {
     }
 
     @Override
-    public SupportedApiProvider getSupportedApiProvider(String actualServerId) {
-        return new JettySupportedApiProvider(actualServerId);
+    public String getDescriptorResourcePath(String actualServerId) {
+        return "org/netbeans/modules/jeeserver/jetty/embedded/resources/jetty-api-pom.xml";
     }
-
-    @Override
+    
+/*    @Override
     public synchronized void saveFileChangeListener(FileChangeListener l) {
-        BaseUtil.out("&&&& Jetty9Specifics ADD LISTENER list.size = " + fileListeners.size());
         fileListeners.add(l);
-        BaseUtil.out("&&&& Jetty9Specifics ADD LISTENER list.size = " + fileListeners.size());
     }
 
     @Override
     public void deleteFileChangeListener(FileChangeListener l) {
         fileListeners.remove(l);
-        BaseUtil.out("&&&& Jetty9Specifics DELETE LISTENER list.size = " + fileListeners.size());
-        
     }
-
+*/
 
     @Override
     public int hashCode() {

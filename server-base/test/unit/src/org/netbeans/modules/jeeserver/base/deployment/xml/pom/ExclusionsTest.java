@@ -45,7 +45,7 @@ public class ExclusionsTest {
     public void testGetChilds() {
         System.out.println("getChilds");
         PomDocument pomDocument = new PomDocument();
-        PomRoot pomRoot = pomDocument.getXmlRoot();
+        PomRoot pomRoot = pomDocument.getRoot();
         
         Dependencies dependencies = new Dependencies();
         
@@ -59,11 +59,11 @@ public class ExclusionsTest {
         assertTrue(exclusions.getChilds().isEmpty()); 
         
         dependency.addChild(exclusions);
-        Exclude exclude = new Exclude();
+        Exclusion exclude = new Exclusion();
         
         exclusions.addChild(exclude);
         assertTrue(exclusions.getChilds().size() == 1); 
-        assertTrue(exclusions.getChilds().get(0) instanceof Exclude); 
+        assertTrue(exclusions.getChilds().get(0) instanceof Exclusion); 
         
 //        pomRoot.commitUpdates();
 //        pomDocument.save(Paths.get("d:/0temp"), "exclusions01");

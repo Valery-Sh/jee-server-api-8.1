@@ -3,14 +3,11 @@ package org.netbeans.modules.jeeserver.base.embedded.project.nodes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.filesystems.FileObject;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
@@ -30,8 +27,8 @@ public class InstanceChildNode {
                 LogicalViewProvider lvp = instanceProject.getLookup().lookup(LogicalViewProvider.class);
                 //MyLv lvp = new MyLv(instanceProject);
                 node = lvp.createLogicalView();
-                node.setDisplayName(node.getDisplayName() + "_222");
-                node.setName(node.getDisplayName() + "_111");
+                //node.setDisplayName(node.getDisplayName() + "_222");
+                //node.setName(node.getDisplayName() + "_111");
                 
                 //BaseUtil.out("InstanceChildNode NODE = " + n);
             } catch (Exception ex) {

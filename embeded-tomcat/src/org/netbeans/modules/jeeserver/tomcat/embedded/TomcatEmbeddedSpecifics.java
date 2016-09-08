@@ -40,13 +40,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
-import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.ParseEntityResolver;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
 import org.netbeans.modules.jeeserver.base.embedded.specifics.EmbeddedServerSpecifics;
-import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
@@ -71,9 +69,10 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
     @StaticResource
     private static final String SERVER_IMAGE = "org/netbeans/modules/jeeserver/tomcat/embedded/resources/tomcat.png";
 
-//    private static final String HELPER_JAR = "nb-tomcat-helper.jar";
+    
     /**
      *
+     * @param dm
      * @return {@literal new String[] {"META-INF/context.xml"}}
      */
     @Override
@@ -257,17 +256,11 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         return ImageUtilities.loadImage(SERVER_IMAGE);
     }
 
-    /*    @Override
-    public Image getProjectImage(Project serverProject) {
-        return ImageUtilities.loadImage(IMAGE);
-    }
-     */
     @Override
     public InstanceBuilder getInstanceBuilder(Properties props, InstanceBuilder.Options options) {
         InstanceBuilder ib = null;
 
         if ("ant".equals(props.getProperty("project.based.type"))) {
-//BaseUtil.out("TomcatSpecifics ANT.BASED");
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new TomcatCustomizeInstanceBuilder(props, options);
             } else {
@@ -276,7 +269,6 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
             ((EmbeddedInstanceBuilder) ib).setMavenbased(false);
 
         } else if ("maven".equals(props.getProperty("project.based.type"))) {
-//BaseUtil.out("TomcatSpecifics MAVEB.BASED");            
             if (options.equals(InstanceBuilder.Options.CUSTOMIZER)) {
                 ib = new TomcatCustomizeInstanceBuilder(props, options);
             } else {
@@ -288,106 +280,6 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
         return ib;
     }
 
-    /*
-    @Override
-    public void projectCreated(FileObject projectDir, Map<String, Object> props) {
-        //
-        // Check whether helper lib contains jar file with a name 
-        // "nb-tomcat-helper.jar". If true then we assume that it is a 
-        // jar provided by the plugin.
-        //
-        //
-        // Add command-manager.jar to the classpath of the project
-        //
-        String actualServerId = (String)props.get(SuiteConstants.SERVER_ACTUAL_ID_PROP);
-        String cmOut = actualServerId + "-command-manager";
-        String cmIn = "/org/netbeans/modules/jeeserver/tomcat/embedded/resources/" + actualServerId + "-command-manager.jar";
-        
-                
-        FileObject libExt = projectDir.getFileObject("lib/ext");
-        FileObject cmFo;// = null;
-        try {
-            cmFo = libExt.createData(cmOut, "jar");
-            try (OutputStream os = cmFo.getOutputStream(); InputStream is = getClass().getClassLoader().getResourceAsStream(cmIn)) {
-                FileUtil.copy(is, os);
-            }
-            this.addJarToServerClassPath(FileUtil.toFile(cmFo),projectDir);
-        } catch (IOException ex) {
-            LOG.log(Level.INFO, ex.getMessage()); //NOI18N
-        }
-
-        //
-        // Plugin jar => we can create a class from template
-        //
-        DataObject template;
-        DataFolder outputFolder;
-
-        Map<String, Object> templateParams = new HashMap<>(1);
-        try {
-            FileObject srcFo = projectDir.getFileObject("src");
-            FileObject toDelete = projectDir.getFileObject("src/javaapplication0");
-            toDelete.delete();
-            FileObject targetFo = srcFo.createFolder("org")
-                    .createFolder("embedded")
-                    .createFolder("server");
-            outputFolder = DataFolder.findFolder(targetFo);
-            template = DataObject.find(
-                    FileUtil.getConfigFile("Templates/tomcat7/TomcatEmbeddedServer"));
-            templateParams.put("port", props.get(BaseConstants.HTTP_PORT_PROP));
-            templateParams.put("shutdownPort", props.get(BaseConstants.SHUTDOWN_PORT_PROP));
-
-            templateParams.put("comStart", "");
-            templateParams.put("comEnd", "");
-
-            template.createFromTemplate(
-                    outputFolder,
-                    "TomcatEmbeddedServer.java",
-                    templateParams);
-            setMainClass(projectDir);
-        } catch (IOException ex) {
-            LOG.log(Level.INFO, ex.getMessage()); //NOI18N
-        }
-    }
-
-    protected void addJarToServerClassPath(File jar, FileObject projectDir) throws IOException {
-        
-        if (projectDir == null || jar == null || !jar.exists()) {
-            return;
-        }
-        URI[] uri = new URI[]{Utilities.toURI(jar)};
-        ProjectClassPathModifier.addRoots(uri, getSourceRoot(projectDir), ClassPath.COMPILE);
-    }
-
-    protected FileObject getSourceRoot(FileObject projectDir) {
-        Project p = FileOwnerQuery.getOwner(projectDir);
-        Sources sources = ProjectUtils.getSources(p);
-        SourceGroup[] sourceGroups
-                = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        FileObject result = null;
-        try {
-            for (SourceGroup sourceGroup : sourceGroups) {
-                result = sourceGroup.getRootFolder();
-                break;
-
-            }
-        } catch (UnsupportedOperationException ex) {
-            LOG.log(Level.FINE, ex.getMessage()); //NOI18N
-        }
-        return result;
-    }
-
-    protected void setMainClass(FileObject projDir) {
-        FileObject fo = projDir.getFileObject("nbproject/project.properties");
-        EditableProperties props = BaseUtils.loadEditableProperties(fo);
-        props.setProperty("main.class", "org.embedded.server.TomcatEmbeddedServer");
-        BaseUtils.storeEditableProperties(props, fo);
-    }
-    @Override
-    public WizardDescriptorPanel getAddonCreateProjectPanel(org.openide.WizardDescriptor wiz) {
-        return null;
-    }
-
-     */
     @Override
     public boolean needsShutdownPort() {
         return true;
@@ -503,26 +395,19 @@ public class TomcatEmbeddedSpecifics implements EmbeddedServerSpecifics {
             }
 
         } catch (IOException | DOMException | SAXException ex) {
-            BaseUtil.out("tomcatEmbeddedSpecifics getContextProperties EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, ex.getMessage());
         }
         return result;
     }
-
+    
     @Override
-    public SupportedApiProvider getSupportedApiProvider(String actualServerId) {
-        return new TomcatSupportedApiProvider(actualServerId);
+    public String getDescriptorResourcePath(String actualServerId) {
+        String p = "org/netbeans/modules/jeeserver/tomcat/embedded/resources/tomcat7-api-pom.xml";
+        
+        if ( "tomcat-8".equals(actualServerId)) {
+            p = "org/netbeans/modules/jeeserver/tomcat/embedded/resources/tomcat8-api-pom.xml";    
+        }
+        return p;
     }
-
-    @Override
-    public void saveFileChangeListener(FileChangeListener l) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void deleteFileChangeListener(FileChangeListener l) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 
 }

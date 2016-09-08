@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -12,13 +13,14 @@ import java.util.Map;
 public class ApiDependency {
 
     private final String groupId;
-    private final String artifacId;
+    private final String artifactId;
     private final String version;
+    private final String type;
     private final String jarName;
 
     private Map<String, String> otherTags;
 
-    public static ApiDependency getInstance(String mavenLine) {
+/*    public static ApiDependency getInstance(String mavenLine) {
         String[] a = mavenLine.split(":");
         String line = a[2].substring(2);
         String[] tags = line.split("/");
@@ -30,14 +32,24 @@ public class ApiDependency {
         }
         return dep;
     }
-
-    public ApiDependency(String groupId, String artifacId,
+*/
+/*    public ApiDependency(String groupId, String artifacId,
             String version, String attrs, String jarName) {
         this.groupId = groupId;
-        this.artifacId = artifacId;
+        this.artifactId = artifacId;
         this.version = version;
         this.jarName = jarName;
+        this.type = "jar";
         init(attrs);
+    }
+  */  
+    public ApiDependency(String groupId, String artifacId,String version,
+            String type) {
+        this.groupId = groupId;
+        this.artifactId = artifacId;
+        this.version = version;
+        this.type = type;
+        this.jarName = artifacId + "-" + version + "." + type;
     }
 
     private void init(String attrs) {
@@ -57,21 +69,21 @@ public class ApiDependency {
     }
 
     public String getArtifacId() {
-        return artifacId;
+        return artifactId;
     }
 
     public String getVersion() {
         return version;
     }
 
-    public Map<String, String> getOtherTags() {
+/*    public Map<String, String> getOtherTags() {
         return otherTags;
     }
-
+*/
     public String getJarName() {
         return jarName;
     }
-
+/*
     public String[] toStringArray() {
         List<String> tags = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -107,6 +119,43 @@ public class ApiDependency {
 
         String[] a = new String[tags.size()];
         return tags.toArray(a);
+    }
+*/
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.groupId);
+        hash = 61 * hash + Objects.hashCode(this.artifactId);
+        hash = 61 * hash + Objects.hashCode(this.version);
+        hash = 61 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApiDependency other = (ApiDependency) obj;
+        if (!Objects.equals(this.groupId, other.groupId)) {
+            return false;
+        }
+        if (!Objects.equals(this.artifactId, other.artifactId)) {
+            return false;
+        }
+        if (!Objects.equals(this.version, other.version)) {
+            return false;
+        }
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        return true;
     }
 
 }//class

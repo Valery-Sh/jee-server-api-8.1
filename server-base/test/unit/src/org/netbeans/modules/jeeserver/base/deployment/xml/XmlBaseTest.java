@@ -89,7 +89,7 @@ public class XmlBaseTest {
         
         List<XmlElement> expResult = Arrays.asList(book01,book02);
         
-        List<XmlElement> result = XmlBase.findElementsByPath(from, path);
+        List<XmlElement> result = from.findElementsByPath(path);
         assertEquals(expResult, result);
     }
 
@@ -171,47 +171,6 @@ public class XmlBaseTest {
         
     }
 
-    /**
-     * Test of findChilds method, of class XmlBase.
-     */
-    @Test
-    public void testFindChilds() {
-        System.out.println("findChilds");
-
-        XmlBase root = new XmlBase("shop");
-        
-        XmlDefaultElement books = new XmlDefaultElement("books");
-        root.addChild(books);
-        XmlDefaultElement book01 = new XmlDefaultElement("book");
-        books.addChild(book01);
-        //
-        // book02 is an root of XmlDefaultTextElement
-        //
-        XmlDefaultTextElement book02 = new XmlDefaultTextElement("book");
-        books.addChild(book02);
-        
-        Predicate<XmlElement> predicate = (el) -> {return (el instanceof XmlDefaultTextElement);} ;
-        //
-        // Find child elements of the 'books' element
-        //
-        List<XmlElement> result = root.findChilds(books, predicate);
-        List<XmlElement> expResult = Arrays.asList(book02);
-        assertEquals(expResult, result);        
-        
-/*        List<String> l = new ArrayList<>();
-        List<String> l1 = new ArrayList<>();
-        l.add("str1");
-        l.add("str2");
-        l.add("str3");
-        
-
-        XmlHelper h = new XmlHelper(l);
-        h.forEach(s -> {
-            l1.add(s);
-        });
-        assertEquals(1, l1.size());
-*/        
-    }
 
     /**
      * Test of findXmlRoot method, of class XmlBase.

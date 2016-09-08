@@ -21,19 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceCreationException;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 
 /**
  * Factory to create {@literal DeploymentManager } that can deploy to
@@ -238,18 +235,25 @@ public abstract class FactoryDelegate {
         BaseDeploymentManager manager = managers.get(uri);
 
         if (null == manager) {
-            ServerSpecifics ss = newServerSpecifics();
+            ServerSpecifics specifics = newServerSpecifics();
             manager = new BaseDeploymentManager(serverId, uri,
                     newServerSpecifics());
             managers.put(uri, manager);
-            BaseUtil.out("+++ FactoryDelegate getDeploymentManager call register " + uri);
+            //BaseUtil.out("+++ FactoryDelegate getDeploymentManager call register " + uri);
 
-            ss.register(manager);
+            register(manager);
         }
 
         return manager;
     }
-
+    /**
+     * Does nothing here.
+     * @param manager an instance of the deployment manager
+     */
+    protected void register(BaseDeploymentManager manager) {
+        
+    }
+    
     /**
      *
      * Gets a disconnected version of the deployment manager

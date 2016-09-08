@@ -297,11 +297,11 @@ public class XmlRootTest {
     }
 
     @Test
-    public void testFindChildsByPath() {
+    public void testFindElementsByPath() {
+        System.out.println("findChildsByPath");        
         List<XmlElement> list = root.findElementsByPath("books/pen/ball-pen",
                 (el) -> {
-                    boolean b = el.getAttributes().get("attr1") != null;
-                    return b;
+                    return el.getAttributes().get("attr1") != null;
                 }
         );
 
@@ -309,13 +309,12 @@ public class XmlRootTest {
     }
 
     @Test
-    public void testFindChilds() {
-        XmlElement element = root.findFirstElementByPath("books/pen");
+    public void testFindElementsByPath_1() {
+        System.out.println("findChildsByPath");        
 
-        List<XmlElement> list = root.findChilds(element,
+        List<XmlElement> list = root.findElementsByPath("books/pen/*",
                 (el) -> {
-                    boolean b = el.getAttributes().get("attr1") != null;
-                    return b;
+                    return el.getAttributes().get("attr1") != null;
                 }
         );
 

@@ -111,7 +111,6 @@ public interface SupportedApi {
             String commaList = parts[3];
             String[] vms = commaList.split(",");
             addVersion(propName, displayName, vms);
-
         }
 
         protected void addVersion(String propName, String displayName, String[] versionsArray) {

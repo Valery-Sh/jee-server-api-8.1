@@ -24,7 +24,6 @@ import org.netbeans.modules.jeeserver.base.deployment.FactoryDelegate;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecificsProvider;
 //import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.EmbeddedFactoryDelegate;
 
 /**
  * Factory to create {@literal DeploymentManager } that can deploy to

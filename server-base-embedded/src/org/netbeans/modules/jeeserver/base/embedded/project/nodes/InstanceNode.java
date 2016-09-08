@@ -23,10 +23,6 @@ import static org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions.BuildProjectActions;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions.InstancePropertiesAction;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions.RemoveInstanceAction;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions.StartStopAction;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -117,26 +113,31 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
 
         Action[] actions
                 = new Action[]{
-//                    BuildProjectActions.getContextAwareInstance("rebuild-all", getLookup()),
+//                    BuildProjectActions.getInstance("rebuild-all", getLookup()),
 //                    null,
                     //new StartServerAction().createContextAwareInstance(getLookup()),
-                    StartStopAction.getAction("start", getLookup()),
-                    StartStopAction.getAction("stop", getLookup()),
+                    //                    BuildProjectActions.getInstance("rebuild-all", getLookup()),
+//                    null,
+                    //new StartServerAction().createContextAwareInstance(getLookup()),
+                    ServerActions.StartStopAction.getAction("start", getLookup()),
+                    ServerActions.StartStopAction.getAction("stop", getLookup()),
                     null,
-                    RemoveInstanceAction.getContextAwareInstance(getLookup()),
+                    ServerActions.RemoveInstanceAction.getInstance(getLookup()),
                     null,
-                    BuildProjectActions.getContextAwareInstance("build", getLookup()),
-                    BuildProjectActions.getContextAwareInstance("rebuild", getLookup()),
-                    BuildProjectActions.getContextAwareInstance("clean", getLookup()),
+                    ServerActions.BuildProjectActions.getInstance("build", getLookup()),
+                    ServerActions.BuildProjectActions.getInstance("rebuild", getLookup()),
+                    ServerActions.BuildProjectActions.getInstance("clean", getLookup()),
                     null,
-                    //ServerActions.DefineMainClassAction.getContextAwareInstance(getLookup()),
+                    //ServerActions.DefineMainClassAction.getInstance(getLookup()),
                     ServerActions.DownLoadJarsAction.getContextAwareInstance(getLookup()),
                     ServerActions.AddDependenciesAction.getContextAwareInstance(getLookup()),
+                    null,                    
+                    //AddDependenciesAction.getInstance(getLookup()),                    
+                    //null,
+ServerActions.InstancePropertiesAction
+                    .getInstance(getLookup()),
                     null,
-                    InstancePropertiesAction
-                    .getContextAwareInstance(getLookup()),
-                    null,
-                    BuildProjectActions.getContextAwareInstance("developer", getLookup()),
+                    ServerActions.BuildProjectActions.getInstance("developer", getLookup()),
                     null,};
         List<Action> alist = Arrays.asList(actions);
         List<Action> list = new ArrayList<>(alist);

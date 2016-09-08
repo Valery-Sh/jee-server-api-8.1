@@ -46,7 +46,7 @@ public class AddDependenciesPanelVisual extends javax.swing.JPanel {
     }
 
     private void init() {
-//DeploymentFactoryManager.getInstance().        
+
         this.selectAPIComboBox.setModel(createComboBoxModel());
         this.selectAPIComboBox.addActionListener(new ComboBoxActionListener());
         this.selectAPIComboBox.setSelectedIndex(0);
@@ -156,7 +156,7 @@ public class AddDependenciesPanelVisual extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     protected DefaultComboBoxModel createComboBoxModel() {
-        apiList = SupportedApiProvider.getInstance(SuiteUtil.getActualServerId(serverProject)).getApiList();
+        apiList = SupportedApiProvider.getDefault( SuiteUtil.getActualServerId(serverProject) ).getApiList();
         final List<String> names = new ArrayList<>();
         names.add("<not selected>");
         apiList.forEach(api -> {

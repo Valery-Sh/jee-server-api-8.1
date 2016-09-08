@@ -2,7 +2,9 @@ package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.XmlError;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.XmlResult;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlErrors.InvalidClassNameException;
@@ -22,9 +24,12 @@ public class XmlChilds {
     private final XmlCompoundElement owner;
 
     /**
-     * Creates an instance of the class by the given element of type
-     * {@link XmlCompoundElement}. If the the parameter's {@link XmlElement#getElement()
-     * } is not {@code null} then creates {@code xml} elements for each
+     * Creates an instance of the class for the given element of type
+     * {@link XmlCompoundElement}. 
+     * If the parameter {@code owner } is already in the {@code DOM Tree} 
+     * i.e the {@code ownwer.getElement() } returns a not null value of type 
+     * {@code org.w3c.dom.Element } then the constructor  
+     * then creates {@code xml} elements for each
      * immediate child element of the created instance by its DOM element of
      * type {@code org.w3c.dom.Element}.
      *
@@ -39,7 +44,7 @@ public class XmlChilds {
     private void init() {
         List<Element> domList = getChildDomElements();
         if (this instanceof XmlTextElement) {
-            String text = ((XmlTextElement) this).getText();
+            String text = ((XmlTextElement) this).getTextContent();
             if (!domList.isEmpty() && text != null) {
                 throw new IllegalStateException(
                         " XmlChilds.getChilds(): Can't get child elements since the element has not null text property.");
@@ -48,9 +53,9 @@ public class XmlChilds {
 
         domList.forEach(el -> {
             String s = el.getTagName();
+            
             XmlChildElementFactory f = new XmlChildElementFactory(owner);
             XmlElement xmlEl = f.createXmlElement(el);
-
             if ((xmlEl instanceof XmlTextElement)) {
                 String content = xmlEl.getElement().getTextContent();
                 if (!XmlDocument.hasChildElements(xmlEl.getElement()) && content.length() > 0) {
@@ -258,84 +263,6 @@ public class XmlChilds {
         return result;
     }
 
-    /*    public XmlResult findElementClass_1(XmlElement tocheck) {
-        XmlResult result = new XmlResult(tocheck);
-        List<XmlElement> list = new ArrayList<>();
-
-        XmlCompoundElement saveParent = tocheck.getParent();
-        if (tocheck.getParent() == null) {
-            // This happens when an element still is not added to the childs coollectio
-            tocheck.setParent(owner);
-        }
-
-        XmlElement el = tocheck;
-        list.add(el);
-
-        while (true) {
-            if (el instanceof XmlBase) {
-                break;
-            }
-            if (el.getParent() == null) {
-                break;
-            }
-            XmlTagMap map = el.getParent().getTagMap();
-            String path = XmlChilds.this.relativePath(list);
-            if (map.get(path) != null) {
-                // found class
-                result.setElementClass(map.get(path));
-                // include root
-                list.add(0, el.getParent());
-                break;
-            } else if (map.getDefaultClass() != null) {
-                // found default class
-                result.setDefaultClass(true);
-                result.setElementClass(map.getDefaultClass());
-                // include root
-                list.add(0, el.getParent());
-                break;
-
-            }
-
-            el = el.getParent();
-            list.add(0, el);
-        }// while
-
-        tocheck.setParent(saveParent);
-
-        result.getParentList().addAll(list);
-        return result;
-    }
-     */
-    /**
-     * Checks whether the given element is a valid element. If the specified
-     * element doesn't have a parent then the method returns an empty error
-     * object. Otherwise just invokes the method 
-     * {@link #checkElement(org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement) }.
-     * Checking for {@code non-null} value for the parent element is the only
-     * reason to implement this method. Because the {@code checkElement }
-     * permits to check any element against this object (of type XmlChilds) as
-     * it's parent.
-     *
-     * Doesn't throw exceptions but provides this opportunity to developer.
-     *
-     * @param tocheck an element to be checked
-     * @return an object of type XmlErros that contains a list of errors (may be
-     * empty).
-     */
-    /*    public XmlErrors check(XmlElement tocheck) {
-        XmlErrors errors = new XmlErrors();
-        if (tocheck.getParent() != null) {
-            return checkElement(tocheck);
-        }
-        return errors;
-    }
-     */
- /*    public XmlErrors check() {
-        XmlErrors errors = new XmlErrors();
-        errors.merge(check(childs));
-        return errors;
-    }
-     */
     /**
      * Checks all child elements recursively. Each child element of this object
      * is checked and recursively all child elements of the elements mentioned
@@ -355,17 +282,6 @@ public class XmlChilds {
         return errors;
     }
 
-    /*    protected XmlErrors check(List<XmlElement> childList) {
-        XmlErrors errors = new XmlErrors();
-        childList.forEach(el -> {
-            errors.merge(checkElement(el));
-            if (el instanceof XmlCompoundElement) {
-                errors.merge(check(((XmlCompoundElement) el).getChilds().list()));
-            }
-        });
-        return errors;
-    }
-     */
     /**
      * Checks whether the specified element has a valid class name and a valid
      * tag name. The element to be checked may not have a parent element. In
@@ -396,7 +312,7 @@ public class XmlChilds {
      * <p>
      * <
      * pre>
-     * If null null null     {@code elementClass != null
+     * If null null null null null null null null null null null null     {@code elementClass != null
      *          and
      *      not  tocheckClassName.equals(elementClasName)
      *          and
@@ -474,20 +390,8 @@ public class XmlChilds {
         return isChildTagNameSupported(xmlElement.getParent(), path);
     }
 
-    /*    protected boolean isNotDefaultChildTagNameSupported(XmlCompoundElement xmlElement, String tagName) {
-        boolean result = xmlElement.getTagMap().get(tagName) != null;
-        if (result) {
-            return true;
-        }
-        if (xmlElement.getParent() == null) {
-            return false;
-        }
-        String path = xmlElement.getTagName() + "/" + tagName;
-        return isChildTagNameSupported(xmlElement.getParent(), path);
-    }
-     */
     public List<XmlElement> list() {
-        return new ArrayList(childs);
+        return new ArrayList<>(childs);
     }
 
     public XmlElement get(int index) {
@@ -558,7 +462,7 @@ public class XmlChilds {
      */
     public XmlCompoundElement add(XmlElement child) {
         if (owner instanceof XmlTextElement) {
-            if (((XmlTextElement) owner).getText() != null) {
+            if (((XmlTextElement) owner).getTextContent() != null) {
                 throw new IllegalStateException(
                         "XmlCompoundElement.addChild(): can't add child since the element has not emty text content");
             }
@@ -661,6 +565,10 @@ public class XmlChilds {
     }
 
     /**
+     * Returns a list of child elements that satisfies the given path. The
+     * parameter specifies a relative path to the {@link #owner } of this
+     * object.
+     *
      * The path parameter may take two forms. For example
      * <ul>
      * <li>
@@ -673,8 +581,9 @@ public class XmlChilds {
      * </li>
      * </ul>
      *
-     * @param path
-     * @return
+     * @param path the string value with items separated by slash.
+     *
+     * @return Returns a list of child elements that satisfies the given path.
      */
     public List<XmlElement> findChildsByPath(final String path) {
         List<XmlElement> list = new ArrayList<>();
@@ -697,6 +606,114 @@ public class XmlChilds {
         return list;
     }
 
+    /**
+     * Returns a list of child elements that satisfies the given path. The
+     * parameter specifies a relative path to the {@link #owner } of this
+     * object.
+     *
+     * The path parameter may take two forms. For example
+     * <ul>
+     * <li>
+     * "p1/p2/p3". then all child elements with tag name "p3" which resides in
+     * the owner "p1/p2" will be searched.
+     * </li>
+     * <li>
+     * "p1/p2/*". then all child elements which resides in the owner "p1/p2"
+     * will be searched regardless of tag names.
+     * </li>
+     * </ul>
+     *
+     * @param path the string value with items separated by slash.
+     * @param predicate a condition for an element to be added to the result
+     * list
+     *
+     * @return Returns a list of child elements that satisfies the given path.
+     */
+    public List<XmlElement> findChildsByPath(final String path, Predicate<XmlElement> predicate) {
+        //return getChilds().findChildsByPath(path);
+        List<XmlElement> list = findChildsByPath(path);
+        List<XmlElement> result = new ArrayList<>();
+        list.forEach(el -> {
+            if (predicate.test(el)) {
+                result.add(el);
+            }
+        });
+        return result;
+    }
+
+    /**
+     *
+     * @param tomergeList
+     * @param predicate
+     * @return
+     */
+    public XmlChilds merge(List<XmlElement> tomergeList, BiPredicate<XmlElement, XmlElement> predicate) {
+        tomergeList.forEach(mel -> {
+            boolean replaced = false;
+            //XmlElement clone = mel.getClone();
+            for (XmlElement el : childs) {
+                if (predicate.test(el, mel)) {
+                    mel.nullElement();
+                    replace(el, mel);
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                mel.nullElement();
+                add(mel);
+            }
+        });
+        return this;
+    }
+
+    public XmlChilds mergeClones(XmlChilds tomerge, Converter<XmlElement, XmlElement> converter) {
+        List<XmlElement> tomergeList = tomerge.list();
+        tomergeList.forEach(mel -> {
+            XmlElement clone = null;
+            XmlElement found = null;
+            for (XmlElement el : childs) {
+                if (converter.test(el, mel)) {
+                    clone = converter.convert(mel);
+                }
+                if (clone != null) {
+                    found = el;
+                    break;
+                }
+            }
+            if (found != null) {
+                replace(found, clone);
+            } else {
+                clone = converter.convert(mel);
+                if (clone != null) {
+                    add(clone);
+                }
+            }
+        });
+        return this;
+    }
+
+    @FunctionalInterface
+    public static interface Converter<T, V> {
+
+        default boolean test(T el1, T el2) {
+            return convert((T) el1, (T) el2) != null;
+        }
+
+        /**
+         * Accepts one or two parameters
+         *
+         * @param el1
+         * @param el2
+         * @return
+         */
+        V convert(T el1, T el2);
+
+        default V convert(T el) {
+            return convert(null, el);
+        }
+    }
+
     public static class Visitor {
 
         public Visitor() {
@@ -711,52 +728,54 @@ public class XmlChilds {
             });
         }
     }//class Visitor
-    
+
     public static class ParentVisitor {
-        
+
         private boolean stop;
-        
+
         public ParentVisitor() {
             //this.rootChilds = childs;
         }
+
         /**
-         * 
+         *
          */
         public void stop() {
             this.stop = true;
         }
+
         public void visit(XmlElement el, Consumer<XmlElement> consumer) {
-                if ( stop ) {
-                    // allows reuse the same ParentVisitor
-                    stop = false;
-                }
-                
-                consumer.accept(el);
-                if ( stop ) {
-                    return;
-                }
-                if ( el.getParent() == null || ( el instanceof XmlBase)  ) {
-                    return;
-                }
-                visit(el.getParent(), consumer);
-        }        
-        
+            if (stop) {
+                // allows reuse the same ParentVisitor
+                stop = false;
+            }
+
+            consumer.accept(el);
+            if (stop) {
+                return;
+            }
+            if (el.getParent() == null || (el instanceof XmlBase)) {
+                return;
+            }
+            visit(el.getParent(), consumer);
+        }
+
         public void visit(XmlCompoundElement upperBoundary, XmlElement el, Consumer<XmlElement> consumer) {
-                if ( stop ) {
-                    // allows reuse the same ParentVisitor
-                    stop = false;
-                }
-            
-                consumer.accept(el);
-                if ( stop ) {
-                    return;
-                }
-                if ( el.getParent() == null || el.getParent() == upperBoundary  ) {
-                    return;
-                }
-                visit(upperBoundary,el.getParent(), consumer);
-        }                
-        
+            if (stop) {
+                // allows reuse the same ParentVisitor
+                stop = false;
+            }
+
+            consumer.accept(el);
+            if (stop) {
+                return;
+            }
+            if (el.getParent() == null || el.getParent() == upperBoundary) {
+                return;
+            }
+            visit(upperBoundary, el.getParent(), consumer);
+        }
+
     }//class ParentVisitor
-    
+
 }//class

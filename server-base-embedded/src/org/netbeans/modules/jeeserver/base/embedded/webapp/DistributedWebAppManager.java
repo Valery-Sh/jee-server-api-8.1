@@ -29,7 +29,7 @@ import org.openide.filesystems.FileUtil;
  *
  * @author V. Shyshkn
  */
-public class DistributedWebAppManager implements FileChangeListener {
+public class DistributedWebAppManager implements ProjectStateRegistry, FileChangeListener {
 
     private static final Logger LOG = Logger.getLogger(DistributedWebAppManager.class.getName());
 
@@ -56,19 +56,13 @@ public class DistributedWebAppManager implements FileChangeListener {
         return d;
     }
 
+    @Override
     public Project getProject() {
         return serverInstance;
     }
 
-    public boolean isRegistered(Project webApp) {
-        List<FileObject> list = getWebAppFileObjects();
-        if (list.contains(webApp.getProjectDirectory())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
+    @Override
     public Path createRegistry() {
 
         Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());
@@ -96,22 +90,6 @@ public class DistributedWebAppManager implements FileChangeListener {
 
     }
 
-    public FileObject copyFile(FileObject source) {
-        FileObject result = null;
-        Path target = createRegistry().resolve(source.getNameExt());
-        if (Files.exists(target)) {
-            result = FileUtil.toFileObject(target.toFile());
-        } else {
-            Path sourcePath = FileUtil.toFile(source).toPath();
-            try {
-                Path p = Files.copy(sourcePath, target);
-                result = FileUtil.toFileObject(p.toFile());
-            } catch (IOException ex) {
-                LOG.log(Level.INFO, ex.getMessage());
-            }
-        }
-        return result;
-    }
 
     public String getServerInstanceProperty(String name) {
         Properties props = new Properties();
@@ -182,7 +160,6 @@ public class DistributedWebAppManager implements FileChangeListener {
             SuiteNotifier sn = SuiteManager.getServerSuiteProject(uri).getLookup().lookup(SuiteNotifier.class);
             sn.childrenChanged(this, webApp);
         }
-        return;
     }
 
     public int unregister(Project webApp) {
@@ -257,23 +234,8 @@ public class DistributedWebAppManager implements FileChangeListener {
         return FileUtil.toFileObject(target.toFile());
     }
 
-    public List<FileObject> getWebAppFileObjects() {
-        List<FileObject> list = new ArrayList<>();
-        Properties props = getWebAppsProperties();
-        props.forEach((k, v) -> {
-            FileObject fo = FileUtil.toFileObject(new File((String) v));
-            if (fo != null) {
-                Project p = BaseUtil.getOwnerProject(fo);
-                if (p != null) {
-                    list.add(fo);
-                }
-            }
-        });
 
-        return list;
-    }
-
-    protected Properties getWebAppsProperties() {
+    public Properties getWebAppsProperties() {
         Properties props = new Properties();
         FileObject target = getRegistry();
         if (target == null) {
@@ -351,19 +313,6 @@ public class DistributedWebAppManager implements FileChangeListener {
         }
     }
 
-    public static void refreshSuiteInstances(Project suite) {
-        refreshSuiteInstances(suite.getProjectDirectory());
-    }
-
-    public static void refreshSuiteInstances(FileObject suiteDir) {
-        List<String> all = SuiteManager.getLiveServerInstanceIds(suiteDir);
-//        BaseUtil.out("1) -- DistributedWebAppManager all.size() =  " + all.size());
-        all.forEach(uri -> {
-            DistributedWebAppManager dm = DistributedWebAppManager.getInstance(SuiteManager.getManager(uri).getServerProject());
-            dm.refresh();
-        });
-
-    }
 
     private WebModule getWebModule(Project p) {
         WebModule wm = null;
@@ -373,29 +322,6 @@ public class DistributedWebAppManager implements FileChangeListener {
         return wm;
     }
 
-    public void refresh_old() {
-
-        Properties props = getWebAppsProperties();
-        props.forEach((k, v) -> {
-            File f = new File((String) v);
-            Project p = BaseUtil.getOwnerProject(FileUtil.toFileObject(f));
-            WebModule wm = WebModule.getWebModule(p.getProjectDirectory());
-            String cp = wm.getContextPath();
-        });
-
-    }
-
-    /*    public boolean exists(Project webApp) {
-        boolean result = false;
-        return result;
-    }
-     */
- /*    public FileObject findByContextpath(String cp) {
-        FileObject result = null;
-
-        return result;
-    }
-     */
     @Override
     public void fileFolderCreated(FileEvent fe) {
     }

@@ -23,40 +23,33 @@ public class SuiteRegistry {
     private static final Logger LOG = Logger.getLogger(SuiteRegistry.class.getName());
     private static final String SHARED_UID = "-shared";
 
-    //private final Project serverInstance;
-
     private final String dir;
     private final String suiteUID;
 
-    //private InstancePreferences instancePreferences;
+    
     protected SuiteRegistry(Project serverInstance) {
-        //this.serverInstance = serverInstance;
         dir = serverInstance.getProjectDirectory().getPath();
         Project suite = SuiteManager.getServerSuiteProject(serverInstance);
         suiteUID = SuiteUtil.getSuiteUID(suite.getProjectDirectory());
     }
 
     protected SuiteRegistry(Project serverInstance, String suiteUID) {
-        //this.serverInstance = serverInstance;
         dir = serverInstance.getProjectDirectory().getPath();
         this.suiteUID = suiteUID;
     }
 
     protected SuiteRegistry(String dir, String suiteUID) {
-        //this.serverInstance = null;
         this.dir = dir;
         this.suiteUID = suiteUID;
     }
 
     public static SuiteRegistry newInstance(Project instanceProject) {
         SuiteRegistry d = new SuiteRegistry(instanceProject);
-        //d.manager = NbPreferencesManager.newInstance(d);
         return d;
     }
 
     public static SuiteRegistry newSharedInstance(Project instanceProject) {
         SuiteRegistry d = new SuiteRegistry(instanceProject, "-shared");
-        //d.manager = NbPreferencesManager.newInstance(d);
         return d;
     }
 
@@ -152,13 +145,19 @@ public class SuiteRegistry {
      * Returns an instance of type      {@link org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences ) 
      * for a given string properties file name.
      *
-     * @param id a string value that specifies a properties file name
      * @return an instance of type {@literal InstancePreferences }.
      */
     public InstancePreferences getProperties() {
         return getProperties(rootRegistryNode(),"server-instance");
     }
-
+    
+    /**
+     * Returns an instance of type      {@link org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences ) 
+     * for a given string properties file name.
+     *
+     * @param id a string value that specifies a properties file name
+     * @return an instance of type {@literal InstancePreferences }.
+     */
     public InstancePreferences getProperties(String id) {
         return getProperties(rootRegistryNode(),id);
     }
@@ -167,13 +166,6 @@ public class SuiteRegistry {
         return SHARED_UID.equals(suiteUID);
     }
 
-/*    public void putProperty(String propName, String value) {
-        if (!isUIDShared()) {
-            getProperties("server-instance").putString(propName, value);
-        }
-        //instancePreferences.putString(propName, value);
-    }
-*/
     /**
      * Returns a string value for the given property name. First it gets an
      * instance of type      {@link org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences ) 
@@ -221,8 +213,6 @@ public class SuiteRegistry {
      * @return list of all existing properties created in the given namespace
      */
     protected InstancePreferences getProperties( Preferences prefs, String id) {
-
-
         try {
             
             InstancePreferences ip = null;
@@ -234,7 +224,7 @@ public class SuiteRegistry {
             }
             return ip;
         } catch (Exception ex) {
-            BaseUtil.out("AbstractPreferencesManager getProperties() EXCEPTION = " + ex.getMessage());
+            BaseUtil.out("SuiteRegistry getProperties() EXCEPTION = " + ex.getMessage());
             LOG.log(Level.INFO, null, ex);
             throw new IllegalStateException(ex);
         }

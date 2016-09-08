@@ -275,7 +275,7 @@ public class PomDocument extends XmlDocument {
      */
     public Element getDomDependencies() {
         Element element = null;
-        NodeList nl = getXmlRoot().getElement().getChildNodes();
+        NodeList nl = getRoot().getElement().getChildNodes();
 
         if (nl != null && nl.getLength() > 0) {
             for (int i = 0; i < nl.getLength(); i++) {
@@ -338,7 +338,7 @@ public class PomDocument extends XmlDocument {
      * @return an instance of the {@link PomRoot } class.
      */
     @Override
-    public PomRoot getXmlRoot() {
+    public PomRoot getRoot() {
         assert document != null;
         if (this.xmlRoot == null) {
             xmlRoot = new PomRoot(this);

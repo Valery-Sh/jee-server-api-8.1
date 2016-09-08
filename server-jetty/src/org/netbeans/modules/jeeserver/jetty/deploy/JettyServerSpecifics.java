@@ -55,49 +55,11 @@ public class JettyServerSpecifics implements ServerSpecifics {
     public static final String JETTY_SHUTDOWN_KEY = "netbeans";
     public static final String IMAGE = "org/netbeans/modules/jeeserver/jetty/resources/jetty01-16x16.jpg";
 
-    /*    @Override
-    public boolean pingServer(BaseDeploymentManager dm) {
-
-        //ServerInstanceProperties sp = BaseUtils.getServerProperties(serverProject.getLookup());
-        String urlString = dm.buildUrl();
-        if ( urlString == null ) {
-            return false;
-        }
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            if (connection == null) {
-                return false;
-            }
-            connection.setRequestMethod("POST");
-            Map<String, List<String>> headerFields = connection.getHeaderFields();
-            if (headerFields == null) {
-                return false;
-            }
-            for (Map.Entry<String, List<String>> e : headerFields.entrySet()) {
-                if (e.getKey() == null || !e.getKey().trim().toLowerCase().equals("server")) {
-                    continue;
-                }
-                for (String v : e.getValue()) {
-                    if (v != null && v.trim().toLowerCase().startsWith("jetty")) {
-                        return true;
-                    }
-                }
-            }
-        } catch (SocketException e) {
-        } catch (IOException e) {
-        }
-        return false;
-
-    }
-     */
-
     @Override
     public boolean shutdownCommand(BaseDeploymentManager dm) {
 
         boolean result;
 
-        //ServerInstanceProperties sp = BaseUtils.getServerProperties(serverProject.getLookup());
         String key = JETTY_SHUTDOWN_KEY;
 
         // for future  String pkey = sp.getServerConfigProperties().getProperty("jetty-shutdown-key");
@@ -224,10 +186,6 @@ public class JettyServerSpecifics implements ServerSpecifics {
         return sb.toString();
     }
 
-    /*    private String buildUrl(Project p) {
-        return BaseUtils.managerOf(p.getLookup()).buildUrl();
-    }
-     */
     @Override
     public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
         return new JettyServerFindJspServlet((BaseDeploymentManager) dm);
@@ -296,11 +254,6 @@ public class JettyServerSpecifics implements ServerSpecifics {
         return accepted[0];
     }
 
-    /*    @Override
-    public Lookup getServerLookup(BaseDeploymentManager dm) {
-        return dm.getServerProject().getLookup();
-    }    
-     */
     @Override
     public StartServerPropertiesProvider getStartServerPropertiesProvider(BaseDeploymentManager dm) {
         return dm.getServerProject().getLookup().lookup(StartServerPropertiesProvider.class);

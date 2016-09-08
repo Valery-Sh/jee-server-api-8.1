@@ -14,13 +14,12 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Stream;
-import static org.netbeans.modules.jeeserver.base.deployment.utils.prefs.PathPreferencesRegistry.DEFAULT_PROPERTIES_ID;
 
 public class InstancePreferences implements PreferencesProperties {
 
     private static final Logger LOG = Logger.getLogger(InstancePreferences.class.getName());
 
-    private Preferences prefs;
+    private final Preferences prefs;
 
     private final String id;
 
@@ -29,6 +28,7 @@ public class InstancePreferences implements PreferencesProperties {
         this.id = id;
     }
 
+    @Override
     public String[] keys() {
         try {
             return prefs.keys();
@@ -38,14 +38,17 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public Preferences getPreferences() {
         return prefs;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public boolean getBoolean(String key, boolean def) {
         synchronized (this) {
             if (prefs == null) {
@@ -55,6 +58,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public double getDouble(String key, double def) {
         synchronized (this) {
             if (prefs == null) {
@@ -64,6 +68,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public float getFloat(String key, float def) {
         synchronized (this) {
             if (prefs == null) {
@@ -73,6 +78,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public int getInt(String key, int def) {
         synchronized (this) {
             if (prefs == null) {
@@ -82,6 +88,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public long getLong(String key, long def) {
         synchronized (this) {
             if (prefs == null) {
@@ -91,6 +98,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public String getString(String key, String def) {
         synchronized (this) {
             if (prefs == null) {
@@ -100,6 +108,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void putBoolean(String key, boolean value) {
         synchronized (this) {
             if (prefs == null) {
@@ -109,6 +118,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void putDouble(String key, double value) {
         synchronized (this) {
             if (prefs == null) {
@@ -118,6 +128,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void putFloat(String key, float value) {
         synchronized (this) {
             if (prefs == null) {
@@ -127,6 +138,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void putInt(String key, int value) {
         synchronized (this) {
             if (prefs == null) {
@@ -136,6 +148,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void putLong(String key, long value) {
         synchronized (this) {
             if (prefs == null) {
@@ -145,15 +158,18 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public InstancePreferences setProperty(String propName, String value) {
         this.putString(propName, value);
         return this;
     }
 
+    @Override
     public String getProperty(String propName) {
         return this.getString(propName, null);
     }
 
+    @Override
     public void putString(String key, String value) {
         synchronized (this) {
             if (prefs == null) {
@@ -173,6 +189,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public boolean remove() {
 
         boolean success = false;
@@ -193,6 +210,7 @@ public class InstancePreferences implements PreferencesProperties {
     //
     //
     //
+    @Override
     public Map<String, String> toMap() {
         synchronized (this) {
             if (prefs == null) {
@@ -205,6 +223,7 @@ public class InstancePreferences implements PreferencesProperties {
             return map;
         }
     }
+    @Override
     public Properties toProperties() {
         synchronized (this) {
             if (prefs == null) {
@@ -218,6 +237,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public PreferencesProperties copyFrom(Properties props) {
         if (props == null || props.isEmpty()) {
             return this;
@@ -231,6 +251,7 @@ public class InstancePreferences implements PreferencesProperties {
         return this;
     }
 
+    @Override
     public PreferencesProperties copyFrom(Map<String,String> props) {
         if (props == null || props.isEmpty()) {
             return this;
@@ -258,6 +279,7 @@ public class InstancePreferences implements PreferencesProperties {
 
     }
 
+    @Override
     public void removeKeys(Predicate<String> predicate) {
         for (String key : keys()) {
             if (predicate.test(key)) {
@@ -266,6 +288,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
     }
 
+    @Override
     public void forEach(BiConsumer<String, String> action) {
         String[] keys = keys();
         for (String key : keys) {

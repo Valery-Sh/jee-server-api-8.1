@@ -153,10 +153,10 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
 
         List<Action> actions = new ArrayList<>(2);
 
-        Action newAntProjectAction = ServerActions.NewAntProjectAction.getContextAwareInstance(getLookup());
-        Action newMavenProjectAction = ServerActions.NewMavenProjectAction.getContextAwareInstance(getLookup());
+        Action newAntProjectAction = ServerActions.NewAntProjectAction.getInstance(getLookup());
+        Action newMavenProjectAction = ServerActions.NewMavenProjectAction.getInstance(getLookup());
 
-        Action addExistingProject = ServerActions.AddExistingProjectAction.getContextAwareInstance(getLookup());
+        Action addExistingProject = ServerActions.AddExistingProjectAction.getInstance(getLookup());
 
         Action propAction = null;
 

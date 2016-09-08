@@ -1,8 +1,10 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import org.netbeans.modules.jeeserver.base.deployment.xml.pom.PomDocument;
+import java.lang.reflect.Modifier;
+import org.openide.util.Exceptions;
 import org.w3c.dom.Element;
 
 /**
@@ -12,35 +14,79 @@ import org.w3c.dom.Element;
 public interface XmlElement {
 
     String getTagName();
-    
+
     void commitUpdates();
-    
+
     //void check();    
-    
     XmlCompoundElement getParent();
-    
+
     void setParent(XmlCompoundElement parent);
 
     Element getElement();
-    
-    XmlAttributes getAttributes();
 
-    default XmlElement cloneXmlElementInstance() {
+    /**
+     * Sets the property {@code element } to null for this element. Removes the
+     * DOM element from it's parent node.
+     *
+     * @return The previous value of the element
+     */
+    Element nullElement();
+
+
+    default XmlElement newInstance() {
         XmlElement element;
 
         try {
-            Class<?> clazz = Class.forName(getClass().getName());
-            Constructor<?> ctor = clazz.getDeclaredConstructor(String.class);
-            ctor.setAccessible(true);
-            element = (XmlElement) ctor.newInstance(new Object[]{this.getTagName()});
-        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalArgumentException ex) {
+            if (getClass().isMemberClass() && !Modifier.isStatic(getClass().getModifiers())) {
+                Class<?> innerClass = getClass();
+                Class<?> clazz = getClass().getEnclosingClass();
+
+                Field field = innerClass.getDeclaredField("this$0");
+                field.setAccessible(true);
+
+                Constructor<?> ctor = innerClass.getDeclaredConstructor(clazz, String.class);
+                ctor.setAccessible(true);
+                element = (XmlElement) ctor.newInstance(new Object[]{field.get(this), this.getTagName()});
+            } else {
+                Class<?> clazz = Class.forName(getClass().getName());
+                Constructor<?> ctor = clazz.getDeclaredConstructor(String.class);
+                ctor.setAccessible(true);
+                element = (XmlElement) ctor.newInstance(new Object[]{this.getTagName()});
+            }
+        } catch (NoSuchMethodException | SecurityException | IllegalArgumentException ex) {
             element = null;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             element = null;
-        }
-        if ( element != null && (element instanceof XmlTextElement) && ! PomDocument.hasChildElements(getElement())) {
-           ((XmlTextElement)element).setText(((XmlTextElement)this).getText());  
+        } catch (ClassNotFoundException | NoSuchFieldException ex) {
+            element = null;
         }
         return element;
-    }   
+    }
+
+    XmlAttributes getAttributes();
+    /**
+     * Returns a new instance of the same type as this element.
+     * The {@code tagName} and {@code attributes} is cloned.
+     * 
+     * @return a new instance of the same type as this element
+     */
+    default XmlElement getClone() {
+        XmlElement element = newInstance();
+        if (element != null) {
+            element.getAttributes().putAll(getAttributes());
+        }
+
+        return element;
+    }
+    static boolean equals(String s1, String s2) {
+        if (s1 == null && s2 == null) {
+            return true;
+        }
+        if (s1 != null) {
+            return s1.equals(s2);
+        }
+        return s2.equals(s1);
+
+    }
+
 }

@@ -3,26 +3,35 @@ package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractXmlTextElement;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
 /**
- *
+ * The class that corresponds to the  child element of the element
+ * {@code "PomProperties" }.
+ * 
+ * @see PomProperties
  * @author Valery Shyshkin
  */
 public class Property extends AbstractXmlTextElement {
-    
-    public Property() {
-        super("property",null,null);
-    }
+    /**
+     * Creates a new instance of the class with a specified {@code tagName}.
+     *
+     * @param tagName the name of the tag property
+     */
     public Property(String tagName) {
-        super("property",null,null);
+        super(tagName,null,null);
     }
     
     protected Property(Element element, XmlCompoundElement parent) {
-        super("property",element, parent);
+        super(element.getTagName(), element, parent);
+    }
+    
+    protected Property(String tagName, Element element, XmlCompoundElement parent) {
+        super(tagName,element, parent);
     }
 
-    protected Property(XmlCompoundElement parent) {
-        super("property", null, parent);
+    protected Property(String tagName,XmlCompoundElement parent) {
+        super(tagName, null, parent);
     }
     
 }

@@ -7,11 +7,8 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 /**
  * @author Valery Shyshkin
  */
-//public class XmlRoot extends AbstractCompoundXmlElement implements PomRootElement {
-public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
 
-    //private final Document document;
-
+public class PomRoot extends XmlRoot {
 
     public PomRoot(PomDocument pomDocument) {
         super(pomDocument);
@@ -41,14 +38,29 @@ public class PomRoot extends XmlRoot {//AbstractCompoundXmlElement {
      * doesn't contain the {@code dependencies} tag.
      */
     public Dependencies getDependencies() {
-        Dependencies dependencies = null;
         for (XmlElement e : getChilds().list()) {
             if (e instanceof Dependencies) {
                 return (Dependencies) e;
             }
         }
-        return dependencies;
+        return null;
     }
+    /**
+     * A convenient method to access a {@code PomProperties} pom element.
+     * 
+     * @return an instance of type {@link PomProperties } or null if the pom
+     * doesn't contain the {@code properties} tag.
+     */
+    public PomProperties getProperties() {
+        for (XmlElement e : getChilds().list()) {
+            if (e instanceof PomProperties) {
+                return (PomProperties) e;
+            }
+        }
+        return null;
+    }
+    
+    
     public boolean isPomDocument() {
         if ( ! "project".equals(getElement().getTagName()) ) {
             return false;

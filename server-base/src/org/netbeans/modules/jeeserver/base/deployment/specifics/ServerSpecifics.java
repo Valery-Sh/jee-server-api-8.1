@@ -45,9 +45,9 @@ import org.xml.sax.InputSource;
 public interface ServerSpecifics extends LicensesAcceptor {
 
     //Lookup getServerLookup(BaseDeploymentManager dm);
-    default void register(BaseDeploymentManager dm) {
+//    default void register(BaseDeploymentManager dm) {
 
-    }
+//    }
 
     default void iconChange(String uri, boolean newValue) {
 

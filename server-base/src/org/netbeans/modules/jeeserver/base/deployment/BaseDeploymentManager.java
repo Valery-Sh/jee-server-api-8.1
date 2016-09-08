@@ -51,6 +51,7 @@ import org.netbeans.modules.jeeserver.base.deployment.specifics.LogicalViewNotif
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.execution.ExecutorTask;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
@@ -93,6 +94,9 @@ public class BaseDeploymentManager implements DeploymentManager2 {
     protected final BaseTarget defaultTarget;
 
     private FileObject serverProjectDirectory;
+    
+    private final List<FileChangeListener> serverProjectDirectoryListeners = new ArrayList<>();
+    
     
     private ServerInstanceProperties serverProperties;
 
@@ -209,6 +213,10 @@ BaseUtil.out("0. (((((((((((((((( BaseDeploymentManager getLookup uri = " + uri)
     public Project getServerProject() {
         return BaseUtil.getOwnerProject(getServerProjectDirectory());        
         //return FileOwnerQuery.getOwner(getServerProjectDirectory());
+    }
+
+    public List<FileChangeListener> getServerProjectDirectoryListeners() {
+        return serverProjectDirectoryListeners;
     }
     
     public FileObject getServerProjectDirectory() {

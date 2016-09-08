@@ -1,6 +1,8 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,31 +38,13 @@ public class XmlCompoundElementTest {
     }
 
     /**
-     * Test of isChildSupported method, of class XmlCompoundElement.
-     */
-/*    @Test
-    public void testIsChildSupported() {
-        System.out.println("isChildTagNameSupported");
-        Element el = null;
-        XmlCompoundElement instance = new XmlCompoundElementImpl("myTagName");
-        boolean result = instance.isChildTagNameSupported("anyTagName");
-        assertTrue(result);
-        //
-        // 
-        //
-        result = instance.isChildTagNameSupported("not-supported");
-        assertFalse(result);
-
-    }
-*/
-    /**
      * Test of getChildElements method, of class XmlCompoundElement. 1.
      */
     @Test
     public void testGetChilds() {
         System.out.println("getChilds");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
         Element bookElement = xmlDocument.getDocument().createElement("book");
         root.getElement().appendChild(bookElement);
 
@@ -86,11 +70,6 @@ public class XmlCompoundElementTest {
         Element chapterEl03 = xmlDocument.getDocument().createElement("chapter");
         chapterEl01.appendChild(chapterEl03);
 
-        /*        root.commitUpdates();
-        String s = bookElement.getTextContent();        
-        int i = 0;
-        xmlDocument.save(Paths.get("d:/0temp"), "books03");        
-         */
     }
 
     /**
@@ -100,7 +79,7 @@ public class XmlCompoundElementTest {
     public void testGetChilds_with_add_child() {
         System.out.println("getChilds");
         XmlDocument pd = new XmlDocument("books");
-        XmlRoot root = pd.getXmlRoot();
+        XmlRoot root = pd.getRoot();
         //
         // create <book> DOM Element and append it to the root
         //
@@ -140,18 +119,6 @@ public class XmlCompoundElementTest {
         assertEquals("chapter", ch02.getTagName());
     }
 
-    /**
-     * Test of beforeAddChild method, of class XmlCompoundElement.
-     */
-    @Test
-    public void testBeforeAddChild() {
-        System.out.println("beforeAddChild");
-        XmlElement child = null;
-        //PomCompoundElement instance = new XmlCompoundElementImpl();
-        boolean expResult = false;
-        //boolean result = instance.beforeAddChild(child);
-        //assertEquals(expResult, result);
-    }
 
     /**
      * Test of setText method, of class XmlCompoundElement which implements
@@ -163,7 +130,7 @@ public class XmlCompoundElementTest {
     public void testSetText_fail() {
         System.out.println("setText_fail");
         XmlDocument xmlDocument = new XmlDocument("books");
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
 
         XmlTextCompoundElementImpl book = new XmlTextCompoundElementImpl("book");
         root.addChild(book);
@@ -291,6 +258,7 @@ public class XmlCompoundElementTest {
             return tagMap;
         }
         
+        @Override
         public XmlChilds getChilds() {
             if ( childs == null ) {
                 childs = new XmlChilds(this);
@@ -304,6 +272,11 @@ public class XmlCompoundElementTest {
 
         @Override
         public XmlAttributes getAttributes() {
+            return new XmlAttributes();
+        }
+
+        @Override
+        public Element nullElement() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
@@ -318,7 +291,7 @@ public class XmlCompoundElementTest {
         }
 
         @Override
-        public String getText() {
+        public String getTextContent() {
             return text;
         }
 
@@ -341,12 +314,56 @@ public class XmlCompoundElementTest {
         System.out.println("testTemp");
         XmlDocument xmlDocument = new XmlDocument(getClass()
                 .getResourceAsStream("resources/temp_books01_attr.xml"));
-        XmlRoot root = xmlDocument.getXmlRoot();
+        XmlRoot root = xmlDocument.getRoot();
         XmlElement books = root.getChilds().get(0);
         XmlTagMap p;
         
         Element pen01 = xmlDocument.getDocument().getElementById("pen01");
         books.getAttributes();
     }
-    
+    /**
+     * Test of findChilds method, of class XmlBase.
+     */
+    @Test
+    public void testFindElementsByPath() {
+        System.out.println("findElementsByPath");
+
+        XmlBase root = new XmlBase("shop");
+        
+        XmlDefaultElement books = new XmlDefaultElement("books");
+        root.addChild(books);
+        XmlDefaultElement book01 = new XmlDefaultElement("book");
+        books.addChild(book01);
+        //
+        // book02 is an root of XmlDefaultTextElement
+        //
+        XmlDefaultTextElement book02 = new XmlDefaultTextElement("book");
+        books.addChild(book02);
+        
+        Predicate<XmlElement> predicate = (el) -> {return (el instanceof XmlDefaultTextElement);} ;
+        //
+        // Find child elements of the 'books' element
+        //
+        List<XmlElement> result = books.findElementsByPath("*", predicate);
+        List<XmlElement> expResult = Arrays.asList(book02);
+        assertEquals(expResult, result);        
+    }
+    /**
+     * Test of getClone method, of class XmlCompoundElement
+     */
+    @Test
+    public void testGetClone() {
+        System.out.println("getClone");
+
+        XmlCompoundElement books = new XmlCompoundElementImpl("books");
+        XmlCompoundElement book = new XmlCompoundElementImpl("book");
+        books.addChild(book);
+        XmlElement clone = books.getClone();
+        assertEquals(books.getClass(), clone.getClass());
+        XmlChilds childs  = ((XmlCompoundElement)clone).getChilds();
+        assertEquals(1, childs.size());
+        
+        
+
+    }
 }

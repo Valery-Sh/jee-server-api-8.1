@@ -58,7 +58,8 @@ public class DownloadJarsPanelVisual extends javax.swing.JPanel {
     }
 
     protected DefaultComboBoxModel createComboBoxModel() {
-        apiList = SupportedApiProvider.getInstance(SuiteUtil.getActualServerId(serverProject)).getApiList();
+        //apiList = SupportedApiProvider.getInstance(SuiteUtil.getActualServerId(serverProject)).getApiList();
+        apiList = SupportedApiProvider.getDefault( SuiteUtil.getActualServerId(serverProject) ).getApiList();
         final List<String> names = new ArrayList<>();
         names.add("<not selected>");
         apiList.forEach(api -> {

@@ -21,14 +21,14 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePrefer
  */
 public class SuiteRegistryTest {
 
-    private static String SUIDE_UID = "fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
-    private static String SUIDE_UID_NAMESPACE = "uid-fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
+    private static final String SUIDE_UID = "fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
+    private static final String SUIDE_UID_NAMESPACE = "uid-fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
 
-    private static String TEST_DIR = "c:\\TestFolder01/ChildFolder01";
-    private static String TEST_PROP_FILE = "server-instance";
-    private static String TEST_SUITE_UID_PREFIX = "uid-" + SUIDE_UID + "/";
+    private static final String TEST_DIR = "c:\\TestFolder01/ChildFolder01";
+    private static final String TEST_PROP_FILE = "server-instance";
+    private static final String TEST_SUITE_UID_PREFIX = "uid-" + SUIDE_UID + "/";
 //    private static String TEST_NAMESPACE = TEST_SUITE_UID_PREFIX + "c_/TestFolder01/ChildFolder01";     
-    private static String TEST_NAMESPACE = "c_/TestFolder01/ChildFolder01";
+    private static final String TEST_NAMESPACE = "c_/TestFolder01/ChildFolder01";
 
     public SuiteRegistry create() {
         return create(TEST_DIR, SUIDE_UID);
@@ -70,7 +70,12 @@ public class SuiteRegistryTest {
     @Test
     public void testGetNamespace_0args() {
         System.out.println("getNamespace()");
-        SuiteRegistry instance = create();
+        //
+        // TEST_DIR = "c:\\TestFolder01/ChildFolder01";
+        // SUIDE_UID = "fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
+        // TEST_NAMESPACE = "c_/TestFolder01/ChildFolder01";
+        SuiteRegistry instance = SuiteRegistry.newInstance(TEST_DIR, SUIDE_UID);
+        
         String expResult = TEST_NAMESPACE;
         String result = instance.getNamespace();
         System.out.println("expResult = ---" + expResult);

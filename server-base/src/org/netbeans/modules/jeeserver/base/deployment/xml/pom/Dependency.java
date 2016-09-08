@@ -7,20 +7,41 @@ import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlTagMap;
 
+
 /**
+ * The class that corresponds to the tag named 
+ * {@code "dependency"} of the {@code pom } document. 
  *
+ * The element is used as a child element of {@link Dependency} element.
+ *  
+ * @see Dependencise
  * @author Valery Shyshkin
  */
 public class Dependency extends AbstractCompoundXmlElement {
-
+    /**
+     * Creates a new instance of the class with a {@code tagName} property value
+     * equals to {@code "dependency"}. Puts the following items to the
+     * {@code tagMap}:
+     *  <pre>
+     * map.put("groupId", DependencyArtifact.class.getName());
+     *   map.put("artifactId", DependencyArtifact.class.getName());
+     *   map.put("version", DependencyArtifact.class.getName());
+     *   map.put("scope", DependencyArtifact.class.getName());
+     *   map.put("type", DependencyArtifact.class.getName());
+     *   map.put("optional", DependencyArtifact.class.getName());
+     *   map.put("systemPath", DependencyArtifact.class.getName());
+     *   map.put("exclusions", Exclusions.class.getName());     *  
+     * </pre>
+     *
+     */
 
     public Dependency() {
         super("dependency", null, null);
         init();
     }
-    public Dependency(String tagName) {
-        super("dependency", null, null);
-        init();
+
+    protected Dependency(String tagName) {
+        this();
     }
 
     protected Dependency(Element element, XmlCompoundElement parent) {
@@ -32,50 +53,42 @@ public class Dependency extends AbstractCompoundXmlElement {
         super("dependency", null, parent);
         init();
     }
+
     private void init() {
         XmlTagMap map = new XmlTagMap();
-        map.put("dependency", Dependency.class.getName());
+        //map.put("dependency", Dependency.class.getName());
         map.put("groupId", DependencyArtifact.class.getName());
-        map.put("artifactId", DependencyArtifact.class.getName());        
-        map.put("version", DependencyArtifact.class.getName());        
-        map.put("scope", DependencyArtifact.class.getName());        
-        map.put("type", DependencyArtifact.class.getName());        
-        map.put("optional", DependencyArtifact.class.getName());        
-        map.put("systemPath", DependencyArtifact.class.getName());        
-        map.put("exclusions", Exclusions.class.getName());        
+        map.put("artifactId", DependencyArtifact.class.getName());
+        map.put("version", DependencyArtifact.class.getName());
+        map.put("scope", DependencyArtifact.class.getName());
+        map.put("type", DependencyArtifact.class.getName());
+        map.put("optional", DependencyArtifact.class.getName());
+        map.put("systemPath", DependencyArtifact.class.getName());
+        map.put("exclusions", Exclusions.class.getName());
 
         setTagMap(map);
         getTagMap().setDefaultClass(null);
     }
 
-    private boolean equals(String s1, String s2) {
-        if (s1 == null && s2 == null) {
-            return true;
-        }
-        if (s1 != null) {
-            return s1.equals(s2);
-        }
-        return s2.equals(s1);
 
-    }
     public DependencyArtifact findByTagName(String tagName) {
         List<XmlElement> list = getChilds().list();
         DependencyArtifact result = null;
-        for ( XmlElement el : list ) {
-            if ( (el instanceof DependencyArtifact) && tagName.equals(el.getTagName()) ) {
+        for (XmlElement el : list) {
+            if ((el instanceof DependencyArtifact) && tagName.equals(el.getTagName())) {
                 result = (DependencyArtifact) el;
                 break;
             }
         }
         return result;
     }
-            
+
     private String getChildTagValue(String tagName) {
         List<XmlElement> list = getChilds().list();
         String value = null;
         for (XmlElement pe : list) {
             if (tagName.equals(pe.getTagName())) {
-                value = ((DependencyArtifact) pe).getText();
+                value = ((DependencyArtifact) pe).getTextContent();
             }
         }
         return value;
@@ -84,8 +97,10 @@ public class Dependency extends AbstractCompoundXmlElement {
     public String getGroupId() {
         return getChildTagValue("groupId");
     }
+
     public String getType() {
-        return getChildTagValue("type");
+        String type = getChildTagValue("type");
+        return type == null ? "jar" : type;
     }
 
     public String getArtifactId() {
@@ -97,33 +112,26 @@ public class Dependency extends AbstractCompoundXmlElement {
     }
 
     @Override
-    public boolean equals(Object other) {
-        Dependency o = (Dependency) other;
-        if (other == null) {
+    public boolean weakEquals(Object other) {
+        if (!super.weakEquals(other)) {
             return false;
         }
-        if ( this == other) {
-            return true;
-        }
+
+        Dependency o = (Dependency) other;
+
         boolean b = false;
         String thisType = getType();
-        if ( thisType == null  ) {
+        if (thisType == null) {
             thisType = "jar"; //default type
         }
         String otherType = o.getType();
-        if ( otherType == null  ) {
+        if (otherType == null) {
             otherType = "jar"; //default type
         }
-        
-        return equals(getGroupId(), o.getGroupId())
-                && equals(getArtifactId(), o.getArtifactId())
-                && thisType.equals(otherType);
-    }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        return hash;
+        return XmlElement.equals(getGroupId(), o.getGroupId())
+                && XmlElement.equals(getArtifactId(), o.getArtifactId())
+                && thisType.equals(otherType);
     }
 
 }

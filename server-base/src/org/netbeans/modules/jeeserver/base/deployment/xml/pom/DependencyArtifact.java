@@ -3,6 +3,7 @@ package org.netbeans.modules.jeeserver.base.deployment.xml.pom;
 import org.netbeans.modules.jeeserver.base.deployment.xml.AbstractXmlTextElement;
 import org.w3c.dom.Element;
 import org.netbeans.modules.jeeserver.base.deployment.xml.XmlCompoundElement;
+import org.netbeans.modules.jeeserver.base.deployment.xml.XmlElement;
 
 /**
  *
@@ -21,26 +22,35 @@ public class DependencyArtifact extends AbstractXmlTextElement {
     protected DependencyArtifact(String tagName, XmlCompoundElement parent) {
         super(tagName, null, parent);
     }
-    public boolean equals(Object other) {
-        String s1 = getText();
+    @Override
+    public boolean weakEquals(Object other) {
+        if ( ! super.weakEquals(other)) {
+            return false;
+        }
+        String s1 = getTextContent();
         String s2 = "jar";
         if ( "type".equals(getTagName() )) {
-            if ( other != null ) {
-                s2 = ((DependencyArtifact)other).getText();
-            } 
-        } else {
-            s2 = ((DependencyArtifact)other).getText();
-        }
-        return equals(s1, s2);
+            s2 = ((DependencyArtifact)other).getTextContent();
+        } 
+        return XmlElement.equals(s1, s2);
     }
-    private boolean equals(String s1, String s2) {
-        if (s1 == null && s2 == null) {
-            return true;
+    
+    public String resolveByProperties() {
+        String r = getTextContent();
+        PomRoot root = (PomRoot) PomRoot.findXmlRoot(this);
+        if ( root == null) {
+            return r;
         }
-        if (s1 != null) {
-            return s1.equals(s2);
+        PomProperties props = root.getProperties();
+        if ( props == null ) {
+            return r;
         }
-        return s2.equals(s1);
-
+        
+        return r;
     }
+     private String resolveVersionByProperties() {
+         String r = getTextContent();
+         return r;
+     }
+    
 }

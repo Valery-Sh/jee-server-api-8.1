@@ -80,6 +80,10 @@ public class XmlTagMap {
         map.put(path, clazz);
         return this;
     }
+    public XmlTagMap putAll(XmlTagMap other) {
+        map.putAll(other.map);
+        return this;
+    }
 
     protected String remove(String path) {
         return map.remove(path);

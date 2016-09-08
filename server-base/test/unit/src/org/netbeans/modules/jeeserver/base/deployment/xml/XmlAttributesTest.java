@@ -31,7 +31,7 @@ public class XmlAttributesTest {
     @Before
     public void setUp() {
         xmlDocument = new XmlDocument(getClass().getResourceAsStream("resources/test_attrs_jetty_web.xml"));
-        root = xmlDocument.getXmlRoot();
+        root = xmlDocument.getRoot();
     }
     
     @After
@@ -39,16 +39,16 @@ public class XmlAttributesTest {
     }
 
     /**
-     * Test of getAttributes method, of class XmlAttributes.
+     * Test of toMap method, of class XmlAttributes.
      */
     @Test
     public void testGetAttributes() {
         System.out.println("getAttributes");
-        XmlAttributes instance = new XmlAttributes(null);
+        XmlAttributes instance = new XmlAttributes();
         //
         // Checks whether XmlAttributes is not null and is not empty
         //
-        assertNotNull(instance.getAttributes());
+        assertNotNull(instance.toMap());
         assertTrue(instance.isEmpty());
     }
 
@@ -64,7 +64,7 @@ public class XmlAttributesTest {
         
         XmlElement xmlElement = new XmlDefaultElement("Custom");
         
-        XmlAttributes instance = new XmlAttributes(xmlElement);
+        XmlAttributes instance = new XmlAttributes();
         
         instance.copyFrom(domElement);
         assertEquals(2, instance.size());
@@ -83,7 +83,7 @@ public class XmlAttributesTest {
         XmlElement xmlElement = root.findFirstElementByPath("Set");
         
         Element el = null;
-        XmlAttributes instance = new XmlAttributes(xmlElement);
+        XmlAttributes instance = new XmlAttributes();
         instance.copyFrom(xmlElement.getElement());
         assertEquals(2, instance.size());
         assertEquals("contextPath", instance.get("name"));
@@ -108,7 +108,7 @@ public class XmlAttributesTest {
         
         XmlElement xmlElement = new XmlDefaultElement("Custom");
         
-        XmlAttributes instance = new XmlAttributes(xmlElement);
+        XmlAttributes instance = new XmlAttributes();
         instance.put("myAttr", "myAttrValue");
         
         instance.copyTo(domElement);

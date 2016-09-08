@@ -1,5 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.xml;
 
+import java.util.Objects;
 import org.w3c.dom.Element;
 
 /**
@@ -7,7 +8,7 @@ import org.w3c.dom.Element;
  * @author Valery Shyshkin
  */
 public class XmlDefaultTextElement extends AbstractXmlTextElement {
-
+    
     public XmlDefaultTextElement(String tagName) {
         super(tagName, null, null);
     }
@@ -19,5 +20,4 @@ public class XmlDefaultTextElement extends AbstractXmlTextElement {
     protected XmlDefaultTextElement(String tagName, XmlCompoundElement parent) {
         super(tagName, null, parent);
     }
-
 }

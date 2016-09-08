@@ -279,10 +279,10 @@ public class ServerInstanceConnectorVisualPanel extends InstancePanelVisual impl
     }
     DefaultComboBoxModel<String> buildVersionComboModel(String actualServerId) {
         DefaultComboBoxModel<String> m = new DefaultComboBoxModel<>();
-        if ( SupportedApiProvider.getInstance(actualServerId) == null ) {
+        if ( SupportedApiProvider.getDefault(actualServerId) == null ) {
             m.addElement(SuiteConstants.UNKNOWN_VERSION);
         } else {
-            String[] versions = SupportedApiProvider.getInstance(actualServerId).getServerVersions();
+            String[] versions = SupportedApiProvider.getDefault(actualServerId).getServerVersions();
             if ( versions == null ) {
                 m.addElement(SuiteConstants.UNKNOWN_VERSION);
             }

@@ -33,7 +33,7 @@ public class XmlDefaultElementTest {
     }
 
     /**
-     * Test of getText method, of class XmlDefaultElement.
+     * Test of getTextContent method, of class XmlDefaultElement.
      */
     @Test
     public void testGetText() {
@@ -50,7 +50,7 @@ public class XmlDefaultElementTest {
 
         String text = "My Favorite Book";
         book.setText(text);
-        assertEquals(book.getText(), text);
+        assertEquals(book.getTextContent(), text);
     }
 
     /**
@@ -69,7 +69,7 @@ public class XmlDefaultElementTest {
 
         String text = "My Favorite Book";
         book.setText(text);
-        assertEquals(book.getText(), text);
+        assertEquals(book.getTextContent(), text);
         //
         // The book element doesn't have a DOM Element ( getElement() == null }
         // Thus we do commitUpdates in order the book got DOM Element 
@@ -92,4 +92,19 @@ public class XmlDefaultElementTest {
         assertEquals(book.getElement().getTextContent().length(), 0);
     }
 
+    /**
+     * Test of setText method, of class XmlDefaultElement.
+     * Must throw an exception when try to set a value to text property
+     * and the element has child elements
+     */
+    @Test(expected = IllegalStateException.class)
+    public void testSetText_1() {
+        System.out.println("setText");
+        XmlDefaultElement books = new XmlDefaultElement("books");
+        XmlDefaultElement book = new XmlDefaultElement("book");
+        books.addChild(book);
+        books.setText("must throw an exception");
+
+    }
+    
 }

@@ -99,12 +99,50 @@ public class XmlElementTest {
         instance.commitUpdates();
 
     }
+    /**
+     * Test of newInstance method, of class XmlElement.
+     */
+    @Test
+    public void testNewInstance() {
+        System.out.println("newInstance");
+        XmlElement instance = new XmlElementImpl("book");
+        
 
-    public class XmlElementImpl implements XmlElement {
+        Class result = instance.newInstance().getClass();
+        Class expResult = XmlElementImpl.class;
+        
+        assertEquals(expResult,result);
+
+    }
+    /**
+     * Test of getClone method, of class XmlElement.
+     */
+    @Test
+    public void testgetClone() {
+        System.out.println("getClone");
+        XmlElement instance = new XmlElementImpl("book");
+        instance.getAttributes().put("attr1", "attr1Value");
+        
+        XmlElement clone = instance.getClone();
+        Class expResult = XmlElementImpl.class;
+        Class result = clone.getClass();
+        //
+        // check tagName
+        //
+        assertEquals(expResult,result);
+        assertEquals(instance.getTagName(),clone.getTagName());
+        //
+        // check attributes
+        //
+        assertEquals(instance.getAttributes().toMap(),clone.getAttributes().toMap());
+    }
+
+    public static class XmlElementImpl implements XmlElement {
 
         private String tagName;
         private Element element;
         private XmlCompoundElement parent;
+        private XmlAttributes attributes = new XmlAttributes();
 
         public XmlElementImpl(String tagName) {
             this(tagName, null, null);
@@ -168,19 +206,14 @@ public class XmlElementTest {
 
         }
 
-        /*        @Override
-        public void check() {
-            if (getParent() == null) {
-                throw new NullPointerException(
-                        " The element '" + getTagName() + "' doesn't have a parent element");
-            }
-            
-
-        }
-         */
 
         @Override
         public XmlAttributes getAttributes() {
+            return attributes;
+        }
+
+        @Override
+        public Element nullElement() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 

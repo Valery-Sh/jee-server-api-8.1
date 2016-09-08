@@ -434,7 +434,7 @@ public class SuiteUtil extends BaseUtil {
     public static String getSuiteUID(FileObject suite) {
         String uid = null;
         FileObject suitePropsFo = suite.getFileObject(SuiteConstants.SUITE_PROPERTIES_LOCATION);
-        Properties suiteProps = new Properties();
+        Properties suiteProps;// = new Properties();
         if (suitePropsFo != null) {
             suiteProps = BaseUtil.loadProperties(suite.getFileObject(SuiteConstants.SUITE_PROPERTIES_LOCATION));
             uid = suiteProps.getProperty(SuiteConstants.UID_PROPERTY_NAME);
