@@ -1,17 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.AbstractPreferences;
@@ -23,43 +16,34 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
-import org.netbeans.api.annotations.common.StaticResource;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 
 /**
  *
- * @author Valery
+ * @author Valery Shyshkin
  */
 public class PathPreferencesRegistryTest {
 
-    public static String TEST_UUID = PathPreferencesRegistry.TEST_UUID;
-    public static String UUID_ROOT = PathPreferencesRegistry.UUID_ROOT;
+    //public static String TEST_UUID = PathPreferencesRegistry.TEST_UUID;
+    public static String TEST_UUID = "c:\\users\\ServersManager";
+    //public static String UUID_ROOT = PathPreferencesRegistry.UUID_ROOT;
 
-    private final Path dirnamespace01 = Paths.get("c:/preferences/PathPreferencesRegistry/testing");
-    private final Path dirnamespace02 = Paths.get("c:/preferences/PathPreferencesRegistry/testing-01");
-    private final Path dirnamespace03 = Paths.get("c:/preferences/PathPreferencesRegistry/testing/proj1");
+    private final Path directory01 = Paths.get("c:/MyServers/Server01");
+    private final Path directory02 = Paths.get("c:/MyServers/Server02");
+    private final Path directory03 = Paths.get("c:/MyServers/Server03");
 
-    private final String testId = "test-properties-id";
+    private final String testId = "apps/MyApp01";
 
     public PathPreferencesRegistry create() {
-        return PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID, dirnamespace01);
+        return new PathPreferencesRegistry(directory01, TEST_UUID );
     }
 
-    public PathPreferencesRegistry create(Path namespace) {
-        return create(namespace.toString());
+    public PathPreferencesRegistry create(Path dir) {
+        return create(dir.toString());
     }
 
-    public PathPreferencesRegistry create(String namespace) {
-        return PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID, Paths.get(namespace));
+    public PathPreferencesRegistry create(String dir) {
+        return new PathPreferencesRegistry(Paths.get(dir), TEST_UUID);
     }
 
     public void initProperties(PreferencesProperties instance) {
@@ -71,7 +55,7 @@ public class PathPreferencesRegistryTest {
     }
 
     public void initProperties(PathPreferencesRegistry instance) {
-        initProperties(instance.getProperties(testId));
+        initProperties(instance.createProperties("apps/MyApp01"));
     }
 
     public PathPreferencesRegistryTest() {
@@ -92,14 +76,9 @@ public class PathPreferencesRegistryTest {
 
     @After
     public void tearDown() throws BackingStoreException {
-//        registry = PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID
-//                , PathPreferencesRegistry);
         PathPreferencesRegistry r = create();
-        r.clearRegistry();
-        if (true) {
-            return;
-        }
-
+        r.clearRegistryRoot();
+        
         Preferences p = AbstractPreferences.userRoot();
         p = p.node(PathPreferencesRegistry.UUID_ROOT);
         p = p.node(PathPreferencesRegistry.TEST_UUID);
@@ -117,185 +96,133 @@ public class PathPreferencesRegistryTest {
     @Test
     public void testRegistryRootNamespace() {
         System.out.println("registryRootNamespace");
-        PathPreferencesRegistry instance = create();
+        PathPreferencesRegistry instance = new PathPreferencesRegistry(directory01,TEST_UUID );
         String expResult = PathPreferencesRegistry.UUID_ROOT;
         String result = instance.registryRootNamespace();
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of rootPreferences method, of class PathPreferencesRegistry.
-     */
-    /**
-     * Test of rootNode method, of class PathPreferencesRegistry.
+     * Test of registryRootExtended method, of class PathPreferencesRegistry.
      */
     @Test
-    public void testRootRegistryNode() {
-        System.out.println("rootRegistryNode");
-        PathPreferencesRegistry instance = create();
-        String expResult = TEST_UUID;
-        Preferences resultPrefs = instance.rootRegistryNode();
-        String result = resultPrefs.name();
-        assertEquals(expResult, result);
+    public void testRegistryRoot() {
+        System.out.println("registryRoot");
+        PathPreferencesRegistry instance = new PathPreferencesRegistry(directory01,TEST_UUID );
+        //
+        // userRoot() = "/"
+        // RegistryRootNamespace() = UUID_ROOT
+        //
+        // When we use two parameters in the constructor of PathPreferencesRegistry
+        // than the first parameter is used as a last part of the registryRootExtended()
+        //
+        String expResult = "/" + PathPreferencesRegistry.UUID_ROOT + "/" + TEST_UUID.replace("\\","/");
+        Preferences resultPrefs = instance.registryRootExtended();
+        
+        assertEquals(expResult,resultPrefs.absolutePath());
+        
+        
+        
     }
-//    Path dirnamespace01   = Paths.get("c:/preferences/PathPreferencesRegistry/testing");
-//    Path dirnamespace02 = Paths.get("c:/preferences/PathPreferencesRegistry/testing-01");
-//    Path dirnamespace03 = Paths.get("c:/preferences/PathPreferencesRegistry/testing/proj01");
-
+    /**
+     * Test of removeRegistryDirectory method, of class PathPreferencesRegistry.
+     * 
+     * TEST_UUID = "c:\\users\\MyServerInstance01";
+     * UUID_ROOT = PathPreferencesRegistry.UUID_ROOT;
+     * directory01 = Paths.get("c:/MyServers/Server01");
+     * directory02 = Paths.get("c:/MyServers/Server02");
+     * directory03 = Paths.get("c:/MyServers/Server03");
+     * 
+     * testId = "apps/MyApp01";
+     * 
+     */
     @Test
-    public void testRemoveRegistry() throws BackingStoreException {
-        System.out.println("removeRegistry");
-        PathPreferencesRegistry instance01 = create();
+    public void testRemoveRegistryDirectory_Preferences() throws BackingStoreException {
+        System.out.println("removeRegistry(Preferences)");
+        PathPreferencesRegistry instance01 = new PathPreferencesRegistry(directory01,TEST_UUID );
         initProperties(instance01);
 
-        PathPreferencesRegistry instance02 = create(dirnamespace02);
+        PathPreferencesRegistry instance02 = new PathPreferencesRegistry(directory02,TEST_UUID );
         initProperties(instance02);
 
-        PathPreferencesRegistry instance03 = create(dirnamespace03);
+        PathPreferencesRegistry instance03 = new PathPreferencesRegistry(directory03,TEST_UUID );
         initProperties(instance03);
 
-        instance01.removeRegistryDirectory(instance01.directoryNode());
+        instance01.removeRegistryDirectory(instance01.directoryPropertiesRoot());
         //
-        // Myst be removed removed
+        // Must be removed
         //
-        assertFalse(instance01.nodeExists(instance01.getNamespace()));
+        assertFalse(instance01.nodeExists(instance01.getDirectoryNamespace()));
 
         //
-        // The node c:/preferences/PathPreferencesRegistry must ne kept
+        // The node c:/MyServers must ne kept
         //
-        String remainder = dirnamespace01.getParent().toString();
+        String remainder = directory01.getParent().toString();
         assertTrue(instance01.nodeExists(remainder));
-        initProperties(instance01); // restore registry
-        initProperties(instance02); // restore registry
-        initProperties(instance03); // restore registry
-
-        //
-        // test when remove instance02
-        //
-        instance02.removeRegistryDirectory(instance02.directoryNode());
-        //
-        // remainder mus be "c_/preferences/PathPreferencesRegistry" and
-        // didirnamespace01 and didirnamespace03 must exist
-        //
-
-        remainder = dirnamespace02.getParent().toString();
-        assertTrue(instance02.nodeExists(remainder));
-        assertTrue(instance01.nodeExists(instance01.getNamespace(dirnamespace01.toString())));
-        assertTrue(instance03.nodeExists(instance03.getNamespace(dirnamespace03.toString())));
-
-        initProperties(instance01); // restore registry
-        initProperties(instance02); // restore registry
-        initProperties(instance03); // restore registry
-        //
-        // test when remove instance03
-        //
-        instance03.removeRegistryDirectory(instance03.directoryNode());
-        //
-        // remainder mus be "c_/preferences/PathPreferencesRegistry/testing" and
-        // didirnamespace01 and didirnamespace02 must exist
-        //
-
-        remainder = dirnamespace03.getParent().toString();
-        assertTrue(instance03.nodeExists(remainder));
-        assertTrue(instance01.nodeExists(instance01.getNamespace(dirnamespace01.toString())));
-        assertTrue(instance02.nodeExists(instance03.getNamespace(dirnamespace02.toString())));
 
     }
-
     /**
-     * Test of update method, of class PathPreferencesRegistry.
-     */
-    @Ignore
-    @Test
-    public void testUpdate() {
-        System.out.println("update");
-        String suiteUID = "";
-        List<Path> projectPaths = null;
-//        PathPreferencesRegistry.update(suiteUID, projectPaths);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of removePropertiesNode method, of class PathPreferencesRegistry.
-     */
-    /*    @Test
-    //@Ignore
-    public void testRemovePropertiesNode() {
-        System.out.println("removePropertiesNode(String)");
-        String id = testId;
-        String s = create().getNamespace();
-        PreferencesProperties props = create().getProperties(id);
-        props.putString("testKey", "testValue");
-
-        boolean result = create().removePropertiesNode(id);
-
-        assertTrue(result);
-        result = create().nodeExists(s);
-        assertTrue(result);
-    }
-     */
-    /**
-     * Test of getNamespace method, of class PathPreferencesRegistry.
+     * Test of removeRegistryDirectory method, of class PathPreferencesRegistry.
+     * The method removes directoryPropertiesRoot() and all it's parents until
+     * rootNode.
+     * 
+     * TEST_UUID = "c:\\users\\MyServerInstance01";
+     * UUID_ROOT = PathPreferencesRegistry.UUID_ROOT;
+     * directory01 = Paths.get("c:/MyServers/Server01");
+     * directory02 = Paths.get("c:/MyServers/Server02");
+     * directory03 = Paths.get("c:/MyServers/Server03");
+     * 
+     * testId = "apps/MyApp01";
+     * 
      */
     @Test
-    public void testGetNamespace_0args() {
-        System.out.println("getNamespace()");
-        PathPreferencesRegistry instance = create();
-        String expResult = "c_/preferences/PathPreferencesRegistry/testing";
-        String result = instance.getNamespace();
-        assertEquals(expResult, result);
+    public void testRemoveRegistryDirectory() throws BackingStoreException {
+        System.out.println("removeRegistry");
+        PathPreferencesRegistry instance = new PathPreferencesRegistry(directory01,TEST_UUID );
+        initProperties(instance);
 
-        instance = create("c:\\a/b\\c");
-        expResult = "c_/a/b/c";
-        result = instance.getNamespace();
-        assertEquals(expResult, result);
 
-        instance = create("c_\\a/b\\c");
-        expResult = "c_/a/b/c";
-        result = instance.getNamespace();
-        assertEquals(expResult, result);
-
+        instance.removeRegistryDirectory();
+        //
+        // All nodes must be removed at least up to registryRoot().
+        // registryRoot may contain other nodes which are created outside 
+        // this unit tests.
+        //
+        assertFalse(instance.registryRoot().nodeExists(PathPreferencesRegistry.TEST_UUID));
     }
-
-    /**
-     * Test of getNamespace method, of class PathPreferencesRegistry.
-     */
-    @Ignore
-    @Test
-    public void testGetNamespace_String() {
-        System.out.println("getNamespace");
-        String forDir = "";
-        PathPreferencesRegistry instance = null;
-        String expResult = "";
-        String result = instance.getNamespace(forDir);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
     /**
      * Test of getProperties method, of class PathPreferencesRegistry.
      */
     @Test
     public void testGetProperties_String() {
         System.out.println("getProperties(String)");
-        String id = testId;
-        PreferencesProperties result = create().getProperties(id);
+        String id = "web-apps/MyApp01";
+        
+        //
+        // If the namespace specified by id parameter doesn't exist
+        // then the method returns null.
+        //
+        PathPreferencesRegistry instance =  new PathPreferencesRegistry(directory01,TEST_UUID);
+        PreferencesProperties result = instance.getProperties(id);
+        assertNull(result);
+        
+        //
+        // Now create properties namespace specified by the id parameter.
+        //
+        result = instance.createProperties(id);
+        assertNotNull(instance.getProperties(id));        
+        
+        
+        result.setProperty("mykey", "myValue");
+        assertEquals("myValue", result.getProperty("mykey"));
 
-        assertNotNull(result);
-    }
-
-    /**
-     * Test of getProperties method, of class PathPreferencesRegistry.
-     */
-    @Test
-    public void testGetProperties_String_String() {
-        System.out.println("getProperties(String,String)");
-        String id = "";
-        PathPreferencesRegistry instance = create();
-        PreferencesProperties result = instance.getProperties(dirnamespace01.toString(), id);
-        assertNotNull(result);
+        result = create().getProperties(id);        
+        assertEquals("myValue", result.getProperty("mykey"));        
+/*        System.out.println("getId = " + result.getId());
+        System.out.println("rootNode.abs = " + create().userRoot().absolutePath());        
+        System.out.println("rootRegistryNode.abs = " + create().registryRootExtended().absolutePath());        
+        System.out.println("properties.abs = " + result.getPreferences().absolutePath());                
+*/        
     }
 
     /**

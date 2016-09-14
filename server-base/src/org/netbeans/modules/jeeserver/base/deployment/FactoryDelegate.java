@@ -97,52 +97,6 @@ public abstract class FactoryDelegate {
     /**
      * Determine whether a server exists under the specified location.
      *
-     * @param serverLocation an absolute path of the server project directory
-     * @return {@literal true } if the server project exists. {@literal false}
-     * otherwise
-     */
-    /*    protected boolean existsServer(String serverLocation, String serverInstanceDir) {
-
-     if (serverLocation == null) {
-     return false;
-     }
-
-     File f = new File(serverLocation);
-     if (!f.exists()) {
-     return false;
-     }
-
-     FileObject fo = FileUtil.toFileObject(f);
-
-     Project p = FileOwnerQuery.getOwner(fo);
-     if (p == null) {
-     return false;
-     }
-
-     //        return BaseUtils.isServerProject(p);
-     if (p.getLookup().lookup(ServerInstanceProperties.class) != null) {
-     return true;
-     }
-
-     if (serverInstanceDir == null) {
-     return false;
-     }
-
-     fo = FileUtil.toFileObject(new File(serverInstanceDir));
-     if (fo == null) {
-     return false;
-     }
-
-     if (fo.getFileObject("instance.properties") == null) {
-     return false;
-     }
-
-     return true;
-     }
-     */
-    /**
-     * Determine whether a server exists under the specified location.
-     *
      * @param instanceFO an absolute path of the server project directory
      * @return {@literal true } if the server project exists. {@literal false}
      * otherwise
@@ -150,7 +104,6 @@ public abstract class FactoryDelegate {
     protected boolean existsServer(FileObject instanceFO) {
 
         String serverLocation = (String) instanceFO.getAttribute(BaseConstants.SERVER_LOCATION_PROP);
-//        String serverInstanceDir = (String) instanceFO.getAttribute(BaseConstants.SERVER_INSTANCE_DIR_PROP);
 
         if (serverLocation == null) {
             return false;
@@ -235,12 +188,9 @@ public abstract class FactoryDelegate {
         BaseDeploymentManager manager = managers.get(uri);
 
         if (null == manager) {
-            ServerSpecifics specifics = newServerSpecifics();
             manager = new BaseDeploymentManager(serverId, uri,
                     newServerSpecifics());
             managers.put(uri, manager);
-            //BaseUtil.out("+++ FactoryDelegate getDeploymentManager call register " + uri);
-
             register(manager);
         }
 

@@ -201,7 +201,7 @@ public interface ServerSpecifics extends LicensesAcceptor {
                 InputSource source = new InputSource(new ByteArrayInputStream(s.getBytes()));
                 props = getContextProperties(source);
             } else if (file.isFolder()) {
-                // it is a web folder in  ant-base project or webapp in mave-based project
+                // it is a web folder in  ant-base project or webapp in maven-based project
                 FileObject fo = null;
                 for (String path : getSupportedContextPaths()) {
                     fo = file.getFileObject(path);

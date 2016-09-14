@@ -31,7 +31,6 @@ import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
@@ -40,8 +39,8 @@ import org.openide.util.lookup.Lookups;
 import org.openide.filesystems.FileUtil;
 
 /**
- * Implements {@literal ModuleConfiguration } interface for
- * {@literal Jetty Server Plugin}.
+ * Implements {@code ModuleConfiguration } interface for
+ * {@code Server Plugin}.
  *
  * @author V. Shyshkin
  */
@@ -51,12 +50,19 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     private Lookup lookup;
     private static final String CONTEXTPATH = "contextPath";
+    
+    
     private File contextConfigFile;
 
     protected String serverInstanceId;
 
     protected Project webProject;
-
+    
+    /**
+     * Supported names of the file used to configure a web project.
+     * For example {@code Jetty Server} allows such names as (@code jetty-web.xml}
+     * or {@code web-jetty.xml).
+     */
     private final String[] contextFilePaths;
 
     private static final Logger LOG = Logger.getLogger(AbstractModuleConfiguration.class.getName());
@@ -67,7 +73,9 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * Creates a new instance of the class for the specified module.
      *
      * @param module an object of type {@literal J2eeModule)
-     * @param contextFilePaths
+     * @param contextFilePaths supported names of files used to configure
+     *   a web application. For example {@code Jetty Server} allows such names as (@code jetty-web.xml}
+     *   or {@code web-jetty.xml).
      */
     protected AbstractModuleConfiguration(J2eeModule module, String[] contextFilePaths) {
         this.module = module;
@@ -77,16 +85,30 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
     }
 
     /**
-     *
-     * @return
+     * Returns supported names of files used to configure
+     *   a web application. For example {@code Jetty Server} allows such names as (@code jetty-web.xml}
+     *   or {@code web-jetty.xml).
+     * 
+     * @return supported names of files used to configure
+     *   a web application
      */
     public String[] getContextFilePaths() {
 
         return contextFilePaths;
     }
-
-    protected Project getServerProject(Project webProj) {
-        String instanceId = webProj.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
+    /**
+     * Returns a {@code Server Project} for the given {@code webProject}.
+     * 
+     * The method returns {@code null } value if the specified  {@code instanceId} 
+     * is not managed by the class {@link BaseDeploymentManager}.
+     * 
+     * @param webProject a web project used to define a serverInstanceId 
+     * of the host server.  
+     * 
+     * @return an object of type Project that represents the server instance
+     */
+    protected Project getServerProject(Project webProject) {
+        String instanceId = webProject.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
 
         Project result = null;
         if (instanceId == null) {
@@ -103,7 +125,17 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
         return result;
     }
-
+    /**
+     * Returns a {@code Server Project} for the given {@code instanceId}.
+     * The method returns {@code null } value if the specified 
+     * {@code instanceId} is not managed by the class
+     * {@link BaseDeploymentManager}.
+     * 
+     * @param instanceId a server instance id as specified by the class 
+     *  org.​netbeans.​modules.​j2ee.​deployment.​devmodules.​spi.​J2eeModuleProviderJ2eeModuleProvider#getServerInstanceId();
+     * 
+     * @return an object of type Project that represents the server instance
+     */
     protected Project getServerProject(String instanceId) {
 
         Project result = null;
@@ -122,18 +154,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         return result;
     }
 
-    /*    protected void notifyDispose() {
-        if (serverInstanceId == null) {
-            return;
-        }
-        Project s = getServerProject(serverInstanceId);
-        if (s == null) {
-            return;
-        }
-        AvailableWebModules<AbstractModuleConfiguration> avm = s.getLookup().lookup(AvailableWebModules.class);
-        avm.moduleDispose(this);
-    }
-     */
     protected void notifyCreate() {
         notifyAvailableModule(serverInstanceId, false);
     }
@@ -162,15 +182,17 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     protected abstract String changeContext(String cp);
 
-    /**
-     *
-     */
     protected abstract void initContextConfigFile();
-
+    
+    protected abstract void addListeners();
+    
+    
+    /**
+     * @return  a webProject that this class instance represents.
+     */
     public Project getWebProject() {
         return webProject;
     }
-    DataObject contextDataObject;
 
     private void init() {
 
@@ -191,7 +213,6 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
         addListeners();
     }
-    protected abstract void addListeners();
     /**
      *
      * Returns lookup associated with the object. This lookup should contain
@@ -199,7 +220,7 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
      * are: ContextRootConfiguration, DatasourceConfiguration,
      * MappingConfiguration, EjbResourceConfiguration,
      * DeploymentPlanConfiguration, MessageDestinationConfiguration
-     * Implementators are advised to use
+     * Implementator is advised to use
      * org.openide.util.lookup.Lookups.fixed(java.lang.Object[]) to implement
      * this method.
      *
@@ -214,9 +235,10 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         if (webProject != null) {
             String id = webProject.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
             if (serverInstanceId != null && !serverInstanceId.equals(id)) {
-                String oldid = serverInstanceId;
-                serverInstanceId = id;
-                notifyServerChange(oldid, id);
+                //String oldid = serverInstanceId;
+                //serverInstanceId = id;
+                //notifyServerChange(oldid, id);
+                notifyServerChange(serverInstanceId, id);
             }
         }
         return lookup;
@@ -233,15 +255,11 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
             if (avm == null) {
                 return;
             }
-            RP.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (dispose) {
-                        avm.moduleDispose(AbstractModuleConfiguration.this);
-                    } else {
-                        avm.moduleCreate(AbstractModuleConfiguration.this);
-                    }
+            RP.post(() -> {
+                if (dispose) {
+                    avm.moduleDispose(AbstractModuleConfiguration.this);
+                } else {
+                    avm.moduleCreate(AbstractModuleConfiguration.this);
                 }
             }, 0, Thread.NORM_PRIORITY);
 
@@ -281,7 +299,9 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
 
     /**
      * The server calls this method when it is done using this
-     * ModuleConfiguration instance.
+     * ModuleConfiguration instance. We must be aware of that
+     * if for example we assign a Glassfish server than serverInstanceId 
+     * corresponds to Glassfish. 
      */
     @Override
     public void dispose() {

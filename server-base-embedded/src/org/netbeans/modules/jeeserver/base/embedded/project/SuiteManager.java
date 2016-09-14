@@ -192,15 +192,7 @@ public class SuiteManager {
         return result;
     }
 
-    /*    public static Lookup getServerInstanceLookup(String uri) {
-     SuiteNotifier snm = getServerSuiteProject(uri).getLookup().lookup(SuiteNotifier.class);
-     Lookup lk = snm.getServerInstanceLookup(uri);
-     if ( lk != null ) {
-     return lk;
-     }
-     return null;
-     }
-     */
+
     public static Project getServerSuiteProject(String uri) {
 
         InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);

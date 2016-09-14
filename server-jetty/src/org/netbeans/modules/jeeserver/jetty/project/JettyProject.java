@@ -20,7 +20,6 @@ import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.ServerInstanceProperties;
-import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator;
 import org.netbeans.modules.jeeserver.jetty.deploy.config.JettyStartServerPropertiesProvider;
@@ -108,8 +107,6 @@ public class JettyProject implements Project {
             final ServerInstanceProperties serverProperties = new ServerInstanceProperties();
             final String id = Utils.getServerId();
             final String uri = Utils.buildUri(projectDir);
-BaseUtil.out("0. (((((((((((((((( JettyPriject getLookup projectDir = " + projectDir);
-BaseUtil.out("1. (((((((((((((((( JettyPriject getLookup uri = " + uri);
             serverProperties.setServerId(id);
             serverProperties.setUri(uri);
             ProjectOpenedHook openHook = new JettyProjectOpenHook(projectDir, serverProperties);

@@ -1,5 +1,15 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -14,6 +24,7 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Stream;
+import org.openide.util.Exceptions;
 
 public class InstancePreferences implements PreferencesProperties {
 
@@ -180,6 +191,82 @@ public class InstancePreferences implements PreferencesProperties {
     }
 
     @Override
+    public byte[] getByteArray(String key, byte[] def) {
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            return prefs.getByteArray(key, def);
+        }
+    }
+
+    @Override
+    public void putByteArray(String key, byte[] value) {
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            prefs.putByteArray(key, value);
+        }
+    }
+
+    @Override
+    public void putFileAsString(String key, File value){
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            try (InputStream is = Files.newInputStream(value.toPath())) {
+                prefs.put(key, stringOf(is));
+            } catch (IOException ex) {
+               LOG.log(Level.INFO, null, ex);
+            }
+        }
+    }
+
+    @Override
+    public File getFileFromString(String key, Path filePath) {
+        File file =  null;
+        synchronized (this) {
+            if (prefs == null) {
+                throw new IllegalStateException("Properties are not valid anymore");
+            }
+            String str = prefs.get(key, "");
+            try {
+                InputStream is = new ByteArrayInputStream(str.getBytes());
+                Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
+                file = filePath.toFile();
+            } catch (IOException ex) {
+               LOG.log(Level.INFO, null, ex);
+            }
+            return file;
+        }
+    }
+
+    public static String stringOf(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.INFO, ex.getMessage()); //NOI18N
+
+        } finally {
+            try {
+                is.close();
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, ex.getMessage()); //NOI18N
+            }
+        }
+
+        return sb.toString();
+    }
+
+    @Override
     public void removeKey(String key) {
         synchronized (this) {
             if (prefs == null) {
@@ -223,6 +310,7 @@ public class InstancePreferences implements PreferencesProperties {
             return map;
         }
     }
+
     @Override
     public Properties toProperties() {
         synchronized (this) {
@@ -252,17 +340,17 @@ public class InstancePreferences implements PreferencesProperties {
     }
 
     @Override
-    public PreferencesProperties copyFrom(Map<String,String> props) {
+    public PreferencesProperties copyFrom(Map<String, String> props) {
         if (props == null || props.isEmpty()) {
             return this;
         }
-        props.forEach( (k,v) -> {
-            putString(k,v);
+        props.forEach((k, v) -> {
+            putString(k, v);
         });
-        
+
         return this;
     }
-    
+
     @Override
     public void clear() {
         try {
@@ -296,6 +384,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
 
     }
+
     @Override
     public Map<String, String> filter(BiPredicate<String, String> predicate) {
         Map<String, String> map = new HashMap<>();
@@ -308,6 +397,7 @@ public class InstancePreferences implements PreferencesProperties {
         }
         return map;
     }
+
     @Override
     public Stream<String> keyStream() {
         List<String> list = Arrays.asList(keys());

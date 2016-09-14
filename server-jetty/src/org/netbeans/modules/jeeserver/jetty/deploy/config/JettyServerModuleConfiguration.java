@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfiguration;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;

@@ -16,7 +16,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.spi.project.AuxiliaryProperties;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.DialogDisplayer;
@@ -108,12 +108,12 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
                         BaseDeploymentManager m = SuiteManager.getManager(webappUri);
                         if ( m != null ) {
                             Project oldServer = m.getServerProject();
-                            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(oldServer);
+                            WebApplicationsManager distManager = WebApplicationsManager.getInstance(oldServer);
                             distManager.unregister(webProj);
                         }
 
                     }
-                    DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(serverInstance);
+                    WebApplicationsManager distManager = WebApplicationsManager.getInstance(serverInstance);
                     distManager.register(webProj);
                 }
             });

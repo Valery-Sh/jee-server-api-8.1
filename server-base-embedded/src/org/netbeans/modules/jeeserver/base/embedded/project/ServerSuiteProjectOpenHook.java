@@ -31,10 +31,9 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.ProjectStateRegistry;
 
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.filesystems.FileObject;
@@ -65,10 +64,10 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
        // if ( true ) {
        //     return;
        // }
-       ProjectStateRegistry.refreshSuiteInstances(projectDir);
+        WebApplicationsManager.refreshSuiteInstances(projectDir);
 /*        List<Project> projects = getServerInstances(uid);
         projects.forEach(p -> {
-            DistributedWebAppManager.newInstance(p).refresh();
+            WebApplicationsManager.newInstance(p).refresh();
         });
 */        
         

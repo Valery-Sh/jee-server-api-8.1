@@ -65,8 +65,8 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
         if (configMap.isEmpty()) {
             return;
         }
-        Properties props = module.getContextProperties();
-        String contextPath = props.getProperty("contextPath");
+        //Properties props = module.getContextProperties();
+        //String contextPath = props.getProperty("contextPath");
         String war = module.getWebProject().getProjectDirectory().getPath();
 
         if (war == null) {
@@ -118,9 +118,9 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
             return;
         }
 
-        File warFile = new File(war);
+        //File warFile = new File(war);
         Path warPath = Paths.get(module.getWebProject().getProjectDirectory().getPath());
-        String key = null;
+        //String key = null;
         WebModuleConfig wmKey = configMap.get(warPath);
 
         if (wmKey == null) {

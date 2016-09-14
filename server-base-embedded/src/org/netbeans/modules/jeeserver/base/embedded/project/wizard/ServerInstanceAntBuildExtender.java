@@ -3,6 +3,8 @@ package org.netbeans.modules.jeeserver.base.embedded.project.wizard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.StaticResource;
@@ -12,8 +14,10 @@ import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.ServerInstanceRegistry;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.filesystems.FileObject;
 import org.openide.xml.XMLUtil;
@@ -108,32 +112,43 @@ public class ServerInstanceAntBuildExtender extends ServerInstanceBuildExtender 
 
     @Override
     public void updateNbDeploymentFile() {
-        FileObject projFo = project.getProjectDirectory();
+        Path projPath = Paths.get(project.getProjectDirectory().getPath());
+        ServerInstanceRegistry registry = new ServerInstanceRegistry(projPath);
+//        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, port);
+//        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
 
-        DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(project);
+        //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
         InstanceProperties ip = SuiteManager.getManager(project).getInstanceProperties();
-        distManager.setServerInstanceProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
+        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
+        BaseUtil.out("-------------------------------------------");
+        BaseUtil.out("ServerInstanceAntBuildExtender.updateNbDeploymentFile port=" +
+                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
+        
         String shutdownPort = ip.getProperty(BaseConstants.SHUTDOWN_PORT_PROP);
         if (shutdownPort == null) { // Cannot be
             shutdownPort = String.valueOf(Integer.MAX_VALUE);
         }
-        distManager.setServerInstanceProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
         
     }
 
     @Override
     public void updateNbDeploymentFile(FileObject nbDir) {
-        DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(project);
-
+        //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
+        Path projPath = Paths.get(project.getProjectDirectory().getPath());
+        ServerInstanceRegistry registry = new ServerInstanceRegistry(projPath);
         //FileObject propsFo = nbDir.getFileObject(SuiteConstants.INSTANCE_PROPERTIES_FILE);
         InstanceProperties ip = SuiteManager.getManager(project).getInstanceProperties();
-        distManager.setServerInstanceProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
+        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
+        BaseUtil.out("ServerInstanceBuildExtender.updateNbDeploymentFile port=" +
+                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
+        
         //BaseUtil.updateProperties(props, nbDir, SuiteConstants.INSTANCE_PROPERTIES_FILE);
         String shutdownPort = ip.getProperty(BaseConstants.SHUTDOWN_PORT_PROP);
         if (shutdownPort == null) { // Cannot be
             shutdownPort = String.valueOf(Integer.MAX_VALUE);
         }
-        distManager.setServerInstanceProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
         
     }
 

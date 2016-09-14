@@ -18,7 +18,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
-        {org.netbeans.modules.jeeserver.base.embedded.project.prefs.SuiteRegistryTest.class})
+        {org.netbeans.modules.jeeserver.base.embedded.project.prefs.NbSuiteRegistryTest.class})
 public class PrefsSuite {
 
     @BeforeClass

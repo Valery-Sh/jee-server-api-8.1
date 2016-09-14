@@ -27,7 +27,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -153,10 +153,10 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
 
         List<Action> actions = new ArrayList<>(2);
 
-        Action newAntProjectAction = ServerActions.NewAntProjectAction.getInstance(getLookup());
-        Action newMavenProjectAction = ServerActions.NewMavenProjectAction.getInstance(getLookup());
+        Action newAntProjectAction = ServerActions.NewAntProjectAction.newInstance(getLookup());
+        Action newMavenProjectAction = ServerActions.NewMavenProjectAction.newInstance(getLookup());
 
-        Action addExistingProject = ServerActions.AddExistingProjectAction.getInstance(getLookup());
+        Action addExistingProject = ServerActions.AddExistingProjectAction.newInstance(getLookup());
 
         Action propAction = null;
 
@@ -192,11 +192,6 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
     //badge to it by merging it via a NetBeans API utility method:
     @Override
     public Image getIcon(int type) {
-        /*        DataFolder root = DataFolder.findFolder(FileUtil.getConfigRoot());
-         Image original = root.getNodeDelegate().getIcon(type);
-         return Icons.mergeImages(original,
-         ImageUtilities.loadImage(IMAGE), 7, 7);
-         */
         return ImageUtilities.loadImage(SuiteConstants.SERVER_INSTANCES_ICON);
     }
 
@@ -226,7 +221,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
             return;
         }
 
-        if (source instanceof DistributedWebAppManager) {
+        if (source instanceof WebApplicationsManager) {
             childKeys.childrenChanged(source, params);
         }
     }
@@ -277,7 +272,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
         @Override
         public synchronized void addNotify() {
             List<String> uris = SuiteManager.getLiveServerInstanceIds(suiteProj);
-            if (uris.size() == 0) {
+            if (uris.isEmpty()) {
                 removeNotify();
             } else {
                 removeNotify();
@@ -287,9 +282,9 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
         }
 
         public synchronized void childrenChanged(Object source, Object... params) {
-            if (source instanceof DistributedWebAppManager) {
-                DistributedWebAppManager distManager = (DistributedWebAppManager) source;
-                Project instance = distManager.getProject();
+            if (source instanceof WebApplicationsManager) {
+                WebApplicationsManager distManager = (WebApplicationsManager) source;
+                Project instance = distManager.getServerInstance();
                 String uri = SuiteManager.getManager(instance).getUri();
                 InstanceNode instanceNode = findInstanceNode(uri);
                 if (instanceNode == null) {

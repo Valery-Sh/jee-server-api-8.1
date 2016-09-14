@@ -19,7 +19,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePrefer
  *
  * @author Valery
  */
-public class SuiteRegistryTest {
+public class NbSuiteRegistryTest {
 
     private static final String SUIDE_UID = "fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
     private static final String SUIDE_UID_NAMESPACE = "uid-fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
@@ -30,19 +30,19 @@ public class SuiteRegistryTest {
 //    private static String TEST_NAMESPACE = TEST_SUITE_UID_PREFIX + "c_/TestFolder01/ChildFolder01";     
     private static final String TEST_NAMESPACE = "c_/TestFolder01/ChildFolder01";
 
-    public SuiteRegistry create() {
+    public NbSuiteRegistry create() {
         return create(TEST_DIR, SUIDE_UID);
     }
 
-    public SuiteRegistry create(String dir, String uid) {
-        return SuiteRegistry.newInstance(dir, uid);
+    public NbSuiteRegistry create(String dir, String uid) {
+        return NbSuiteRegistry.newInstance(dir, uid);
     }
 
-    public SuiteRegistry create(String dir) {
-        return SuiteRegistry.newInstance(dir, SUIDE_UID);
+    public NbSuiteRegistry create(String dir) {
+        return NbSuiteRegistry.newInstance(dir, SUIDE_UID);
     }
 
-    public SuiteRegistryTest() {
+    public NbSuiteRegistryTest() {
     }
 
     @BeforeClass
@@ -61,11 +61,12 @@ public class SuiteRegistryTest {
     public void tearDown() throws BackingStoreException {
         //SuiteRegistry r = create();
         //r.rootNode().removeNode();
-        create().clearSuite();
+        
+        //create().clearSuite();
     }
 
     /**
-     * Test of getNamespace method, of class SuiteRegistry.
+     * Test of getNamespace method, of class NbSuiteRegistry.
      */
     @Test
     public void testGetNamespace_0args() {
@@ -74,7 +75,7 @@ public class SuiteRegistryTest {
         // TEST_DIR = "c:\\TestFolder01/ChildFolder01";
         // SUIDE_UID = "fffb0fd9-da7b-478e-a427-9c7d2f8babcb";
         // TEST_NAMESPACE = "c_/TestFolder01/ChildFolder01";
-        SuiteRegistry instance = SuiteRegistry.newInstance(TEST_DIR, SUIDE_UID);
+        NbSuiteRegistry instance = NbSuiteRegistry.newInstance(TEST_DIR, SUIDE_UID);
         
         String expResult = TEST_NAMESPACE;
         String result = instance.getNamespace();
@@ -84,28 +85,29 @@ public class SuiteRegistryTest {
     }
 
     /**
-     * Test of getNamespace method, of class SuiteRegistry.
+     * Test of getNamespace method, of class NbSuiteRegistry.
      */
     @Test
     public void testGetNamespace_String() {
         System.out.println("getNamespace(String)");
         String forDir = "c:\\a/b/c";
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
         String expResult = "c_/a/b/c";
         String result = instance.getNamespace(forDir);
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of getProperties method, of class SuiteRegistry.
+     * Test of getProperties method, of class NbSuiteRegistry.
      */
     @Test
     public void testGetProperties() {
         System.out.println("getProperties(String id)");
         String id = "server-instance";
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
         //InstancePreferences expResult = null;
         InstancePreferences result = instance.getProperties(id);
+        result.setProperty("memememe", "mymymymy");
         //result.setProperty("MyProp01", "MyProp01Value");
         //String s = result.getProperty("MyProp01");
 
@@ -117,15 +119,15 @@ public class SuiteRegistryTest {
     }
 
     /**
-     * Test of clearSuite method, of class SuiteRegistry.
+     * Test of clearSuite method, of class NbSuiteRegistry.
      */
     @Test
     public void testClearSuite() throws BackingStoreException {
         System.out.println("clearSuite");
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
         instance.getProperties("propName01");
 
-        SuiteRegistry instance1 = create("d:/a/b/c/d");
+        NbSuiteRegistry instance1 = create("d:/a/b/c/d");
         instance1.getProperties("propName002");
 
         int i = instance.rootSuiteNode().childrenNames().length;
@@ -141,15 +143,15 @@ public class SuiteRegistryTest {
 
     }
     /**
-     * Test of clearSuite method, of class SuiteRegistry.
+     * Test of clearSuite method, of class NbSuiteRegistry.
      */
     @Test
     public void testClearRoot() throws BackingStoreException {
         System.out.println("clearRoot");
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
         instance.getProperties("propName01");
 
-        SuiteRegistry instance1 = create("d:/a/b/c/d");
+        NbSuiteRegistry instance1 = create("d:/a/b/c/d");
         instance1.getProperties("propName002");
 
         Preferences prefs = instance.clearRoot(); // return rootSuitNode
@@ -163,7 +165,7 @@ public class SuiteRegistryTest {
 
         System.out.println("removeProperties(String)");
 
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
         InstancePreferences ip = instance.getProperties("test-properties");
         assertNull(ip.getPreferences().get("propName01", null));
         ip.setProperty("propName01", "propValue01");
@@ -191,7 +193,7 @@ public class SuiteRegistryTest {
 
         System.out.println("removeProperties(String)");
 
-        SuiteRegistry instance = create();
+        NbSuiteRegistry instance = create();
 
         InstancePreferences ip = instance.getProperties("test-properties");
         InstancePreferences ip1 = instance.getProperties("test-properties-1");

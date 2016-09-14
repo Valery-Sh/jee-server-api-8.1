@@ -14,7 +14,7 @@
  * You should see the GNU General Public License here:
  * <http://www.gnu.org/licenses/>.
  */
-package org.netbeans.modules.jeeserver.jetty.project.nodes;
+package org.netbeans.modules.jeeserver.base.deployment.web;
 
 import java.awt.Image;
 import java.io.File;
@@ -37,12 +37,10 @@ import org.netbeans.modules.jeeserver.base.deployment.config.ModulesChangeListen
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.config.WebModuleConfig;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.jetty.util.Utils;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -67,7 +65,7 @@ public class WebModulesRootNode extends FilterNode {
     private ModulesChangeListener modulesChangeListener;
 
     @StaticResource
-    private static final String IMAGE = "org/netbeans/modules/jeeserver/jetty/resources/web-pages-badge.png";
+    private static final String IMAGE = "org/netbeans/modules/jeeserver/base/deployment/resources/web-pages-badge.png";
 
     /**
      * Creates a new instance of the class for a specified serverProject.
@@ -76,13 +74,20 @@ public class WebModulesRootNode extends FilterNode {
      * the class.
      * @throws DataObjectNotFoundException
      */
-    public WebModulesRootNode(Project serverProj) throws DataObjectNotFoundException {
-        super(DataObject.find(serverProj.getProjectDirectory().
-                getFileObject(Utils.webapps(serverProj))).getNodeDelegate(),
-                new RootChildrenKeys(serverProj));
-
+    public WebModulesRootNode(Project serverProj, Node nodeDelegate) throws DataObjectNotFoundException {
+        super(nodeDelegate, new RootChildrenKeys(serverProj));
+        
     }
+//    public WebModulesRootNode(Project serverProj) throws DataObjectNotFoundException {
+//        super(DataObject.find(serverProj.getProjectDirectory().
+//                getFileObject(Utils.webapps(serverProj))).getNodeDelegate(),
+//                new RootChildrenKeys(serverProj));
 
+//    }
+    
+//    protected FileObject getNodeDelegateFileObject(Project serverProj) {
+//        return serverProj.getProjectDirectory();
+//    }
 /*    public WebModulesRootNode(Project serverProj, Children children) throws DataObjectNotFoundException {
         super(DataObject.find(serverProj.getProjectDirectory().
                 getFileObject(Utils.webapps(serverProj)))

@@ -31,7 +31,7 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddDistWebAppAction;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.actions.PropertiesAction;
@@ -208,7 +208,7 @@ public class DistributedWebAppRootNode extends FilterNode implements ChildrenNot
             return;
         }
 
-        if (source instanceof DistributedWebAppManager) {
+        if (source instanceof WebApplicationsManager) {
             childKeys.childrenChanged(source, params);
         }
     }
@@ -279,8 +279,8 @@ public class DistributedWebAppRootNode extends FilterNode implements ChildrenNot
         @Override
         public void addNotify() {
             
-            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(instanceProject);
-            distManager.refresh();
+            WebApplicationsManager distManager = WebApplicationsManager.getInstance(instanceProject);
+            //11.09distManager.refresh();
             
             List<FileObject> list = distManager.getWebAppFileObjects();
             List<String> keys = new ArrayList<>();
@@ -292,7 +292,7 @@ public class DistributedWebAppRootNode extends FilterNode implements ChildrenNot
         }
 
         public void childrenChanged(Object source, Object... params) {
-            if (source instanceof DistributedWebAppManager) {
+            if (source instanceof WebApplicationsManager) {
                 addNotify();
             }
         }
@@ -304,8 +304,8 @@ public class DistributedWebAppRootNode extends FilterNode implements ChildrenNot
          */
         @Override
         public void removeNotify() {
-            DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(instanceProject);
-            distManager.refresh();
+            WebApplicationsManager distManager = WebApplicationsManager.getInstance(instanceProject);
+            //11.09distManager.refresh();
 
             this.setKeys(Collections.EMPTY_LIST);
         }

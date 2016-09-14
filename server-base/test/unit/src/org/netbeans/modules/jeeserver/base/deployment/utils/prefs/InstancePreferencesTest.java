@@ -34,8 +34,8 @@ public class InstancePreferencesTest {
     private final String testId = "test-properties-id";
     
     public InstancePreferences create() {
-        PathPreferencesRegistry r = PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID,dirnamespace);        
-        Preferences prefs = r.rootRegistryNode();
+        PathPreferencesRegistry r = new PathPreferencesRegistry(dirnamespace,TEST_UUID);        
+        Preferences prefs = r.registryRootExtended();
         return new InstancePreferences(testId, prefs);
     }
     

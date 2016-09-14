@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.embedded.project.nodes;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanceAntBuildExtender;
 
@@ -33,7 +32,7 @@ public class SuiteNotifier { //implements ChildrenNotifier {
      * changed.
      */
     public synchronized void instancesChanged() {
-        BaseUtil.out("SuiteNotifier instancesChanged rootNodeNotifier " + rootNodeNotifier);
+        //BaseUtil.out("SuiteNotifier instancesChanged rootNodeNotifier " + rootNodeNotifier);
         if (rootNodeNotifier != null) {
             rootNodeNotifier.childrenChanged();
         }
@@ -41,7 +40,7 @@ public class SuiteNotifier { //implements ChildrenNotifier {
 
     public synchronized void  childrenChanged(Object source, Object... params) {
         if (rootNodeNotifier != null) {
-BaseUtil.out("SuiteNotifier childrenChanged");
+//BaseUtil.out("SuiteNotifier childrenChanged");
             rootNodeNotifier.childrenChanged(source, params);
         }
     }

@@ -28,7 +28,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -85,7 +85,7 @@ public final class RemoveDistWebAppAction extends AbstractAction implements Cont
 
         private final Project serverProject;
         private final Project webProject;
-        DistributedWebAppManager distManager = null;        
+        WebApplicationsManager distManager = null;        
 
         public ContextAction(final Lookup webapplookup) {
             
@@ -102,7 +102,7 @@ public final class RemoveDistWebAppAction extends AbstractAction implements Cont
                 File file = new File( BaseUtil.getServerLocation(p.getInstanceProperties()));
                 FileObject fo = FileUtil.toFileObject(file);
                 serverProject = BaseUtil.getOwnerProject(fo);            
-                distManager = DistributedWebAppManager.getInstance(serverProject);
+                distManager = WebApplicationsManager.getInstance(serverProject);
                 
             } else {
                 serverProject = null;

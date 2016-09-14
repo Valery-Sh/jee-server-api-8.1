@@ -19,6 +19,7 @@ package org.netbeans.modules.jeeserver.base.embedded;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -37,9 +38,10 @@ import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.ServerInstanceRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
@@ -216,7 +218,8 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
     }
 
     protected void updateServerInstanceProperties(Project project) {
-        DistributedWebAppManager distManager = DistributedWebAppManager.getInstance(project);
+        //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
+        
         String port = (String) getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP);
         if (port == null) { // Cannot be
             port = "8080";
@@ -225,9 +228,13 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
         if (shutdownPort == null) { // Cannot be
             shutdownPort = String.valueOf(Integer.MAX_VALUE);
         }
-        distManager.setServerInstanceProperty(BaseConstants.HTTP_PORT_PROP, port);
-        distManager.setServerInstanceProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        ServerInstanceRegistry registry = new ServerInstanceRegistry(Paths.get(project.getProjectDirectory().getPath()));
         
+        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, port);
+        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        BaseUtil.out("-------------------------------------------");
+        BaseUtil.out("EmbeddedInstanceBuilder.updateServerInstanceProperties port=" +
+                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
         
         
     }

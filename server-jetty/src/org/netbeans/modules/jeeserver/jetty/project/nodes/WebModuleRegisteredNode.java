@@ -1,13 +1,9 @@
 package org.netbeans.modules.jeeserver.jetty.project.nodes;
 
-import java.awt.Image;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
-import org.openide.nodes.Node;
-import org.openide.util.ImageUtilities;
 
 /**
  *

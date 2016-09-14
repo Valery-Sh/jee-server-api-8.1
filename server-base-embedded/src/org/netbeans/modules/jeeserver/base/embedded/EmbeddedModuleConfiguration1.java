@@ -20,14 +20,14 @@ import org.openide.util.RequestProcessor;
  *
  * @author V. Shyshkin
  */
-public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfiguration {
+public abstract class EmbeddedModuleConfiguration1 extends AbstractModuleConfiguration {
 
-    private static final Logger LOG = Logger.getLogger(EmbeddedModuleConfiguration.class.getName());
+    private static final Logger LOG = Logger.getLogger(EmbeddedModuleConfiguration1.class.getName());
 
     protected FileChangeListener fileChangeListener;
     protected Project serverProject;
 
-    protected EmbeddedModuleConfiguration(J2eeModule module, String[] contextFilePaths) {
+    protected EmbeddedModuleConfiguration1(J2eeModule module, String[] contextFilePaths) {
         super(module, contextFilePaths);
 
     }
@@ -146,12 +146,12 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         protected static final RequestProcessor RP = new RequestProcessor(ServerChangeNotifier.class);
         //RP.post(this, 0, Thread.NORM_PRIORITY);
 
-        private final EmbeddedModuleConfiguration conf;
+        private final EmbeddedModuleConfiguration1 conf;
 
         private final String newServerInstanceId;
         private final String oldServerInstanceId;
 
-        public ServerChangeNotifier(EmbeddedModuleConfiguration conf, String oldServerInstanceId, String newServerInstanceId) {
+        public ServerChangeNotifier(EmbeddedModuleConfiguration1 conf, String oldServerInstanceId, String newServerInstanceId) {
             this.conf = conf;
             this.newServerInstanceId = newServerInstanceId;
             this.oldServerInstanceId = oldServerInstanceId;
@@ -206,11 +206,11 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         protected static final RequestProcessor RP = new RequestProcessor(ServerChangeNotifier.class);
         //RP.post(this, 0, Thread.NORM_PRIORITY);
 
-        private final EmbeddedModuleConfiguration conf;
+        private final EmbeddedModuleConfiguration1 conf;
 
         private final String serverInstanceId;
 
-        public DisposeNotifier(EmbeddedModuleConfiguration conf, String serverInstanceId) {
+        public DisposeNotifier(EmbeddedModuleConfiguration1 conf, String serverInstanceId) {
             this.conf = conf;
             this.serverInstanceId = serverInstanceId;
         }

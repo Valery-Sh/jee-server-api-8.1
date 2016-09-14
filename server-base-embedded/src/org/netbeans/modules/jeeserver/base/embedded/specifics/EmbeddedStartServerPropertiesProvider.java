@@ -12,8 +12,6 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -44,7 +42,9 @@ public class EmbeddedStartServerPropertiesProvider implements StartServerPropert
                         .getServerSuiteProject(uri)
                         .getProjectDirectory()
                         .getFileObject("nbconfig/maven-build.xml");
-                fo = DistributedWebAppManager.getInstance(serverProject).copyFile(buildFo);
+                
+//                fo = DistributedWebAppManager.getInstance(serverProject).copyFile(buildFo);
+                fo = BaseUtil.copyToTempDirectory(buildFo, serverProject.getProjectDirectory().getNameExt());
             }
         }
         return fo;

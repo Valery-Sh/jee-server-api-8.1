@@ -14,6 +14,7 @@ import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ServerInstancesRootNode;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.AvailableModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.DeleteOperationImplementation;
@@ -43,6 +44,7 @@ public class ServerSuiteProject implements Project {
     public ServerSuiteProject(FileObject projectDir, ProjectState state) {
         this.projectDir = projectDir;
         this.state = state;
+        
         //instanceContexts = new NodeModel();
     }
 
@@ -77,7 +79,8 @@ public class ServerSuiteProject implements Project {
                 getProjectActionProvider(),
                 new ProjectOperations(this),
                 openHook,
-                suiteNotifier                //serverProperties,
+                suiteNotifier,                //serverProperties,
+                new AvailableModulesManager()
             //getStartServerPropertiesProvider(),
 //                new ServerInstanceAvailableModules<>(this)
             });

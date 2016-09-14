@@ -22,6 +22,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.NAME;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.openide.awt.ActionID;
@@ -90,26 +91,32 @@ public final class StartServerAction extends AbstractAction implements ContextAw
 
     private static final class ContextAction extends AbstractAction {
 
-        private final BaseDeploymentManager manager;
+        private BaseDeploymentManager manager;
         private final Properties actionProperties;
                 
         public ContextAction(Lookup context, Properties actionProperties) {
             manager = BaseUtil.managerOf(context);
+            if ( manager == null) {
+                manager = BaseUtil.managerOf(context.lookup(Project.class));
+            }
+            
             this.actionProperties = actionProperties;
+            init();            
+        }
+        
+        private void init() {
             boolean show = false;
             if (manager != null) {
                 show = !manager.isServerRunning();
-                // we need to hide when disabled putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, true);            
-                putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, manager == null);
-
             }
+            //putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, manager == null);
+            
             setEnabled( isActionEnabled() && show);
             putValue(DynamicMenuContent.HIDE_WHEN_DISABLED, manager == null);
             
             putValue(NAME, "&Start Server");
             
         }
-        
         public ContextAction(Lookup context) {
             this(context, null);
         }

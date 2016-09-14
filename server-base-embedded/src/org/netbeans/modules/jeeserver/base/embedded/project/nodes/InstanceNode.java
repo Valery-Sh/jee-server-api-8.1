@@ -22,8 +22,9 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import static org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants.*;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
+
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.DistributedWebAppManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -113,31 +114,28 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
 
         Action[] actions
                 = new Action[]{
-//                    BuildProjectActions.getInstance("rebuild-all", getLookup()),
-//                    null,
+                    //                    BuildProjectActions.getContextAwareInstance("rebuild-all", getLookup()),
+                    //                    null,
                     //new StartServerAction().createContextAwareInstance(getLookup()),
-                    //                    BuildProjectActions.getInstance("rebuild-all", getLookup()),
-//                    null,
+                    //                    BuildProjectActions.getContextAwareInstance("rebuild-all", getLookup()),
+                    //                    null,
                     //new StartServerAction().createContextAwareInstance(getLookup()),
-                    ServerActions.StartStopAction.getAction("start", getLookup()),
-                    ServerActions.StartStopAction.getAction("stop", getLookup()),
+                    ServerActions.StartStopAction.getStartAction(getLookup()),
+                    ServerActions.StartStopAction.getStopAction(getLookup()),
                     null,
-                    ServerActions.RemoveInstanceAction.getInstance(getLookup()),
+                    ServerActions.RemoveInstanceAction.newInstance(getLookup()),
                     null,
-                    ServerActions.BuildProjectActions.getInstance("build", getLookup()),
-                    ServerActions.BuildProjectActions.getInstance("rebuild", getLookup()),
-                    ServerActions.BuildProjectActions.getInstance("clean", getLookup()),
+                    ServerActions.BuildProjectActions.newInstance("build", getLookup()),
+                    ServerActions.BuildProjectActions.newInstance("rebuild", getLookup()),
+                    ServerActions.BuildProjectActions.newInstance("clean", getLookup()),
                     null,
-                    //ServerActions.DefineMainClassAction.getInstance(getLookup()),
+                    //ServerActions.DefineMainClassAction.getContextAwareInstance(getLookup()),
                     ServerActions.DownLoadJarsAction.getContextAwareInstance(getLookup()),
-                    ServerActions.AddDependenciesAction.getContextAwareInstance(getLookup()),
-                    null,                    
-                    //AddDependenciesAction.getInstance(getLookup()),                    
-                    //null,
-ServerActions.InstancePropertiesAction
-                    .getInstance(getLookup()),
+                    ServerActions.AddDependenciesAction.newInstance(getLookup()),
                     null,
-                    ServerActions.BuildProjectActions.getInstance("developer", getLookup()),
+                    ServerActions.InstancePropertiesAction.newInstance(getLookup()),
+                    null,
+                    ServerActions.BuildProjectActions.newInstance("developer", getLookup()),
                     null,};
         List<Action> alist = Arrays.asList(actions);
         List<Action> list = new ArrayList<>(alist);
@@ -213,19 +211,21 @@ ServerActions.InstancePropertiesAction
             return;
         }
 
-        if (source instanceof DistributedWebAppManager) {
+        if (source instanceof WebApplicationsManager) {
             DistributedWebAppRootNode distNode = childKeys.getDistributedWebAppRootNode();
             if (distNode != null) {
                 distNode.childrenChanged(source, params);
             }
         }
     }
+
     public DistributedWebAppRootNode findDistributedWebAppRootNode() {
-        if ( childKeys == null ) {
+        if (childKeys == null) {
             return null;
         }
         return childKeys.getDistributedWebAppRootNode();
-    } 
+    }
+
     /**
      * The implementation of the Children.Key of the {@literal Server Libraries}
      * node.

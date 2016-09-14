@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.lang.model.element.TypeElement;
@@ -80,6 +81,7 @@ import org.openide.util.EditableProperties;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
 import org.openide.windows.IOProvider;
@@ -105,6 +107,39 @@ public class BaseUtil {
     @StaticResource
     public static final String J2SE_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/j2seproject-icon.png";
 
+    public static Path createTempDirectory(String dirNamePrefix) {
+        String postfix = "" + System.currentTimeMillis();
+        Path path = null;
+        try {
+            path = Files.createTempDirectory(dirNamePrefix + postfix);
+            path.toFile().deleteOnExit();
+        } catch (IOException ex) {
+            LOG.log(Level.INFO, ex.getMessage());
+        }
+        return path;
+    }
+
+    public static FileObject copyToTempDirectory(FileObject source, String dirNamePrefix) {
+        FileObject result = null;
+
+        Path target = createTempDirectory(dirNamePrefix).resolve(source.getNameExt());
+        if (Files.exists(target)) {
+            result = FileUtil.toFileObject(target.toFile());
+        } else {
+            Path sourcePath = FileUtil.toFile(source).toPath();
+            try {
+                Path p = Files.copy(sourcePath, target);
+                result = FileUtil.toFileObject(p.toFile());
+                FileUtil.toFile(result).deleteOnExit();
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, ex.getMessage());
+            }
+        }
+
+        return result;
+
+    }
+
     public static File createTempDir(InputStream source, String prefix, FileObject forFile, String targetFileName) {
         File tmp = new File(System.getProperty("java.io.tmpdir"));
         String targetFolder = prefix + forFile
@@ -112,12 +147,11 @@ public class BaseUtil {
                 .replace(":", "_");
         Path targetPath = Paths.get(tmp.getPath(), targetFolder, targetFileName);
         try {
-            if ( ! Files.exists(targetPath.getParent())) {
-out("BaseUtil - createTempDir dir NOT EXISTS");                
+            if (!Files.exists(targetPath.getParent())) {
+
                 Files.createDirectories(targetPath.getParent());
             }
             Files.copy(source, targetPath, StandardCopyOption.REPLACE_EXISTING);
-out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));                            
         } catch (IOException ex) {
             LOG.log(Level.INFO, ex.getMessage());
         }
@@ -603,13 +637,11 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
                     try (OutputStream out = toDir.createAndOpen(toFileName);) {
                         props.store(out, "");
                     } catch (IOException e) {
-                        BaseUtil.out("BaseUtil.storeProperties props.store EXCEPTION " + e.getMessage());
                         LOG.log(Level.INFO, "ESUtils storeProperties() run()", e);
                     }
                 }
             });
         } catch (IOException ex) {
-            BaseUtil.out("BaseUtil.storeProperties EXCEPTION " + ex.getMessage());
             LOG.log(Level.INFO, "ESUtils storeProperties()", ex);
             return false;
         }
@@ -782,16 +814,16 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
 
     public static BaseDeploymentManager managerOf(Project p) {
 
-        BaseDeploymentManager dm = null;
-
+        //BaseDeploymentManager dm = null;
         if (p == null || p.getProjectDirectory() == null) {
             return null;
         }
-
+        
+        BaseDeploymentManager dm = null;
+        
         if (!ProjectManager.getDefault().isProject(p.getProjectDirectory())) {
             return null;
         }
-
         Path sourceProjectPath = Paths.get(p.getProjectDirectory().getPath());
 
         Deployment deployment = Deployment.getDefault();
@@ -837,6 +869,76 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
         }
         return dm;
 
+        //while(true) {
+        //ProjectManager.mutex()
+/*        Mutex mutex = ProjectManager.mutex();
+        return (BaseDeploymentManager) mutex.readAccess(new Mutex.Action() {
+            @Override
+            public Object run() {
+                synchronized (p.getProjectDirectory()) {
+                    BaseDeploymentManager dm = null;
+                    if (!ProjectManager.getDefault().isProject(p.getProjectDirectory())) {
+                        return null;
+                    }
+                    Path sourceProjectPath = Paths.get(p.getProjectDirectory().getPath());
+
+                    Deployment deployment = Deployment.getDefault();
+
+                    if (deployment == null || deployment.getServerInstanceIDs() == null) {
+                        return null;
+                    }
+
+                    for (String uri : deployment.getServerInstanceIDs()) {
+                        InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
+                        if (ip == null) {
+                            continue;
+                        }
+                        String foundServerLocation = getServerLocation(ip);
+                        if (foundServerLocation == null || !new File(foundServerLocation).exists()) {
+                            // May be not a native plugin server
+                            continue;
+                        }
+
+                        FileObject foundServerFo = FileUtil.toFileObject(new File(foundServerLocation));
+
+                        if (!ProjectManager.getDefault().isProject(foundServerFo)) {
+                            return null;
+                        }
+
+                        Project serverProj = BaseUtil.getOwnerProject(foundServerFo);
+
+                        if (serverProj == null) {
+                            continue;
+                        }
+
+                        Path foundServerPath = Paths.get(foundServerLocation);
+
+                        if (sourceProjectPath.equals(foundServerPath)) {
+                            try {
+                                dm = (BaseDeploymentManager) DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager(uri);
+                            } catch (DeploymentManagerCreationException ex) {
+                                LOG.log(Level.INFO, ex.getMessage()); //NOI18N
+                            }
+
+                            break;
+                        }
+                    }
+                    return dm;
+
+                }
+            }
+        });
+         */
+ /*            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+         */
+        //}
+//        if (!ProjectManager.getDefault().isProject(p.getProjectDirectory())) {
+//            return null;
+//        }
         //return getServerProperties(p) != null;
     }
 
@@ -856,11 +958,12 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
         return null;
 
     }
+
     /**
-     * 
+     *
      * @param projDir a project directory
-     * @return {@literal true } if the project specified by the directory 
-     * is a {@literal  maven } project
+     * @return {@literal true } if the project specified by the directory is a {@literal  maven
+     * } project
      */
     public static boolean isMavenProject(String projDir) {
         Project proj = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(projDir)));
@@ -911,11 +1014,9 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
      */
     public static BaseDeploymentManager managerOf(Lookup context) {
         ServerInstanceProperties sp = context.lookup(ServerInstanceProperties.class);
-        BaseUtil.out("0. ((((((((( BaseUtil managerOf server instanceprops = " + sp);
         if (sp == null) {
             return null;
         }
-        BaseUtil.out("0. ((((((((( BaseUtil managerOf manager = " + sp.getManager());
 
         return sp.getManager();
     }
@@ -1151,9 +1252,7 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
      return result;
      }
      */
-    
-     public static  InputStream getResourceAsStream(String resource)
-     {
+    public static InputStream getResourceAsStream(String resource) {
         // Try to format as a URL?
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream is = null;
@@ -1164,7 +1263,7 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
                     is = loader.getResourceAsStream(resource.substring(1));
                 }
             } catch (IllegalArgumentException e) {
-     
+
             }
         }
         if (is == null) {
@@ -1178,6 +1277,30 @@ out("BaseUtil - createTempDir copied file exists=" + Files.exists(targetPath));
         }
 
         return is;
+    }
+    /**
+     * 
+     * @param instanceId
+     * 
+     * @return null if instanceId corresponds to a server that is not served 
+     * by BaseDeploymentManager
+     */
+    public static Project getServerProject(String instanceId) {
+
+        Project result = null;
+        if (instanceId == null) {
+            return null;
+        }
+        try {
+            DeploymentManager m = DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager(instanceId);
+            if (m != null && (m instanceof BaseDeploymentManager)) {
+                BaseDeploymentManager dm = (BaseDeploymentManager) m;
+                result = dm.getServerProject();
+            }
+        } catch (DeploymentManagerCreationException ex) {
+            LOG.log(Level.INFO, "AbstractModuleConfiguration.getProjectPropertiesFileObject. {0}", ex.getMessage()); //NOI18N                        
+        }
+        return result;
     }
     
 }

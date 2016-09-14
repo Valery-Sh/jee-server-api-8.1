@@ -87,7 +87,7 @@ public class JettyLibBuilder {
         }
         jettyBase = Paths.get(manager.getServerProject().getProjectDirectory().getPath(), Utils.jettyBase(manager.getServerProject()))
                 .toString().replace("\\", "/");
-BaseUtil.out("0. ((((((((((( JettyLibBuilder init jettybase=" + jettyBase);
+
         jettyVersion = Utils.getFullJettyVersion(jettyHome);
 
         homeModules = Paths.get(jettyHome, "modules").toString().replace("\\", "/");
@@ -418,7 +418,7 @@ BaseUtil.out("0. ((((((((((( JettyLibBuilder init jettybase=" + jettyBase);
         }
 
         protected void addJars() {
-BaseUtil.out("0. (((((((((((((( JettyLibBuilder jettybase=" + libBuilder.jettyBase);
+
             rawLibLines.forEach(line -> {
                 String l = line
                         .replace("${jetty.version}", libBuilder.jettyVersion)
@@ -426,7 +426,6 @@ BaseUtil.out("0. (((((((((((((( JettyLibBuilder jettybase=" + libBuilder.jettyBa
                         .replace("\\", "/");
                 addJars(libBuilder.jettyHome, l);
                 addJars(libBuilder.jettyBase, l);
-                BaseUtil.out("        ----- 0. line = " + l);                
             });
         }
 

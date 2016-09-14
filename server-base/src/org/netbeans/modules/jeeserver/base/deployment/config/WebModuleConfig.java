@@ -31,11 +31,6 @@ public class WebModuleConfig {
         this.contextPath = contextPath;
         this.webProjectPath = webProjectPath;
     }
-/*    @Override
-    public String toString() {
-        return key;
-    }
-*/    
     public String getContextPath() {
         return contextPath;
     }

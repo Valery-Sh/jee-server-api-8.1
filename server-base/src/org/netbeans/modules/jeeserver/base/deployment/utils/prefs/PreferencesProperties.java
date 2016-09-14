@@ -1,5 +1,8 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
@@ -27,7 +30,7 @@ public interface PreferencesProperties {
     long getLong(String key, long def);
 
     String getString(String key, String def);
-
+    
     void putBoolean(String key, boolean value);
     
     void putDouble(String key, double value);
@@ -43,6 +46,15 @@ public interface PreferencesProperties {
     String getProperty(String propName);
 
     void putString(String key, String value);
+    
+    byte[] getByteArray(String key, byte[] def);
+    
+    void putByteArray(String key, byte[] value);
+    
+    File getFileFromString(String key, Path filePath);
+    
+    void putFileAsString(String key, File value);
+    
     /**
      * Removes all of the preferences (<i>key-value associations</i>) in this 
      * preference node. 
