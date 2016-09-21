@@ -4,6 +4,8 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.openide.util.Lookup;
 
 /**
  * Mandatory factory class for producing J2eePlatformImpl. 
@@ -21,7 +23,8 @@ public class EmbJ2eePlatformFactory extends J2eePlatformFactory {
     
     @Override
     public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager manager) {
-
+        BaseUtil.out("EmbJ2eePlatformFactory getJ2eePlatformImpl");
+        Lookup.getDefault().lookup(SuiteProjectsManager.class);                     
         return new BaseJ2eePlatformImpl((BaseDeploymentManager) manager);
     }
 }

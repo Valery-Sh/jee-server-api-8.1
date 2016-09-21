@@ -145,6 +145,8 @@ public class BaseDeploymentManager implements DeploymentManager2 {
         serverProperties = new ServerInstanceProperties(); 
         logicalViewNotifier = new DeploymentManagerLogicalViewNotifier(this);
         //getLookup();
+        
+     
     }
 
     public Lookup getLookup() {

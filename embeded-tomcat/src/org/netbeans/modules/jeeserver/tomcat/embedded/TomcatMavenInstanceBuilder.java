@@ -36,11 +36,6 @@ public class TomcatMavenInstanceBuilder extends TomcatInstanceBuilder {
         return p.getProjectDirectory().getFileObject("src/main/java");
     }
 
-    @Override
-    protected FileObject getLibDir(Project p) {
-        return null;
-        //return p.getProjectDirectory().getFileObject(SuiteConstants.MAVEN_REPO_LIB_PATH);
-    }
 
     @Override
     public void createLib(Project project) {
@@ -130,10 +125,6 @@ public class TomcatMavenInstanceBuilder extends TomcatInstanceBuilder {
 
     }
 
-    @Override
-    public void modifyClasspath(Set result) {
-
-    }
 
     @Override
     public InputStream getZipTemplateInputStream() {

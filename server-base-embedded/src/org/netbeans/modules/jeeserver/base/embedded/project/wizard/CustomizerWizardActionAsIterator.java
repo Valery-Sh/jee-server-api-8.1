@@ -11,7 +11,7 @@ import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNodesNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.WizardDescriptor;
@@ -38,14 +38,9 @@ public class CustomizerWizardActionAsIterator extends AddExistingProjectWizardAc
 
             lvn.displayNameChange(uri, (String) wiz.getProperty(BaseConstants.DISPLAY_NAME_PROP));
         }
-        //AuxiliaryConfiguration aa;
-        
-        //Project p = SuiteManager.getManager(uri).getServerProject();
 
-        SuiteNotifier suiteNotifier = SuiteManager.getServerSuiteProject(uri)
-                .getLookup().lookup(SuiteNotifier.class);
-        suiteNotifier.settingsChanged(uri);
-
+     
+        SuiteManager.instanceSettingsChange(uri);
     }
 
     @Override

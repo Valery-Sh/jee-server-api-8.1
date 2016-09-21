@@ -65,9 +65,5 @@ public class TomcatCustomizeInstanceBuilder extends EmbeddedInstanceBuilder {
     }
 
 
-    @Override
-    protected FileObject getLibDir(Project project) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
 }

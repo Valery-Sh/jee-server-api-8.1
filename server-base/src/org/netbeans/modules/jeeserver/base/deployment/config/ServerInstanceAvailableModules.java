@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -40,7 +41,7 @@ import org.openide.filesystems.FileUtil;
  * @author V. Shyshkin
  * @param <T>
  */
-public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguration> implements AvailableWebModules<T> {
+public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguration> implements AvailableModules<T> {
 
     private final Project project;
 
@@ -55,11 +56,13 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
         listeners = new ArrayList<>();
     }
 
-    public ServerInstanceAvailableModules addModulesChangeListener(Project project, ModulesChangeListener l) {
+/*    public ServerInstanceAvailableModules addModulesChangeListener(Project project, ModulesChangeListener l) {
+        BaseUtil.out("1111 ServerInstanceAvailableModulers ModuleConfig addModulesChangeListener  ");
+        
         listeners.add(l);
         return this;
     }
-
+*/
     @Override
     public void moduleDispose(T module) {
         if (configMap.isEmpty()) {
@@ -98,11 +101,17 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
     }
 
     public WebModuleConfig[] getModuleList() {
+        BaseUtil.out("ServerInstanceAvailableModulers project = " + this.project.getProjectDirectory().getNameExt());
+
         WebModuleConfig[] list = new WebModuleConfig[configMap.size()];
+        BaseUtil.out("ServerInstanceAvailableModulers getModuleList list.size = " + list.length);
+        
         int i = 0;
 
         for (WebModuleConfig c : configMap.values()) {
             list[i++] = c;
+        BaseUtil.out("ServerInstanceAvailableModulers ModuleConfig webProjectPath = " + c.getWebProjectPath());
+            
         }
         return list;
 
@@ -117,10 +126,9 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
         if (war == null) {
             return;
         }
-
-        //File warFile = new File(war);
+      
         Path warPath = Paths.get(module.getWebProject().getProjectDirectory().getPath());
-        //String key = null;
+
         WebModuleConfig wmKey = configMap.get(warPath);
 
         if (wmKey == null) {
@@ -136,7 +144,50 @@ public class ServerInstanceAvailableModules<T extends AbstractModuleConfiguratio
 
         }
     }
+    public void unregisterWebProject(Project webProject) {
+        if (configMap.isEmpty()) {
+            return;
+        }
+        //Properties props = module.getContextProperties();
+        //String contextPath = props.getProperty("contextPath");
+        String war = webProject.getProjectDirectory().getPath();
 
+        Path warPath = Paths.get(war);
+        WebModuleConfig wmk = configMap.get(warPath);
+        if (wmk != null) {
+            configMap.remove(warPath);
+            BaseUtil.out("ServerInstanceAvailableModules fireModuleChange warPath=" + warPath);
+            fireModulesChange(wmk, ModulesChangeEvent.DISPOSE);
+        }
+        
+    }    
+    public void registerWebProject(Project webProject) {
+        WebModule wm = BaseUtil.getWebModule(webProject.getProjectDirectory());
+        
+        //Properties props = module.getContextProperties();
+        String contextPath = wm.getContextPath();
+
+        String war = webProject.getProjectDirectory().getPath();
+      
+        Path warPath = Paths.get(war);
+
+        WebModuleConfig wmKey = configMap.get(warPath);
+
+        if (wmKey == null) {
+            //File webFolder = module.getWebRoot();
+            WebModuleConfig wmk = new WebModuleConfig(contextPath, war);
+            //if (webFolder != null) {
+            //    wmk.setWebFolderPath(webFolder.getPath());
+            //}
+            configMap.put(warPath, wmk);
+            FileObject dirFo = FileUtil.toFileObject(new File(wmk.getWebProjectPath()));
+            dirFo.addFileChangeListener(new DeleteProjectHandler(webProject, wmk));
+            fireModulesChange(wmk, ModulesChangeEvent.CREATE);
+
+        }
+    }
+
+    
     public Project getProject() {
         return project;
     }

@@ -35,16 +35,6 @@ public class JettyMavenInstanceBuilder extends JettyInstanceBuilder {
         return p.getProjectDirectory().getFileObject("src/main/java");
     }
 
-    @Override
-    protected FileObject getLibDir(Project p) {
-        return null;
-        //return p.getProjectDirectory().getFileObject(SuiteConstants.MAVEN_REPO_LIB_PATH);
-    }
-    @Override
-    public void createLib(Project p) {
-        return;
-        //return p.getProjectDirectory().getFileObject(SuiteConstants.MAVEN_REPO_LIB_PATH);
-    }
 
 /*    @Override
     public FileObject createLib(Project project) {
@@ -148,11 +138,11 @@ public class JettyMavenInstanceBuilder extends JettyInstanceBuilder {
 
     }
 
-    @Override
+/*    @Override
     public void modifyClasspath(Set result) {
 
     }
-
+*/
     @Override
     public InputStream getZipTemplateInputStream() {
         return getClass().getClassLoader().getResourceAsStream("/"

@@ -13,7 +13,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
+import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ChildrenNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import static org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants.PANEL_VISITED_PROP;
@@ -27,9 +29,7 @@ public abstract class InstanceWizardActionAsIterator extends AbstractAction impl
     private static final Logger LOG = Logger.getLogger(InstanceWizardActionAsIterator.class.getName());
 
 //    public static final boolean[] panelVisited = new boolean[]{false, false};
-    
 //    public static final String PANEL_VISITED_PROP = "panel.visited";
-
     protected Lookup context;
 
     public InstanceWizardActionAsIterator(Lookup context) {
@@ -38,7 +38,7 @@ public abstract class InstanceWizardActionAsIterator extends AbstractAction impl
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<>();
         panels.add(new ServerInstanceProjectWizardPanel(isMavenBased()));
         panels.add(new ServerInstanceConnectorWizardPanel());
@@ -56,8 +56,8 @@ public abstract class InstanceWizardActionAsIterator extends AbstractAction impl
             }
         }
         WizardDescriptor wiz = new WizardDescriptor(new WizardDescriptor.ArrayIterator<>(panels));
-        
-        wiz.putProperty(PANEL_VISITED_PROP, new boolean[] {false,false});
+
+        wiz.putProperty(PANEL_VISITED_PROP, new boolean[]{false, false});
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wiz.setTitleFormat(new MessageFormat("{0}"));
         wiz.setTitle("...dialog title...");
@@ -65,36 +65,43 @@ public abstract class InstanceWizardActionAsIterator extends AbstractAction impl
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
 
 //            SuiteUtil.isServerProject(null);
-
             String serverId = (String) wiz.getProperty(SuiteConstants.SERVER_ID_PROP);
             ServerSpecifics ss = BaseUtil.getServerSpecifics(serverId);
 
             FileObject instancesDir = context.lookup(FileObject.class);
 
             Properties props = new Properties();
-            if ( ! isMavenBased() ) {
+            if (!isMavenBased()) {
                 props.setProperty("project.based.type", "ant");
             } else {
                 props.setProperty("project.based.type", "maven");
             }
             props.setProperty(SuiteConstants.SERVER_INSTANCES_DIR_PROP, instancesDir.getPath());
-            if ( isMavenBased() ) {
-                props.setProperty("groupId", (String)wiz.getProperty("groupId"));
-                props.setProperty("artifactId", (String)wiz.getProperty("artifactId"));                
-                props.setProperty("artifactVersion", (String)wiz.getProperty("artifactVersion"));                                
-                props.setProperty("package", (String)wiz.getProperty("package"));
-                if ( wiz.getProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP) != null) {
-                    props.setProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP, (String)wiz.getProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP));                                                                
+            if (isMavenBased()) {
+                props.setProperty("groupId", (String) wiz.getProperty("groupId"));
+                props.setProperty("artifactId", (String) wiz.getProperty("artifactId"));
+                props.setProperty("artifactVersion", (String) wiz.getProperty("artifactVersion"));
+                props.setProperty("package", (String) wiz.getProperty("package"));
+                if (wiz.getProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP) != null) {
+                    props.setProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP, (String) wiz.getProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP));
                 }
             }
-            
+
             EmbeddedInstanceBuilder eib = (EmbeddedInstanceBuilder) ss.getInstanceBuilder(props, InstanceBuilder.Options.NEW);
             eib.setWizardDescriptor(wiz);
 
             eib.instantiate();
-
-            context.lookup(ChildrenNotifier.class).childrenChanged();
+            
+            //context.lookup(ChildrenNotifier.class).childrenChanged();
+            //15.09 context.lookup(ChildrenNotifier.class).childrenChanged();
+            notifySettingChange(wiz);
         }
+    }
+
+    protected void notifySettingChange(WizardDescriptor wiz) {
+        String uri = (String) wiz.getProperty(BaseConstants.URL_PROP);
+        
+        SuiteManager.instanceCreate(uri);
     }
 
     protected abstract boolean isMavenBased();

@@ -1,7 +1,6 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
@@ -12,7 +11,10 @@ import java.util.prefs.Preferences;
 import java.util.stream.Stream;
 
 public interface PreferencesProperties {
-
+    
+    public static String HIDDEN_KEY = "...HIDDEN...";
+    public static String HIDDEN_VALUE = "HIDDEN_VALUE";
+    
     String[] keys();
 
     public Preferences getPreferences();

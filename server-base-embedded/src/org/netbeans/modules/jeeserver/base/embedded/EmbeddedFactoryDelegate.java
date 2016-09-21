@@ -10,17 +10,16 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.FactoryDelegate;
-import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -28,12 +27,13 @@ import org.openide.filesystems.FileUtil;
  */
 public abstract class EmbeddedFactoryDelegate extends FactoryDelegate {
 
-    /*    public EmbeddedFactoryDelegate(String serverId, ServerSpecifics specifics) {
-        super(serverId, specifics);
-    }
-     */
+  
     public EmbeddedFactoryDelegate(String serverId) {
         super(serverId);
+        //
+        // Force instantiate the SuiteProjectsManager instance
+        //
+        Lookup.getDefault().lookup(SuiteProjectsManager.class);        
     }
 
     /**
@@ -45,15 +45,10 @@ public abstract class EmbeddedFactoryDelegate extends FactoryDelegate {
      */
     @Override
     protected boolean existsServer(FileObject instanceFO) {
-        BaseUtil.out("EmbeddedFactoryDelegate existsServer instanceFO = " + instanceFO);
         String serverLocation = (String) instanceFO.getAttribute(BaseConstants.SERVER_LOCATION_PROP);
-//        String serverInstanceDir = (String) instanceFO.getAttribute(BaseConstants.SERVER_INSTANCE_DIR_PROP);
-
         if (serverLocation == null) {
-            BaseUtil.out("EmbeddedFactoryDelegate existsServer serverLocation returns FALSE = " + instanceFO);
             return false;
         }
-        BaseUtil.out("EmbeddedFactoryDelegate existsServer serverLocation  = " + serverLocation);
 
         File f = new File(serverLocation);
         if (!f.exists()) {
@@ -66,8 +61,6 @@ public abstract class EmbeddedFactoryDelegate extends FactoryDelegate {
         if (p == null) {
             return false;
         }
-        BaseUtil.out("EmbeddedFactoryDelegate returns TRUE  = " + serverLocation);
-
         return true;
     }
 
@@ -99,11 +92,8 @@ public abstract class EmbeddedFactoryDelegate extends FactoryDelegate {
 
                     source.removeFileChangeListener(this);
                     dm.getServerProjectDirectoryListeners().remove(this);
-                    //deleteFileChangeListener(this);
                     if (suite != null) {
-                        ServerUtil.removeInstanceProperties(uri);
-                        SuiteNotifier suiteNotifier = suite.getLookup().lookup(SuiteNotifier.class);
-                        suiteNotifier.instancesChanged();
+                        SuiteManager.instanceDelete(uri);
                     }
 
                 }

@@ -2,7 +2,6 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +14,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Stream;
-import org.openide.util.Exceptions;
 
 public class InstancePreferences implements PreferencesProperties {
 
@@ -37,6 +36,33 @@ public class InstancePreferences implements PreferencesProperties {
     public InstancePreferences(String id, Preferences prefs) {
         this.prefs = prefs;
         this.id = id;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final InstancePreferences other = (InstancePreferences) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.prefs, other.prefs)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -375,7 +401,7 @@ public class InstancePreferences implements PreferencesProperties {
             }
         }
     }
-
+    
     @Override
     public void forEach(BiConsumer<String, String> action) {
         String[] keys = keys();

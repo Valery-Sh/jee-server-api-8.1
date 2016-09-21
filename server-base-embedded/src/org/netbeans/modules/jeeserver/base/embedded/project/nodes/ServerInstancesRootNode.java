@@ -27,7 +27,6 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -45,11 +44,6 @@ import org.openide.util.lookup.InstanceContent;
  * {@literal Web Applications}.
  *
  * @author V. Shyshkin
- */
-/*@Messages({
- "ServerInstanciesRootNode.shortDescription=Server Instances for this Server",
- "ServerInstanciesRootNode.availableWebApps=Available Web Applications"
- })
  */
 public class ServerInstancesRootNode extends FilterNode implements ChildrenNotifier {
 
@@ -91,8 +85,8 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
     private void init(FileObject instanciesDir) {
         lookupContents.add(this);
         BaseUtil.getOwnerProject(instanciesDir).getLookup()
-                .lookup(SuiteNotifier.class)
-                .setNotifier(this);
+                .lookup(SuiteNodesNotifier.class)
+                .setChildrenNotifier(this);
     }
     
     public InstanceNode findInstanceNode(Project instanceProject) {
@@ -215,7 +209,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
 
     }
 
-    @Override
+/*    @Override
     public synchronized void childrenChanged(Object source, Object... params) {
         if (childKeys == null) {
             return;
@@ -224,8 +218,9 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
         if (source instanceof WebApplicationsManager) {
             childKeys.childrenChanged(source, params);
         }
+        
     }
-
+*/
     /**
      * The implementation of the Children.Key of the {@literal Server Libraries}
      * node.
@@ -281,7 +276,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
 
         }
 
-        public synchronized void childrenChanged(Object source, Object... params) {
+/*        public synchronized void childrenChanged(Object source, Object... params) {
             if (source instanceof WebApplicationsManager) {
                 WebApplicationsManager distManager = (WebApplicationsManager) source;
                 Project instance = distManager.getServerInstance();
@@ -296,7 +291,7 @@ public class ServerInstancesRootNode extends FilterNode implements ChildrenNotif
             }
 
         }
-
+*/
         /**
          * Called when all the children Nodes are freed from memory. The
          * implementation just invokes 

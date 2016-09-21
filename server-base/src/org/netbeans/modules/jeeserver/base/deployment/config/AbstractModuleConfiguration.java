@@ -235,10 +235,10 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         if (webProject != null) {
             String id = webProject.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
             if (serverInstanceId != null && !serverInstanceId.equals(id)) {
-                //String oldid = serverInstanceId;
-                //serverInstanceId = id;
-                //notifyServerChange(oldid, id);
-                notifyServerChange(serverInstanceId, id);
+                String oldid = serverInstanceId;
+                serverInstanceId = id;
+                notifyServerChange(oldid, id);
+                //notifyServerChange(serverInstanceId, id);
             }
         }
         return lookup;
@@ -251,15 +251,15 @@ public abstract class AbstractModuleConfiguration implements ModuleConfiguration
         }
         Project srv = getServerProject(instanceId);
         if (srv != null) {
-            final AvailableWebModules<AbstractModuleConfiguration> avm = srv.getLookup().lookup(AvailableWebModules.class);
+            final AvailableModules<AbstractModuleConfiguration> avm = srv.getLookup().lookup(AvailableModules.class);
             if (avm == null) {
                 return;
             }
             RP.post(() -> {
                 if (dispose) {
-                    avm.moduleDispose(AbstractModuleConfiguration.this);
+                    avm.moduleDispose(this);
                 } else {
-                    avm.moduleCreate(AbstractModuleConfiguration.this);
+                    avm.moduleCreate(this);
                 }
             }, 0, Thread.NORM_PRIORITY);
 

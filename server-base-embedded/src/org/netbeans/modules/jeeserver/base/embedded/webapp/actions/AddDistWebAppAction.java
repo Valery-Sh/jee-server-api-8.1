@@ -11,9 +11,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
+import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
@@ -110,11 +112,16 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
                             Project oldServer = m.getServerProject();
                             WebApplicationsManager distManager = WebApplicationsManager.getInstance(oldServer);
                             distManager.unregister(webProj);
+                            ServerInstanceAvailableModules am =  DistributeModulesManager.getAvailableModules(oldServer);
+                            am.unregisterWebProject(webProj);
                         }
 
                     }
                     WebApplicationsManager distManager = WebApplicationsManager.getInstance(serverInstance);
                     distManager.register(webProj);
+                    ServerInstanceAvailableModules am =  DistributeModulesManager.getAvailableModules(serverInstance);
+                    am.registerWebProject(webProj);
+                    
                 }
             });
 

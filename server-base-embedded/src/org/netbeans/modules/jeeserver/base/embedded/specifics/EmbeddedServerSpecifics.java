@@ -5,7 +5,7 @@ import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.StartServerPropertiesProvider;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNodesNotifier;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 
 /**
@@ -28,7 +28,7 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
     default void iconChange(String uri, boolean newValue) {
         SuiteManager.getServerSuiteProject(uri)
                 .getLookup()
-                .lookup(SuiteNotifier.class)
+                .lookup(SuiteNodesNotifier.class)
                 .iconChange(uri, newValue);
     }
 
@@ -36,7 +36,7 @@ public interface EmbeddedServerSpecifics extends ServerSpecifics {
     default void displayNameChange(String uri, String newValue) {
         SuiteManager.getServerSuiteProject(uri)
                 .getLookup()
-                .lookup(SuiteNotifier.class)
+                .lookup(SuiteNodesNotifier.class)
                 .displayNameChange(uri, newValue);
     }
 

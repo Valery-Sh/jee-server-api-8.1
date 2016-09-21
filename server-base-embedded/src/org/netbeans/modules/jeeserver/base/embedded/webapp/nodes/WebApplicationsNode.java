@@ -1,6 +1,5 @@
 package org.netbeans.modules.jeeserver.base.embedded.webapp.nodes;
 
-import org.netbeans.modules.jeeserver.base.embedded.webapp.*;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,10 +11,8 @@ import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddHtmRefActi
 import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddWarRefAction;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddWebRefAction;
-import org.netbeans.modules.jeeserver.base.embedded.webapp.nodes.WebAppChildFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.modules.jeeserver.base.deployment.ServerUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
@@ -253,7 +250,8 @@ public class WebApplicationsNode extends FilterNode {
         public void fileDeleted(FileEvent ev) {
             
             if (null == project.getProjectDirectory().getFileObject(SuiteConstants.REG_WEB_APPS_FOLDER)) {
-                ServerUtil.removeInstanceProperties(BaseUtil.getServerInstanceId(project.getLookup()));        
+                //15.09ServerUtil.removeInstanceProperties(BaseUtil.getServerInstanceId(project.getLookup()));        
+                SuiteManager.instanceDelete(BaseUtil.getServerInstanceId(project.getLookup()));
             } else {
                 ((WebApplicationsNode.WebAppKeys) node.getChildren()).addNotify();
             }

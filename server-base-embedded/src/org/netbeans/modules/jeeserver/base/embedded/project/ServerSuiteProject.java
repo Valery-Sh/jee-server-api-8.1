@@ -13,7 +13,8 @@ import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ServerInstancesRootNode;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNodesNotifier;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.prefs.AvailableModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.spi.project.ActionProvider;
@@ -37,7 +38,6 @@ public class ServerSuiteProject implements Project {
     public static final String TYPE = "org-netbeans-modules-jeeserver-base-embedded-project";
     private final FileObject projectDir;
     private final ProjectState state;
-    //private final NodeModel instanceContexts;
 
     private Lookup lookup;
 
@@ -71,7 +71,7 @@ public class ServerSuiteProject implements Project {
             //serverProperties.setLayerProjectFolderPath(this.getLayerProjectFolderPath());
 
             ProjectOpenedHook openHook = new ServerSuiteProjectOpenHook(projectDir);
-            SuiteNotifier suiteNotifier = new SuiteNotifier();
+            //SuiteNodesNotifier suiteNotifier = new SuiteNodesNotifier();
             lookup = Lookups.fixed(new Object[]{
                 this,
                 getProjectInformation(),
@@ -79,10 +79,9 @@ public class ServerSuiteProject implements Project {
                 getProjectActionProvider(),
                 new ProjectOperations(this),
                 openHook,
-                suiteNotifier,                //serverProperties,
-                new AvailableModulesManager()
-            //getStartServerPropertiesProvider(),
-//                new ServerInstanceAvailableModules<>(this)
+                new SuiteNodesNotifier(), 
+                new AvailableModulesManager(),
+                new DistributeModulesManager()
             });
         }
         return lookup;
@@ -172,6 +171,7 @@ public class ServerSuiteProject implements Project {
     public final class Info implements ProjectInformation {
         
         private ServerInstancesRootNode instancesRootNode;
+        private String uid;
         
         @Override
         public Icon getIcon() {
@@ -201,6 +201,14 @@ public class ServerSuiteProject implements Project {
         @Override
         public Project getProject() {
             return ServerSuiteProject.this;
+        }
+
+        public String getUid() {
+            return uid;
+        }
+
+        public void setUid(String uid) {
+            this.uid = uid;
         }
 
         public ServerInstancesRootNode getInstancesRootNode() {

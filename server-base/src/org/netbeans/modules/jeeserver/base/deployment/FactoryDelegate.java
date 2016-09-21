@@ -47,7 +47,7 @@ public abstract class FactoryDelegate {
 
     private static final Logger LOG = Logger.getLogger(FactoryDelegate.class.getName());
 
-    private final static Map<String, BaseDeploymentManager> managers = new ConcurrentHashMap<>();
+    private final static Map<String, BaseDeploymentManager> MANAGERS = new ConcurrentHashMap<>();
 
     private final String serverId;
     protected String uriPrefix;
@@ -65,13 +65,13 @@ public abstract class FactoryDelegate {
 
     public synchronized void removeUnusedManagers() {
         List<String> toRemove = new ArrayList<>();
-        managers.forEach((u, m) -> {
+        MANAGERS.forEach((u, m) -> {
             if (InstanceProperties.getInstanceProperties(u) == null) {
                 toRemove.add(u);
             }
         });
         toRemove.forEach(u -> {
-            managers.remove(u);
+            MANAGERS.remove(u);
         });
     }
 
@@ -160,7 +160,7 @@ public abstract class FactoryDelegate {
     }
 
     public synchronized void removeManager(String uri) {
-        managers.remove(uri);
+        MANAGERS.remove(uri);
     }
 
     /**
@@ -185,12 +185,12 @@ public abstract class FactoryDelegate {
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri);
         }
-        BaseDeploymentManager manager = managers.get(uri);
+        BaseDeploymentManager manager = MANAGERS.get(uri);
 
         if (null == manager) {
             manager = new BaseDeploymentManager(serverId, uri,
                     newServerSpecifics());
-            managers.put(uri, manager);
+            MANAGERS.put(uri, manager);
             register(manager);
         }
 
@@ -238,11 +238,11 @@ public abstract class FactoryDelegate {
     }
 
     public static Map<String, BaseDeploymentManager> getManagers() {
-        return managers;
+        return MANAGERS;
     }
 
     public static BaseDeploymentManager getManager(String uri) {
-        return managers.get(uri);
+        return MANAGERS.get(uri);
     }
 
 }

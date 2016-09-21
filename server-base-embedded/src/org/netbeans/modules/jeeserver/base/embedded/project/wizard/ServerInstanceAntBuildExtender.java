@@ -3,8 +3,6 @@ package org.netbeans.modules.jeeserver.base.embedded.project.wizard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.StaticResource;
@@ -12,12 +10,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
-import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.ServerInstanceRegistry;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.filesystems.FileObject;
 import org.openide.xml.XMLUtil;
@@ -57,7 +49,7 @@ import org.xml.sax.SAXException;
  *
  * @author V. Shyshkin
  */
-public class ServerInstanceAntBuildExtender extends ServerInstanceBuildExtender {
+public class ServerInstanceAntBuildExtender  {
 
     private static final Logger LOG = Logger.getLogger(ServerInstanceAntBuildExtender.class.getName());
 
@@ -82,19 +74,19 @@ public class ServerInstanceAntBuildExtender extends ServerInstanceBuildExtender 
     @StaticResource
     private static final String BUILD_XSL = "org/netbeans/modules/jeeserver/base/embedded/project/wizard/es-build.xsl"; // NOI18N
 
+    private Project project;
     /**
      * Creates a new instance of the class for a given project.
      *
      * @param project
      */
     public ServerInstanceAntBuildExtender(Project project) {
-        super(project);
+        this.project = project;
     }
 
     /**
      * Creates or updates the build script extension.
      */
-    @Override
     public void enableExtender() {
         boolean m = ProjectManager.getDefault().isModified(project);
         addBuildScript();
@@ -107,51 +99,10 @@ public class ServerInstanceAntBuildExtender extends ServerInstanceBuildExtender 
         if (!isValid()) {
             rebuild();
         }
-        updateNbDeploymentFile();
     }
 
-    @Override
-    public void updateNbDeploymentFile() {
-        Path projPath = Paths.get(project.getProjectDirectory().getPath());
-        ServerInstanceRegistry registry = new ServerInstanceRegistry(projPath);
-//        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, port);
-//        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
 
-        //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
-        InstanceProperties ip = SuiteManager.getManager(project).getInstanceProperties();
-        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
-        BaseUtil.out("-------------------------------------------");
-        BaseUtil.out("ServerInstanceAntBuildExtender.updateNbDeploymentFile port=" +
-                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
-        
-        String shutdownPort = ip.getProperty(BaseConstants.SHUTDOWN_PORT_PROP);
-        if (shutdownPort == null) { // Cannot be
-            shutdownPort = String.valueOf(Integer.MAX_VALUE);
-        }
-        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
-        
-    }
-
-    @Override
-    public void updateNbDeploymentFile(FileObject nbDir) {
-        //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
-        Path projPath = Paths.get(project.getProjectDirectory().getPath());
-        ServerInstanceRegistry registry = new ServerInstanceRegistry(projPath);
-        //FileObject propsFo = nbDir.getFileObject(SuiteConstants.INSTANCE_PROPERTIES_FILE);
-        InstanceProperties ip = SuiteManager.getManager(project).getInstanceProperties();
-        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, ip.getProperty(BaseConstants.HTTP_PORT_PROP));
-        BaseUtil.out("ServerInstanceBuildExtender.updateNbDeploymentFile port=" +
-                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
-        
-        //BaseUtil.updateProperties(props, nbDir, SuiteConstants.INSTANCE_PROPERTIES_FILE);
-        String shutdownPort = ip.getProperty(BaseConstants.SHUTDOWN_PORT_PROP);
-        if (shutdownPort == null) { // Cannot be
-            shutdownPort = String.valueOf(Integer.MAX_VALUE);
-        }
-        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
-        
-    }
-
+    
     protected void rebuild() {
         try {
             project.getProjectDirectory().getFileObject(BUILD_IMPL_XML).delete();

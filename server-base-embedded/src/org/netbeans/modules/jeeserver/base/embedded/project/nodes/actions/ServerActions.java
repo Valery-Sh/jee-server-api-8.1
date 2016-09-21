@@ -40,23 +40,19 @@ import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApi;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.NbSuiteRegistry;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.NbSuitePreferences;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddDependenciesPanelVisual;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.CustomizerWizardActionAsIterator;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddExistingProjectWizardActionAsIterator;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.DownloadJarsPanelVisual;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanceAntBuildExtender;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.InstanceWizardActionAsIterator;
-import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanceBuildExtender;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -636,15 +632,16 @@ public class ServerActions {
 
             }
 
-            public void attr(Project p) {
+/*            public void attr(Project serverInstance) {
 
-                Project suite = SuiteManager.getServerSuiteProject(SuiteManager.getManager(p).getUri());
-                SuiteNotifier notif = suite.getLookup().lookup(SuiteNotifier.class);
-                WebApplicationsManager man = WebApplicationsManager.getInstance(p);
-                notif.childrenChanged(man, (Object) null);
+                //15.09Project suite = SuiteManager.getServerSuiteProject(SuiteManager.getManager(p).getUri());
+                Project suite = SuiteManager.getServerSuiteProject(serverInstance);                
+                SuiteNodesNotifier notif = suite.getLookup().lookup(SuiteNodesNotifier.class);
+                WebApplicationsManager manager = WebApplicationsManager.getInstance(serverInstance);
+                notif.childrenChanged(manager, (Object) null);
 
             }
-
+*/
             private boolean alreadyPerformed() {
                 String providerCommand = null;
 
@@ -681,7 +678,7 @@ public class ServerActions {
 
                 if (isDummyAction()) {
                     String id = "server-instance";
-                    NbSuiteRegistry instance = NbSuiteRegistry.newInstance(TEST_DIR,SUIDE_UID);
+                    NbSuitePreferences instance = NbSuitePreferences.newInstance(TEST_DIR,SUIDE_UID);
                     //InstancePreferences expResult = null;
                     InstancePreferences result = instance.getProperties(id);
                     result.setProperty("memememe", "mymymymy");
@@ -911,20 +908,11 @@ public class ServerActions {
             Project instanceProject = dm.getServerProject();
 
             if (instanceProject != null) {
-                ServerInstanceBuildExtender extender;
                 if (BaseUtil.isAntProject(instanceProject)) {
-                    extender = new ServerInstanceAntBuildExtender(instanceProject);
-                } else {
-                    extender = new ServerInstanceBuildExtender(instanceProject);
+                    ServerInstanceAntBuildExtender extender = new ServerInstanceAntBuildExtender(instanceProject);
+                    extender.disableExtender();                    
                 }
-
-                extender.disableExtender();
             }
-            String uid = SuiteUtil
-                    .getSuiteUID(SuiteManager
-                            .getServerSuiteProject(instanceProject)
-                            .getProjectDirectory());
-            //String inst = instanceProject.getProjectDirectory().getPath();
             SuiteManager.removeInstance(context.lookup(ServerInstanceProperties.class).getUri());
         }
     }

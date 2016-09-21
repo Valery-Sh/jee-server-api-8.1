@@ -18,7 +18,9 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service=ProjectFactory.class)
 public class ServerSuiteProjectFactory implements ProjectFactory{
-
+    
+    public static final String PROJECT_CONF = "nbconfig/embedded-server-project-type.xml"; 
+    
     public ServerSuiteProjectFactory() {
     }
 
@@ -42,7 +44,7 @@ public class ServerSuiteProjectFactory implements ProjectFactory{
      */
     @Override
     public boolean isProject(FileObject projectDirectory) {
-        return projectDirectory.getFileObject("nbconfig/embedded-server-project-type.xml") != null ; 
+        return projectDirectory.getFileObject(PROJECT_CONF) != null ; 
     }
 
     /**

@@ -18,7 +18,7 @@ package org.netbeans.modules.jeeserver.base.embedded;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
@@ -26,25 +26,17 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.deployment.utils.LibrariesFileLocator;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.ServerInstanceRegistry;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -55,7 +47,7 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
     private static final Logger LOG = Logger.getLogger(EmbeddedInstanceBuilder.class.getName());
     private boolean mavenbased;
 
-    protected abstract FileObject getLibDir(Project project);
+    //protected abstract FileObject getLibDir(Project project);
 
     public EmbeddedInstanceBuilder(Properties props, InstanceBuilder.Options opt) {
         super(props, opt);
@@ -152,7 +144,7 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
                 .getProperty(SuiteConstants.MAVEN_MAIN_CLASS_PROP));
     }
 
-    public void modifyClasspath(Set result) {
+/*    public void modifyClasspath(Set result) {
         Project p = findProject(result);
 
         FileObject libExt = getLibDir(p);
@@ -216,7 +208,7 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
         }
         return root;
     }
-
+*/
     protected void updateServerInstanceProperties(Project project) {
         //DistributedWebAppManager distManager = WebApplicationsManager.getInstance(project);
         
@@ -228,15 +220,15 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
         if (shutdownPort == null) { // Cannot be
             shutdownPort = String.valueOf(Integer.MAX_VALUE);
         }
-        ServerInstanceRegistry registry = new ServerInstanceRegistry(Paths.get(project.getProjectDirectory().getPath()));
+        String serverDir = Paths.get(project.getProjectDirectory().getPath()).toString();
+        InstancePreferences prefs = SuiteManager.getInstanceProperties(serverDir);
         
-        registry.getInstanceProperties().setProperty(BaseConstants.HTTP_PORT_PROP, port);
-        registry.getInstanceProperties().setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        prefs.setProperty(BaseConstants.HTTP_PORT_PROP, port);
+        prefs.setProperty(BaseConstants.SHUTDOWN_PORT_PROP, shutdownPort);        
+        
         BaseUtil.out("-------------------------------------------");
         BaseUtil.out("EmbeddedInstanceBuilder.updateServerInstanceProperties port=" +
-                registry.getInstanceProperties().getProperty(BaseConstants.HTTP_PORT_PROP));
-        
-        
+                prefs.getProperty(BaseConstants.HTTP_PORT_PROP));
     }
 
 }

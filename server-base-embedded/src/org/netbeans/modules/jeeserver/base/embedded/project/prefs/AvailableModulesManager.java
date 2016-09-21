@@ -1,67 +1,46 @@
 package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
 /**
  *
  * @author Valery Shyshkin
  */
-public class AvailableModulesManager {
+public class AvailableModulesManager implements ModulesManager {
     
     private final Map<Path,ServerInstanceAvailableModules> map = new HashMap<>();
     private final Map<Path,ServerInstanceAvailableModules> store = Collections.synchronizedMap(map);
 
-    public void put(Path serverInstancePath, ServerInstanceAvailableModules modules ) {
-        store.put(serverInstancePath, modules);
+    @Override
+    public Map<Path, ServerInstanceAvailableModules> store() {
+        return store;
     }
-    public void put(String serverInstancePath, ServerInstanceAvailableModules modules ) {
-        store.put(Paths.get(serverInstancePath),modules);
-    }
-    public void put(Project serverInstance, ServerInstanceAvailableModules modules ) {
-        store.put(Paths.get(serverInstance.getProjectDirectory().getPath()),modules);
-    }
-    
-    public ServerInstanceAvailableModules get(Path serverInstancePath ) {
-        return store.get(serverInstancePath);
-    }
-    public ServerInstanceAvailableModules get(String serverInstancePath ) {
-        return store.get(Paths.get(serverInstancePath));
-    }
-    public ServerInstanceAvailableModules get(Project serverInstance ) {
-        return store.get(Paths.get(serverInstance.getProjectDirectory().getPath()));
-    }
-    public ServerInstanceAvailableModules remove(Path serverInstancePath ) {
-        return store.remove(serverInstancePath);
-    }
-    public ServerInstanceAvailableModules remove(String serverInstancePath ) {
-        return store.remove(Paths.get(serverInstancePath));
-    }
-    
-    public ServerInstanceAvailableModules remove(Project serverInstance ) {
-        return store.remove(Paths.get(serverInstance.getProjectDirectory().getPath()));
-    }
+    public static ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
+        Project suite = SuiteManager.getServerSuiteProject(serverInstance);
+        if (suite == null) {
+            return null;
+        }
         
-    public int size() {
-        return store.size();
+        AvailableModulesManager m = suite.getLookup().lookup(AvailableModulesManager.class);
+        
+        if (m == null) {
+            return null;
+        }
+        return m.get(serverInstance);
     }
-    public boolean isEmpty() {
-        return store.isEmpty();
+/*    public static AvailableModulesManager getInstance(Project serverInstance) {
+        Project suite = SuiteManager.getServerSuiteProject(serverInstance);
+        if (suite == null) {
+            return null;
+        }
+        return suite.getLookup().lookup(AvailableModulesManager.class);
     }
-    
-    public boolean contains(Path serverInstancePath) {
-        return store.containsKey(serverInstancePath);
-    }
-    public boolean contains(String serverInstancePath) {
-        return store.containsKey(Paths.get(serverInstancePath));
-    }
-    public boolean contains(Project serverInstance) {
-        return store.containsKey(Paths.get(serverInstance.getProjectDirectory().getPath()));
-    }
+*/    
     
 }

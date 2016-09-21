@@ -31,6 +31,8 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.embedded.SuiteProjectsManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProject.Info;
 import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
@@ -38,6 +40,7 @@ import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 
 /**
  * Allows to hook open and close project actions.
@@ -55,22 +58,21 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
     @Override
     protected void projectOpened() {
         String uid = SuiteUtil.getSuiteUID(projectDir);
-        if ( uid == null ) {
+        if ( uid == null  ) {
             uid = createSuiteUID();
         } else {
             updateSuiteLocation(uid);
         }
-//        SuiteRegistry.update(uid,getServerInstances(uid));
-       // if ( true ) {
-       //     return;
-       // }
-        WebApplicationsManager.refreshSuiteInstances(projectDir);
-/*        List<Project> projects = getServerInstances(uid);
-        projects.forEach(p -> {
-            WebApplicationsManager.newInstance(p).refresh();
-        });
-*/        
+        Info info = getProject().getLookup().lookup(Info.class);
+        info.setUid(uid);
+        SuiteProjectsManager registries = Lookup.getDefault().lookup(SuiteProjectsManager.class);
+        BaseUtil.out("SuiteRegistries ServerSuiteProjectOpenHook getProject() = " + getProject());
+        BaseUtil.out("SuiteRegistries ServerSuiteProjectOpenHook registries = " + registries);
         
+        if ( registries != null && ! registries.isRegistered(getProject())) {
+            registries.register(getProject());
+        }
+        WebApplicationsManager.refreshSuiteInstances(projectDir);
         
     }
     
@@ -89,6 +91,7 @@ public class ServerSuiteProjectOpenHook extends ProjectOpenedHook {
                     continue;
                 }
                 SuiteUtil.setSuiteProjectLocation(ip, newPath.toString());
+                Lookup.getDefault().lookup(SuiteProjectsManager.class).locationChange(uid,newPath.toString() );
             }
             
             

@@ -8,7 +8,7 @@ import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanc
  *
  * @author V. Shyshkin
  */
-public class SuiteNotifier { //implements ChildrenNotifier {
+public class SuiteNodesNotifier { //implements ChildrenNotifier {
 
     private ChildrenNotifier rootNodeNotifier;
 
@@ -19,32 +19,33 @@ public class SuiteNotifier { //implements ChildrenNotifier {
      * @param uri a server instance id as specified by the class
      * {@literal Deployment}.
      */
-    public synchronized void settingsChanged(String uri) {
+/*    public synchronized void settingsChanged(String uri) {
         Project p = SuiteManager.getManager(uri).getServerProject();
 
         ServerInstanceAntBuildExtender ext = new ServerInstanceAntBuildExtender(p);
         ext.updateNbDeploymentFile();
 
     }
-
+*/
     /**
      * Notifies {@link ServerInstancesRootNode} instance that child nodes keys
      * changed.
      */
     public synchronized void instancesChanged() {
-        //BaseUtil.out("SuiteNotifier instancesChanged rootNodeNotifier " + rootNodeNotifier);
+        //BaseUtil.out("SuiteNodesNotifier instancesChanged rootNodeNotifier " + rootNodeNotifier);
         if (rootNodeNotifier != null) {
             rootNodeNotifier.childrenChanged();
         }
+        
     }
 
-    public synchronized void  childrenChanged(Object source, Object... params) {
+/*    public synchronized void  childrenChanged(Object source, Object... params) {
         if (rootNodeNotifier != null) {
-//BaseUtil.out("SuiteNotifier childrenChanged");
+
             rootNodeNotifier.childrenChanged(source, params);
         }
     }
-
+*/
     public synchronized void iconChange(String uri, boolean newValue) {
         if (rootNodeNotifier == null) {
             return;
@@ -60,7 +61,7 @@ public class SuiteNotifier { //implements ChildrenNotifier {
         rootNodeNotifier.displayNameChange(uri, newValue);
     }
 
-    final synchronized void setNotifier(ChildrenNotifier childrenNotifier) {
+    final synchronized void setChildrenNotifier(ChildrenNotifier childrenNotifier) {
         this.rootNodeNotifier = childrenNotifier;
     }
 

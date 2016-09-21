@@ -5,6 +5,7 @@
  */
 package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
 
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.WebApplicationsRegistry;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -16,8 +17,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.CommonPreferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.PathPreferencesRegistry;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.DirectoryPreferences;
 import org.openide.util.Exceptions;
 
 /**
@@ -30,7 +32,7 @@ public class WebApplicationsRegistryTest {
     protected Path webappPath02 = Paths.get("c:\\MyWebApps/MyWebApp02");
     protected String extNamespace = "WebApplicationsRegistryTest";
     
-    protected String expResultPrefix = "/UUID-ROOT-f4460510-bc81-496d-b584-f4ae5975f04a/WebApplicationsRegistryTest/c:/MyServers/MyServerInstance01";
+    protected String expResultPrefix = "/" + CommonPreferences.COMMON_ROOT + "/WebApplicationsRegistryTest/c:/MyServers/MyServerInstance01";
    
     public WebApplicationsRegistryTest() {
     }
@@ -51,7 +53,7 @@ public class WebApplicationsRegistryTest {
     public void tearDown() {
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath,extNamespace);
         try {
-            instance.clearRegistryRoot();
+            instance.clearRoot();
         } catch (Exception ex) {
             System.out.println(ex);
         }
@@ -59,14 +61,14 @@ public class WebApplicationsRegistryTest {
     }
 
     /**
-     * Test of webAppsRoot method, of class WebApplicationsRegistry.
+     * Test of applicationsRoot method, of class WebApplicationsRegistry.
      */
     @Test
     public void testWebAppsRoot() {
         System.out.println("webAppsRoot");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
         String expResult = expResultPrefix + "/web-apps";
-        Preferences webappsRoot = instance.webAppsRoot();
+        Preferences webappsRoot = instance.applicationsRoot();
         String result = webappsRoot.absolutePath();
         assertEquals(expResult, result);
         
@@ -81,7 +83,7 @@ public class WebApplicationsRegistryTest {
     }
 
     /**
-     * Test of getWebAppPropertiesList method, of class WebApplicationsRegistry.
+     * Test of getAppPropertiesList method, of class WebApplicationsRegistry.
      * No web application found
      */
     @Test
@@ -90,13 +92,13 @@ public class WebApplicationsRegistryTest {
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
         int expResult = 0;
         
-        List<InstancePreferences> list = instance.getWebAppPropertiesList();
+        List<InstancePreferences> list = instance.getAppPropertiesList();
         int result = list.size();
         assertEquals(expResult, result);
         
     }
     /**
-     * Test of getWebAppPropertiesList method, of class WebApplicationsRegistry.
+     * Test of getAppPropertiesList method, of class WebApplicationsRegistry.
      * One web application entry found
      */
     @Test
@@ -106,43 +108,57 @@ public class WebApplicationsRegistryTest {
         InstancePreferences prefs = instance.createProperties("web-apps/123-456");
         int expResult = 1;
         
-        List<InstancePreferences> list = instance.getWebAppPropertiesList();
+        List<InstancePreferences> list = instance.getAppPropertiesList();
         int result = list.size();
         assertEquals(expResult, result);
         
     }
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      */
     @Test
     public void testAddWebApplication() {
         System.out.println("addApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String result = instance.addWebApplication(webappPath01);
+        String result = instance.addApplication(webappPath01);
         assertNotNull(result);
+    }
+    /**
+     * Test of size() method, of class WebApplicationsRegistry.
+     */
+    @Test
+    public void testSize() {
+        System.out.println("size");
+        WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath);
+        String id = instance.addApplication(webappPath01);
+        //instance.getProperties("web-apps", node);
+        int result = instance.size();
+        int expResult = 1;
+        assertEquals(expResult,result);
+        
     }
     
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      */
     @Test
     public void testAddWebApplication_0() {
         System.out.println("addApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath);
-        String id = instance.addWebApplication(webappPath01);
+        String id = instance.addApplication(webappPath01);
         //instance.getProperties("web-apps", node);
         Path result = Paths.get(instance.getProperties("web-apps/" + id).getProperty("location"));
         assertEquals(webappPath01,result);
         
     }
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      */
     @Test
     public void testAddWebApplication_1() {
         System.out.println("addApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String id = instance.addWebApplication(webappPath01);
+        String id = instance.addApplication(webappPath01);
         String result = instance.getProperties("web-apps/" + id).getPreferences().absolutePath();
         String expResult = expResultPrefix + "/web-apps/" + id;
         //Path result = Paths.get(instance.getProperties("web-apps/" + id).getProperty("location"));
@@ -151,51 +167,51 @@ public class WebApplicationsRegistryTest {
     }
 
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      * When the web application already exists must return the same node name
      */
     @Test
     public void testAddWebApplication_2() {
         System.out.println("addApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String node = instance.addWebApplication(webappPath01);
-        String node1 = instance.addWebApplication(webappPath01);
+        String node = instance.addApplication(webappPath01);
+        String node1 = instance.addApplication(webappPath01);
         assertEquals(node,node1);
         
     }
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      * Two web applications added
      */
     @Test
     public void testAddWebApplication_3() {
         System.out.println("addApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String node = instance.addWebApplication(webappPath01);
-        String node1 = instance.addWebApplication(webappPath02);
+        String node = instance.addApplication(webappPath01);
+        String node1 = instance.addApplication(webappPath02);
         assertNotEquals(node,node1);
         
-        String id = instance.findWebAppNodeName(webappPath01);
+        String id = instance.findAppNodeName(webappPath01);
         assertEquals(id, node);
-        id = instance.findWebAppNodeName(webappPath02);
+        id = instance.findAppNodeName(webappPath02);
         assertEquals(id, node1);        
     }
 
     /**
-     * Test of addWebApplication method, of class WebApplicationsRegistry.
+     * Test of addApplication method, of class WebApplicationsRegistry.
      * Two web applications added
      */
     @Test
     public void testremoveWebApplication_3() {
         System.out.println("removeApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String node = instance.addWebApplication(webappPath01);
-        String node1 = instance.addWebApplication(webappPath02);
-        String id = instance.removeWebApplication(webappPath01);
+        String node = instance.addApplication(webappPath01);
+        String node1 = instance.addApplication(webappPath02);
+        String id = instance.removeApplication(webappPath01);
         assertEquals(id, node);
-        id = instance.findWebAppNodeName(webappPath01);
+        id = instance.findAppNodeName(webappPath01);
         assertNull(id);
-        id = instance.findWebAppNodeName(webappPath02);
+        id = instance.findAppNodeName(webappPath02);
         assertNotNull(id);
         
         
@@ -204,8 +220,8 @@ public class WebApplicationsRegistryTest {
     public void testremoveWebApplication_4() {
         System.out.println("removeApplication");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String node = instance.addWebApplication(webappPath01);
-        String node1 = instance.addWebApplication(webappPath02);
+        String node = instance.addApplication(webappPath01);
+        String node1 = instance.addApplication(webappPath02);
         InstancePreferences ip = instance.findProperties(webappPath01);
         try {
             ip.getPreferences().removeNode();
@@ -220,13 +236,13 @@ public class WebApplicationsRegistryTest {
     }
     
     /**
-     * Test of findWebAppNodeName method, of class WebApplicationsRegistry.
+     * Test of findAppNodeName method, of class WebApplicationsRegistry.
      */
     @Test
     public void testFindWebAppNodeName() {
         System.out.println("findWebAppNodeName");
         WebApplicationsRegistry instance = new WebApplicationsRegistry(serverInstancePath, extNamespace);
-        String result = instance.findWebAppNodeName(webappPath01);
+        String result = instance.findAppNodeName(webappPath01);
         assertNull(result);
     }
     

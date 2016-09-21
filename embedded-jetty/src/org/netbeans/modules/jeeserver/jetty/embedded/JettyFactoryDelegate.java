@@ -5,7 +5,6 @@
  */
 package org.netbeans.modules.jeeserver.jetty.embedded;
 
-import org.netbeans.modules.jeeserver.base.deployment.FactoryDelegate;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedFactoryDelegate;
 

@@ -18,7 +18,6 @@ import org.netbeans.modules.jeeserver.base.deployment.specifics.ServerSpecifics;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNotifier;
 //import static org.netbeans.modules.jeeserver.base.embedded.server.project.wizard.InstanceWizardAction.PANEL_VISITED_PROP;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import static org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants.PANEL_VISITED_PROP;
@@ -126,14 +125,9 @@ public class AddExistingProjectWizardActionAsIterator extends AbstractAction imp
     
     protected void notifySettingChange(Lookup context) {
         String uri = (String) wiz.getProperty(BaseConstants.URL_PROP);        
-        
-        SuiteNotifier suiteNotifier = SuiteManager.getServerSuiteProject(uri)
-                .getLookup().lookup(SuiteNotifier.class);
-        
-        suiteNotifier.instancesChanged();        
-        suiteNotifier.displayNameChange(uri, (String) wiz.getProperty(BaseConstants.DISPLAY_NAME_PROP));         
-        
+        SuiteManager.instanceCreate(uri);
     }
+    
     protected InstanceBuilder getBuilder(ServerSpecifics specifics, Properties props) {
         return (EmbeddedInstanceBuilder) specifics.getInstanceBuilder(props, InstanceBuilder.Options.EXISTING);
     }

@@ -12,13 +12,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.jeeserver.base.deployment.specifics.InstanceBuilder;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanceAntBuildExtender;
 import org.netbeans.modules.jeeserver.base.embedded.EmbeddedInstanceBuilder;
-import org.netbeans.modules.jeeserver.base.embedded.project.wizard.ServerInstanceBuildExtender;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -36,7 +34,7 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
 
     @StaticResource
     public static final String zipAntTemplatePath = "org/netbeans/modules/jeeserver/tomcat/embedded/resources/TomcatEmbeddedAntTemplate.zip";//TomcatServerInstanceProject.zip";    
-                                                     
+
     public TomcatInstanceBuilder(Properties configProps, InstanceBuilder.Options options) {
         super(configProps, options);
     }
@@ -58,15 +56,12 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
             instantiateServerProperties(set);
             instantiateServerInstanceDir(set);
 
-            ServerInstanceBuildExtender extender;
             if (!isMavenbased()) {
-                extender = new ServerInstanceAntBuildExtender(findProject(set));
-            } else {
-                extender = new ServerInstanceBuildExtender(findProject(set));
+                ServerInstanceAntBuildExtender extender = new ServerInstanceAntBuildExtender(findProject(set));
+                extender.enableExtender();
             }
-            extender.enableExtender();
 
-            modifyClasspath(set);
+            //modifyClasspath(set);
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
@@ -85,13 +80,13 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
         return fo;
     }
 
-    @Override
+/*    @Override
     protected FileObject getLibDir(Project p) {
         FileObject fo;
         fo = p.getProjectDirectory().getFileObject(SuiteConstants.ANT_LIB_PATH + "/ext");
         return fo;
     }
-
+*/
     @Override
     public void updateWithTemplates(Set result) {
         Project proj = findProject(result);
@@ -99,24 +94,25 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
         String classpackage = (String) getWizardDescriptor()
                 .getProperty("package");
 
-        FileObject libFolder = getLibDir(proj);
+/*        FileObject libFolder = getLibDir(proj);
 
         if (libFolder == null) {
             createLib(proj);
         }
-        
+*/
         updateServerInstanceProperties(proj);
 
-        if (libFolder == null) {
+/*        if (libFolder == null) {
             createLib(proj);
         }
+*/        
         updateServerInstanceProperties(proj);
-        
-        if ( ! getOptions().equals(InstanceBuilder.Options.NEW) ) {
+
+        if (!getOptions().equals(InstanceBuilder.Options.NEW)) {
             // We create main method from template only for a new project
             return;
         }
-        
+
         //
         // Plugin jar => we can create a class from template
         //
@@ -150,17 +146,16 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
             template = DataObject.find(
                     FileUtil.getConfigFile("Templates/tomcat7/TomcatEmbeddedServer"));
 //BaseUtil.out("TomcatInstanceBuilder template isNull=" + (template == null));
-            
+
             templateParams.put("port", getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
 //BaseUtil.out("TomcatInstanceBuilder template port=" + getWizardDescriptor().getProperty(BaseConstants.HTTP_PORT_PROP));
-            
+
             //templateParams.put("comStart", "");
             //templateParams.put("comEnd", "");
             templateParams.put("classpackage", classpackage);
 //BaseUtil.out("TomcatInstanceBuilder classpackage=" + classpackage);
-            
-//            templateParams.put("command.manager.param", getCommandManagerJarTemplateName());
 
+//            templateParams.put("command.manager.param", getCommandManagerJarTemplateName());
             template.createFromTemplate(
                     outputFolder,
                     "TomcatEmbeddedServer.java",
@@ -168,7 +163,7 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
             //setMainClass(projectDir);
         } catch (IOException ex) {
 //BaseUtil.out("TomcatInstanceBuilder EXCEPTION " + ex.getMessage());
-            
+
             LOG.log(Level.INFO, ex.getMessage()); //NOI18N
         }
     }
@@ -281,7 +276,7 @@ public class TomcatInstanceBuilder extends EmbeddedInstanceBuilder {
 
      }
      */
-    /*    @Override
+ /*    @Override
      protected String getCommandManagerJarTemplateName() {
      String actualServerId = (String) getWizardDescriptor()
      .getProperty(SuiteConstants.SERVER_ACTUAL_ID_PROP);

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -29,7 +28,6 @@ import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProjectFactory;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -54,7 +52,7 @@ public class SuiteUtil extends BaseUtil {
         Path targetPath = projectDir.getRoot().relativize(projectDir);
         String tmp = System.getProperty("java.io.tmpdir");
 
-        Path target = Paths.get(tmp, SuiteConstants.TMP_SERVER, root, targetPath.toString(),lastFolder  );
+        Path target = Paths.get(tmp, SuiteConstants.TMP_SERVER, root, targetPath.toString(), lastFolder);
 
         File file = target.toFile();
         if (!file.exists()) {
@@ -70,7 +68,7 @@ public class SuiteUtil extends BaseUtil {
 
     }
 
-    public static FileObject getCommandManagerJar(Project server) {
+/*    public static FileObject getCommandManagerJar(Project server) {
         FileObject lib = null;
         if (BaseUtil.isAntProject(server)) {
             lib = server.getProjectDirectory().getFileObject(SuiteConstants.ANT_LIB_PATH + "/ext");
@@ -96,14 +94,10 @@ public class SuiteUtil extends BaseUtil {
 
         return result;
     }
-
-/*public static boolean isEmbeddedServer(Project proj) {
-        return new ServerSuiteProjectFactory().isProject(proj.getProjectDirectory());
-    }
 */
     /**
      * Checks whether the specified project is actually a server project. Every
-     * 
+     *
      *
      * @param p a project to be checked
      * @return {@literal true } if the specified project is a server project.
@@ -133,14 +127,17 @@ public class SuiteUtil extends BaseUtil {
 
         //return getServerProperties(p) != null;
     }
+
     public static String getServerId(Project serverProject) {
         return SuiteManager.getManager(serverProject).getInstanceProperties()
                 .getProperty(BaseConstants.SERVER_ID_PROP);
     }
+
     public static String getActualServerId(Project serverProject) {
         return SuiteManager.getManager(serverProject).getInstanceProperties()
                 .getProperty(BaseConstants.SERVER_ACTUAL_ID_PROP);
-    }    
+    }
+
     public static StringBuilder getServerInfo(Project server) {
 
         //Properties props = SuiteUtil.loadServerProperties(server);
@@ -356,7 +353,7 @@ public class SuiteUtil extends BaseUtil {
     }
 
     public static void setSuiteProjectLocation(InstanceProperties ip, String location) {
-        ip.setProperty(SuiteConstants.SUITE_PROJECT_LOCATION, location);        
+        ip.setProperty(SuiteConstants.SUITE_PROJECT_LOCATION, location);
         //ip.setProperty(SuiteConstants.SUITE_PROJECT_LOCATION, location.replaceAll("\\", "/"));
     }
 
@@ -442,6 +439,29 @@ public class SuiteUtil extends BaseUtil {
         return uid;
     }
 
+    public static String extractSuiteUID(String uri) {
+        String uid = null;
+        // extract from url
+        String str = SuiteConstants.SUITE_URL_ID; //":server:suite:project:";
+        int i = uri.indexOf(str);
+        str = uri.substring(i + str.length());
+        uid = new File(str).getName();
+        return uid.substring(3);
+    }
+    
+    public static String extractInstancePath(String uri) {
+        String uid = null;
+        int i = uri.indexOf(":deploy:server:");        
+        String p = uri.substring(i + ":deploy:server:".length() );
+        
+       // SuiteConstants.SUITE_URL_ID is ":server:suite:project:";
+        i = p.indexOf(SuiteConstants.SUITE_URL_ID);
+        
+        
+        p = p.substring(0,i);
+        return p;
+    }
+
     /**
      * Loads a properties file which represents embedded server configurations
      * and returns the corresponding {@literal Properties} instance.
@@ -450,11 +470,11 @@ public class SuiteUtil extends BaseUtil {
      * @return an instance of properties that corresponds the server
      * configuration file
      */
-/*    public static Properties loadServerProperties(Project serverProject) {
+    /*    public static Properties loadServerProperties(Project serverProject) {
         FileObject fo = serverProject.getProjectDirectory().getFileObject(SuiteConstants.REG_WEB_APPS_FOLDER);
         return loadProperties(fo, SuiteConstants.INSTANCE_PROPERTIES_FILE);
     }
-*/
+     */
     private static Properties loadProperties(FileObject propFolder, String fileName) {
         FileObject fo = propFolder.getFileObject(fileName);
         if (fo == null) {

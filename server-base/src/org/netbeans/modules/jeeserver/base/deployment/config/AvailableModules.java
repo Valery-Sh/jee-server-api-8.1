@@ -21,7 +21,7 @@ package org.netbeans.modules.jeeserver.base.deployment.config;
  * @author V. Shyshkin
  * @param <T>
  */
-public interface AvailableWebModules <T> {
+public interface AvailableModules <T> {
     void moduleDispose(T obj);
     void moduleCreate(T obj);
     

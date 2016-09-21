@@ -65,12 +65,11 @@ public abstract class WebModulesNodeFactory implements NodeFactory {
         //if (project.getProjectDirectory().getFileObject(Utils.webapps(project)) != null) {
         try {
             WebModulesRootNode node = new WebModulesRootNode(project, getNodeDelegate(project));
-            node.init(project);
             return NodeFactorySupport.fixedNodeList(node);
         } catch (DataObjectNotFoundException ex) {
             LOG.log(Level.INFO, ex.getMessage());
         }
-        //}
+
         //If the above try/catch fails, e.g.,
         //our item isn't in the lookup,
         //then return an empty list of nodes:
@@ -83,7 +82,11 @@ public abstract class WebModulesNodeFactory implements NodeFactory {
                 .getNodeDelegate();
     }
     protected abstract boolean isServerSupported(Project server);
-
+    
+    protected WebModulesRootNode getRootNode(Project serverInstance) throws DataObjectNotFoundException {
+        return new WebModulesRootNode(serverInstance, getNodeDelegate(serverInstance));    
+    }
+    
     public static Node getNode(Project server, Object key) {
         Node node = null;
         try {

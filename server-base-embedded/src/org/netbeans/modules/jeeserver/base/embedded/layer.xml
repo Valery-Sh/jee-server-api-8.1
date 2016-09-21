@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <!--folder name="J2EE">
+        
+        <folder name="DeploymentPlugins">
+            <folder name="ServerSuite">
+                <file name="Descriptor" url="resources/deployment.xml"/>
+                <file name="SuiteRegistries.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.jeeserver.base.embedded.SuiteRegistries.getInstance"/>
+                    <attr name="instanceClass" stringvalue= "org.netbeans.modules.jeeserver.base.embedded.SuiteRegistries"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+            </folder>
+        </folder>
+    </folder-->
+    
 </filesystem>

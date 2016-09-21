@@ -17,8 +17,8 @@
 package org.netbeans.modules.jeeserver.base.deployment.web;
 
 import java.awt.Image;
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,7 +45,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
-import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.AbstractLookup;
 
 /**
  * Represents the root node of the logical view of the serverProject's folder
@@ -55,10 +55,11 @@ import org.openide.util.NbBundle.Messages;
  *
  * @author V. Shyshkin
  */
-@Messages({
+/*@Messages({
     "WebModulesRootNode.shortDescription=Registered applications for this server",
     "WebModulesRootNode.availableWebApps=Available Web Applications"
 })
+*/
 public class WebModulesRootNode extends FilterNode {
     private static final Logger LOG = Logger.getLogger(WebModulesRootNode.class.getName());
 
@@ -72,29 +73,21 @@ public class WebModulesRootNode extends FilterNode {
      *
      * @param serverProj a serverProject which is used to create an instance of
      * the class.
+     * @param nodeDelegate
      * @throws DataObjectNotFoundException
      */
     public WebModulesRootNode(Project serverProj, Node nodeDelegate) throws DataObjectNotFoundException {
-        super(nodeDelegate, new RootChildrenKeys(serverProj));
-        
+        this(serverProj,nodeDelegate, new RootChildrenKeys(serverProj));
     }
-//    public WebModulesRootNode(Project serverProj) throws DataObjectNotFoundException {
-//        super(DataObject.find(serverProj.getProjectDirectory().
-//                getFileObject(Utils.webapps(serverProj))).getNodeDelegate(),
-//                new RootChildrenKeys(serverProj));
-
-//    }
+    public WebModulesRootNode(Project serverProj, Node nodeDelegate, RootChildrenKeys keys) throws DataObjectNotFoundException {
+        super(nodeDelegate, keys);
+        init(serverProj);
+    }
+    public WebModulesRootNode(Project serverProj, Node nodeDelegate, AbstractLookup lookup) throws DataObjectNotFoundException {
+        super(nodeDelegate, new RootChildrenKeys(serverProj), lookup);
+        init(serverProj);
+    }
     
-//    protected FileObject getNodeDelegateFileObject(Project serverProj) {
-//        return serverProj.getProjectDirectory();
-//    }
-/*    public WebModulesRootNode(Project serverProj, Children children) throws DataObjectNotFoundException {
-        super(DataObject.find(serverProj.getProjectDirectory().
-                getFileObject(Utils.webapps(serverProj)))
-                .getNodeDelegate(), children);
-
-    }
-*/
     /**
      * Creates an instance of class {@link FileChangeHandler} and adds it as a
      * listener of the {@literal FileEvent } to the {@literal FileObject}
@@ -102,12 +95,22 @@ public class WebModulesRootNode extends FilterNode {
      *
      * @param serverProj
      */
-    protected final void init(Project serverProj) {
+    private void init(Project serverProj) {
+        ((RootChildrenKeys)getChildren()).setParentNode(this);
         modulesChangeListener = new ModulesChangeHandler(serverProj, this);
-        serverProj.getLookup().lookup(ServerInstanceAvailableModules.class)
+        getAvailableModules(serverProj)
                 .addModulesChangeListener(modulesChangeListener);
+    }
+   public ServerInstanceAvailableModules getAvailableModules(Project serverProj) {
+         return serverProj.getLookup().lookup(ServerInstanceAvailableModules.class);
+   }
 
-        //setShortDescription(WebModulesRootNode_shortDescription());
+    protected ModulesChangeListener getModulesChangeListener() {
+        return modulesChangeListener;
+    }
+
+    protected void setModulesChangeListener(ModulesChangeListener modulesChangeListener) {
+        this.modulesChangeListener = modulesChangeListener;
     }
 
     /**
@@ -118,7 +121,6 @@ public class WebModulesRootNode extends FilterNode {
     @Override
     public String getDisplayName() {
         return "Available Web Applications";
-        //return WebModulesRootNode_availableWebApps();
     }
 
     /**
@@ -153,8 +155,6 @@ public class WebModulesRootNode extends FilterNode {
                 break;
             }
         }
-
-        //Project server = ((RootChildrenKeys) getChildren()).getServerProj();
         if (propAction != null) {
             actions.add(propAction);
         }
@@ -207,7 +207,6 @@ public class WebModulesRootNode extends FilterNode {
             ((RootChildrenKeys) node.getChildren()).addNotify();
 
         }
-
     }
 
     /**
@@ -219,7 +218,7 @@ public class WebModulesRootNode extends FilterNode {
     public static class RootChildrenKeys<T> extends FilterNode.Children.Keys<T> {
 
         private final Project serverProj;
-
+        WebModulesRootNode parentNode;
         /**
          * 
          * Created a new instance of the class for the specified server
@@ -232,6 +231,11 @@ public class WebModulesRootNode extends FilterNode {
             this.serverProj = serverProj;
         }
 
+        public void setParentNode(WebModulesRootNode parentNode) {
+            this.parentNode = parentNode;
+        }
+        
+        
         /**
          * Creates an array of nodes for a given key.
          *
@@ -253,18 +257,11 @@ public class WebModulesRootNode extends FilterNode {
          */
         @Override
         protected void addNotify() {
-            ServerInstanceAvailableModules avm = serverProj.getLookup().lookup(ServerInstanceAvailableModules.class);
-
-            WebModuleConfig[] list = avm.getModuleList();
-
+            //ServerInstanceAvailableModules avm = serverProj.getLookup().lookup(ServerInstanceAvailableModules.class);
+            //ServerInstanceAvailableModules avm = parentNode.getAvailableModules(serverProj);
+            WebModuleConfig[] list = parentNode.getAvailableModules(serverProj).getModuleList();
             List keyArray = new ArrayList<>(list.length);
-            for (WebModuleConfig c : list) {
-                Project webProject = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(c.getWebProjectPath())));
-
-                //getSourceRoot(webProject);
-                keyArray.add(c);
-            }
-
+            keyArray.addAll(Arrays.asList(list)); //Project webProject = BaseUtil.getOwnerProject(FileUtil.toFileObject(new File(c.getWebProjectPath())));
             this.setKeys(keyArray);
         }
         /**
@@ -280,7 +277,7 @@ public class WebModulesRootNode extends FilterNode {
         /**
          * @return the serverProject
          */
-        public Project getServerProj() {
+        public Project getServerProject() {
             return serverProj;
         }
 

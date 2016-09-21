@@ -27,15 +27,16 @@ import org.junit.Ignore;
  * @author Valery
  */
 public class InstancePreferencesTest {
-    public static String TEST_UUID = PathPreferencesRegistry.TEST_UUID;
-    public static String UUID_ROOT = PathPreferencesRegistry.UUID_ROOT;
+    public static String ROOT_EXT = "c:\\users\\ServersManager";
+
+//    public static String ROOT_EXT = "c:\\users\\ServersManager";
     
     private final Path dirnamespace = Paths.get("c:/preferences/testing");
     private final String testId = "test-properties-id";
     
     public InstancePreferences create() {
-        PathPreferencesRegistry r = new PathPreferencesRegistry(dirnamespace,TEST_UUID);        
-        Preferences prefs = r.registryRootExtended();
+        DirectoryPreferences r = new DirectoryPreferences(dirnamespace,ROOT_EXT);        
+        Preferences prefs = r.rootExtended();
         return new InstancePreferences(testId, prefs);
     }
     
@@ -47,8 +48,8 @@ public class InstancePreferencesTest {
         
     }
     
-//    public PathPreferencesRegistry create(String namespace) {
-//        return PathPreferencesRegistry.newInstance(PathPreferencesRegistry.TEST_UUID,Paths.get(namespace));        
+//    public DirectoryPreferences create(String namespace) {
+//        return DirectoryPreferences.newInstance(DirectoryPreferences.ROOT_EXT,Paths.get(namespace));        
 //    }
     
     public InstancePreferencesTest() {
@@ -463,7 +464,7 @@ public class InstancePreferencesTest {
     }
 
     /**
-     * Test of stream method, of class PathPreferencesRegistry.
+     * Test of stream method, of class DirectoryPreferences.
      */
     @Test
     public void testKeyStream() {

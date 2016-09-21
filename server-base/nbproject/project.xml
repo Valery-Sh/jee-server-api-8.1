@@ -319,8 +319,10 @@
                 <package>org.netbeans.modules.jeeserver.base.deployment.specifics</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.utils</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.utils.prefs</package>
+                <package>org.netbeans.modules.jeeserver.base.deployment.web</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.xml</package>
                 <package>org.netbeans.modules.jeeserver.base.deployment.xml.pom</package>
+                <package>org.netbeans.modules.jeeserver.base.deployment.xml.simple</package>
             </public-packages>
         </data>
     </configuration>

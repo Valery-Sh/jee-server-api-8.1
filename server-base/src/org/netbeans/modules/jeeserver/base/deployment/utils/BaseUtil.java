@@ -818,9 +818,9 @@ public class BaseUtil {
         if (p == null || p.getProjectDirectory() == null) {
             return null;
         }
-        
+
         BaseDeploymentManager dm = null;
-        
+
         if (!ProjectManager.getDefault().isProject(p.getProjectDirectory())) {
             return null;
         }
@@ -1028,10 +1028,8 @@ public class BaseUtil {
      * @param context
      * @return
      */
-    public static ServerInstanceProperties
-            getServerProperties(Lookup context) {
-        return context.lookup(ServerInstanceProperties.class
-        );
+    public static ServerInstanceProperties getServerProperties(Lookup context) {
+        return context.lookup(ServerInstanceProperties.class);
     }
 
     /**
@@ -1278,12 +1276,13 @@ public class BaseUtil {
 
         return is;
     }
+
     /**
-     * 
+     *
      * @param instanceId
-     * 
-     * @return null if instanceId corresponds to a server that is not served 
-     * by BaseDeploymentManager
+     *
+     * @return null if instanceId corresponds to a server that is not served by
+     * BaseDeploymentManager
      */
     public static Project getServerProject(String instanceId) {
 
@@ -1302,5 +1301,5 @@ public class BaseUtil {
         }
         return result;
     }
-    
+
 }

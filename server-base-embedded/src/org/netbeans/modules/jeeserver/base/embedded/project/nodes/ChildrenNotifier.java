@@ -13,7 +13,7 @@ public interface ChildrenNotifier extends LogicalViewNotifier{
      */
     void childrenChanged();
 
-    void childrenChanged(Object source, Object... params);
+    //void childrenChanged(Object source, Object... params);
     
     @Override
     void iconChange(String uri,boolean newValue);

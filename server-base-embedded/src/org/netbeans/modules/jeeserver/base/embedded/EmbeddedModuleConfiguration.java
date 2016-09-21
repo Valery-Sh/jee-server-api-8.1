@@ -5,8 +5,10 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfiguration;
+import org.netbeans.modules.jeeserver.base.deployment.config.AvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.filesystems.FileAttributeEvent;
@@ -41,7 +43,70 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         //
         // Embedded servers
         //
-        new DisposeNotifier(this, serverInstanceId);
+        //new DisposeNotifier(this, serverInstanceId);
+        //super.dispose();
+        notifyAvailableDistModule(serverInstanceId, true);
+
+    }
+
+    @Override
+    protected void notifyCreate() {
+        //super.notifyCreate();
+        notifyAvailableDistModule(serverInstanceId, false);
+    }
+
+    protected void notifyAvailableDistModule(String instanceId, final boolean dispose) {
+        if (instanceId == null) {
+            return;
+        }
+        if (!SuiteManager.isEmbeddedServer(instanceId)) {
+            return;
+        }
+
+        Project srv = getServerProject(instanceId);
+        if (srv == null) {
+            return;
+        }
+        RP.post(() -> {
+
+            AvailableModules<AbstractModuleConfiguration> avm = DistributeModulesManager.getAvailableModules(srv);
+
+            if (avm == null) {
+                return;
+            }
+
+            /*            WebApplicationsManager distManager = WebApplicationsManager
+                    .getInstance(SuiteManager
+                            .getManager(srv)
+                            .getServerProject());
+             */
+            WebApplicationsManager distManager = WebApplicationsManager.getInstance(srv);
+
+            if (dispose) {
+                
+                avm.moduleDispose(this);
+                
+                if (distManager.isRegistered(webProject)) {
+                    //
+                    // Old serverInstanceId
+                    //
+                    distManager.unregister(webProject);
+                }
+
+            } else if (distManager.isRegistered(webProject)) {
+                    // We create the module in the available modules store
+                    // only if it's already registered in the AvailableModules
+                    //
+
+                    avm.moduleCreate(this);
+                    
+                    //
+                    // Old serverInstanceId
+                    //
+                    distManager.register(webProject);
+                }
+        }, 0, Thread.NORM_PRIORITY);
+
     }
 
     @Override
@@ -55,23 +120,30 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         //
         // Embedded servers
         //
-        new ServerChangeNotifier(this, oldInstanceId, newInstanceId).post();
+        
+        //super.notifyServerChange(oldInstanceId, newInstanceId);
+
+        notifyAvailableDistModule(oldInstanceId, true);
+        notifyAvailableDistModule(newInstanceId, false);
 
     }
 
     @Override
     protected void addListeners() {
-        if (fileChangeListener != null) {
+        /* 14.09       if (fileChangeListener != null) {
             webProject.getProjectDirectory().removeFileChangeListener(fileChangeListener);
         }
         fileChangeListener = new WebAppDirectoryListener(serverInstanceId);
         webProject.getProjectDirectory().addFileChangeListener(fileChangeListener);
+         */
     }
 
     protected void removeListeners() {
+        /* 14.09       
         if (fileChangeListener != null && webProject != null && webProject.getProjectDirectory() != null) {
             webProject.getProjectDirectory().removeFileChangeListener(fileChangeListener);
         }
+         */
     }
 
     public class WebAppDirectoryListener implements FileChangeListener {
@@ -107,7 +179,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
                 return;
             }
 
-/*            Node node = SuiteManager.findDistributedWebAppRootNode(instance);
+            /*            Node node = SuiteManager.findDistributedWebAppRootNode(instance);
             if (node == null) {
                 return;
             }
@@ -116,7 +188,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
             if (cn == null) {
                 return;
             }
-*/
+             */
             removeListeners();
             WebApplicationsManager distManager = WebApplicationsManager
                     .getInstance(SuiteManager
@@ -178,7 +250,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
             }
             if (newServerInstanceId != null && conf.webProject != null || !SuiteManager.isEmbeddedServer(newServerInstanceId)) {
                 Project server = conf.getServerProject(newServerInstanceId);
-                if ( server == null || ! SuiteUtil.isEmbedded(server) ) {
+                if (server == null || !SuiteUtil.isEmbedded(server)) {
                     //
                     // It's not an embedded server or Jetty Standalone Server
                     //

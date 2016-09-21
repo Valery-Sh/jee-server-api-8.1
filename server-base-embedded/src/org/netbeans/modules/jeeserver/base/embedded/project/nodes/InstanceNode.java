@@ -24,7 +24,6 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions.ServerActions;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -205,27 +204,28 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
         childKeys.addNotify();
     }
 
-    @Override
+  /*  @Override
     public void childrenChanged(Object source, Object... params) {
         if (childKeys == null) {
             return;
         }
 
-        if (source instanceof WebApplicationsManager) {
-            DistributedWebAppRootNode distNode = childKeys.getDistributedWebAppRootNode();
-            if (distNode != null) {
-                distNode.childrenChanged(source, params);
+//        if (source instanceof WebApplicationsManager) {
+//            DistributedWebAppRootNode_OLD distNode = childKeys.getDistributedWebAppRootNode();
+//            if (distNode != null) {
+//                distNode.childrenChanged(source, params);
             }
         }
+        
     }
-
-    public DistributedWebAppRootNode findDistributedWebAppRootNode() {
+*/
+/*    public DistributedWebAppRootNode_OLD findDistributedWebAppRootNode() {
         if (childKeys == null) {
             return null;
         }
         return childKeys.getDistributedWebAppRootNode();
     }
-
+*/
     /**
      * The implementation of the Children.Key of the {@literal Server Libraries}
      * node.
@@ -264,7 +264,8 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
 
             Node distNode = null;
             try {
-                distNode = new DistributedWebAppRootNode(serverSuite, instProj);
+                //14.09distNode = new DistributedWebAppRootNode_OLD(serverSuite, instProj);
+                distNode = new DistributedWebAppNodeFactory().getRootNode(instProj);                
             } catch (DataObjectNotFoundException ex) {
                 LOG.log(Level.INFO, ex.getMessage());
 
@@ -272,18 +273,18 @@ public class InstanceNode extends FilterNode implements ChildrenNotifier {
             return new Node[]{distNode, instProjView};
         }
 
-        public DistributedWebAppRootNode getDistributedWebAppRootNode() {
+/*        public DistributedWebAppRootNode_OLD getDistributedWebAppRootNode() {
             Node[] nodes = getNodes();
             if (nodes != null && nodes.length > 0) {
                 for (Node node : nodes) {
-                    if (node instanceof DistributedWebAppRootNode) {
-                        return (DistributedWebAppRootNode) node;
+                    if (node instanceof DistributedWebAppRootNode_OLD) {
+                        return (DistributedWebAppRootNode_OLD) node;
                     }
                 }
             }
             return null;
         }
-
+*/
         /**
          * Called when children of the {@code Web Applications} are first asked
          * for nodes. For each child node of the folder named
