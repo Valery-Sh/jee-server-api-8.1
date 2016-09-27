@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.util.logging.Level;
@@ -53,9 +48,9 @@ public class NbBasePreferencesTest {
         NbBasePreferences r2 = new NbBasePreferences("",ROOT_EXT);
         r2.clearRoot();
 
-        Preferences p = r.commonUserRoot();
+        Preferences p = r.userRoot();
         p = p.node(ROOT);
-        Preferences p1 = r1.commonUserRoot();
+        Preferences p1 = r1.userRoot();
         p1 = p1.node("");
         
         
@@ -106,13 +101,19 @@ public class NbBasePreferencesTest {
      * Test of childrenNames method, of class NbBasePreferences.
      */
     @Test
-    public void testChildrenNames() {
+    public void testChildrenNames() throws BackingStoreException {
         System.out.println("userRoot");
         //System.setProperty("netbeans.user", "C:\\Users\\Valery\\AppData\\Roaming\\NetBeans\\8.1");
         //String s = System.getProperty("netbeans.user");        
         NbBasePreferences instance = new NbBasePreferences(ROOT,ROOT_EXT);
+        instance.createProperties("myprops");
+        
+        String[] c = instance.rootNode().childrenNames();
+        boolean b1 =  instance.rootNode().nodeExists("c_");
+        boolean b2 =  instance.rootNode().nodeExists("C_");
+        
         Preferences expResult = NbPreferences.forModule(BaseDeploymentManager.class).userRoot();
-        Preferences result = instance.commonUserRoot();
+        Preferences result = instance.userRoot();
         
         assertEquals(expResult, result);
     }
@@ -172,5 +173,18 @@ public class NbBasePreferencesTest {
         
        // assertArrayEquals(expResult, result);
     }
+    /**
+     * Test of testNormalize method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testConvert_String_array()  {
+        System.out.println("convert(String[])");
+        //NbBasePreferences instance = new NbBasePreferences(ROOT,ROOT_EXT);
+        String[] ar = new String[] {"d:\\\\/a\\f","b////g","c///"};
+        
+        String[] expResult = new String[] {"d_/a/f","b/g","c"};
+        String[] result = NbBasePreferences.convert(ar);
+        assertArrayEquals(expResult, result);
+    }        
     
 }

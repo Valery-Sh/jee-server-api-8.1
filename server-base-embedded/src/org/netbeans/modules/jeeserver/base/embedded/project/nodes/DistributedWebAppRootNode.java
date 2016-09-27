@@ -10,7 +10,6 @@ import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvail
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.web.WebModulesRootNode;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.webapp.actions.AddDistWebAppAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.FileObject;
@@ -69,7 +68,7 @@ public class DistributedWebAppRootNode extends WebModulesRootNode {
 
     @Override
     public ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
-        return DistributeModulesManager.getAvailableModules(serverInstance);
+        return SuiteManager.getDistributeModules(serverInstance);
     }
 
     /**

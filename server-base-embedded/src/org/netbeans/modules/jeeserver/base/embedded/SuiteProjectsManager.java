@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.NbBasePreferences;
@@ -128,7 +129,7 @@ public class SuiteProjectsManager {
      * @return
      */
     protected Preferences rootNode() {
-        return NbPreferences.forModule(EmbJ2eePlatformFactory.class);
+        return NbPreferences.forModule(BaseDeploymentManager.class);
     }
 
     /**

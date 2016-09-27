@@ -355,11 +355,10 @@
                 <package>org.netbeans.modules.jeeserver.base.embedded.project</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.project.nodes</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.project.nodes.actions</package>
-                <package>org.netbeans.modules.jeeserver.base.embedded.project.prefs</package>
+                <package>org.netbeans.modules.jeeserver.base.embedded.project.webmodule</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.project.wizard</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.specifics</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.utils</package>
-                <package>org.netbeans.modules.jeeserver.base.embedded.webapp</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.webapp.actions</package>
                 <package>org.netbeans.modules.jeeserver.base.embedded.webapp.nodes</package>
             </public-packages>

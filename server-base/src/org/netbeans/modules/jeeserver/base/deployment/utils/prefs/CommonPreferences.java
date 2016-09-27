@@ -1,11 +1,14 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.openide.util.Exceptions;
 
 /**
  * The class is a specialized wrapper around the class
@@ -78,33 +81,38 @@ public class CommonPreferences {
     private static final Logger LOG = Logger.getLogger(DirectoryPreferences.class.getName());
 
     public static String TEST_COMMON_ROOT = "TEST_UUID-ROOT";
-    
-    public static String COMMON_ROOT = "common-root-18101f98-ab5c-49f3-9942-8baa188a5c17";
-    
-    
-    
-    private String[] rootExtentions;
 
-    //protected String root;
+    public static String COMMON_ROOT = "common-root-18101f98-ab5c-49f3-9942-8baa188a5c17";
+
+    protected String[] rootExtentions;
+
+    private String rootNamespace;
+
     protected Preferences rootNode;
     
-    //protected String rootNamespace;
     
+
     public CommonPreferences(String root, String... rootExtentions) {
-        this(AbstractPreferences.userRoot().node(COMMON_ROOT).node(root.replace("\\", "/")), rootExtentions);
+        this(AbstractPreferences.userRoot().node(root.replace("\\", "/")), rootExtentions);
+        this.rootNamespace = root;
     }
 
     protected CommonPreferences(Preferences rootNode, String... rootExtentions) {
-        //String s = rootNode.absolutePath();
+        this.rootExtentions = rootExtentions;
         this.rootNode = rootNode;
+        init();
 
-        if (rootExtentions != null) {
-            this.rootExtentions = new String[rootExtentions.length];
-            for (int i = 0; i < rootExtentions.length; i++) {
-                this.rootExtentions[i] = rootExtentions[i].replace("\\", "/");
-            }
-        }
+    }
 
+    private void init() {
+        rootExtentions = normalize(rootExtentions);
+    }
+
+    public CommonPreferences next(String newNamespace) {
+
+        String[] extentions = Arrays.copyOf(rootExtentions, rootExtentions.length + 1);;
+        extentions[rootExtentions.length] = normalize(rootNamespace);
+        return new CommonPreferences(newNamespace, extentions);
     }
 
     /**
@@ -117,22 +125,72 @@ public class CommonPreferences {
      */
     public String rootNamespace() {
         //Path commonUserRoot = Paths.get(commonUserRoot().absolutePath());
-        String root = rootNode().absolutePath().replace("\\","/");
-        String user = commonUserRoot().absolutePath();
-        if ( root.isEmpty() ) {
+        String root = normalize(rootNode().absolutePath());
+        String user = normalize(userRoot().absolutePath());
+        if (root.isEmpty()) {
             return "";
         }
-        int i = root.indexOf(user, 0);
         root = root.substring(user.length());
-        if ( root.startsWith("/") && root.length() > 1 ) {
+        if (root.startsWith("/") && root.length() > 1) {
             root = root.substring(1);
         }
         return root;
     }
 
     /**
-     * Returns the root preference node for the calling user with extended 
-     * name space as specified by the constant {@link #COMMON_ROOT}. Just calls:
+     * Return a string value that represents a full path relative to
+     * the {@link #userRoot(). 
+     * overridden to assign a new registry root node.
+     *
+     * @return Return represents a full path relative to
+     * the user root.
+     */
+    public String userRelativePath() {
+        String ext = rootExtendedNamespace();
+        String root = rootNamespace();
+        String result = root;
+        if ( root.isEmpty() ) {
+            result = ext;
+        } else if ( ! ext.isEmpty() ) {
+            result = root + "/" + ext;
+        } 
+        return result;    
+    }    
+    /**
+     * Return a string value that is used to create a root node of the registry.
+     * The implementation returns {@link #UUID_ROOT} constant value and may be
+     * overridden to assign a new registry root node.
+     *
+     * @return Return a string value which is used to create a root node of the
+     * registry
+     */
+    public String rootExtendedNamespace() {
+        //Path commonUserRoot = Paths.get(commonUserRoot().absolutePath());
+        String result = "";
+        for (String item : rootExtentions) {
+            result += "/" + item;
+        }
+        if (result.length() != 0) {
+            result = result.substring(1);
+        }
+        return result;
+    }
+
+    /**
+     * Return a string value that is used to create a root node of the registry.
+     * The implementation returns {@link #UUID_ROOT} constant value and may be
+     * overridden to assign a new registry root node.
+     *
+     * @return Return a string value which is used to create a root node of the
+     * registry
+     */
+    public String propertiesRootNamespace() {
+        return "";
+    }
+
+    /**
+     * Returns the root preference node for the calling user with extended name
+     * space as specified by the constant {@link #COMMON_ROOT}. Just calls:
      * <pre>
      *  AbstractPreferences.userRoot().node()COMMON_ROOT;
      * </pre>
@@ -142,12 +200,13 @@ public class CommonPreferences {
      * and it denies RuntimePermission("preferences").
      * @see java.lang.RuntimePermission
      */
-    public Preferences commonUserRoot() {
+    /*    public Preferences commonUserRoot() {
         return AbstractPreferences.userRoot().node(COMMON_ROOT);
     }
+     */
     /**
-     * Returns the root preference node for the calling user with extended 
-     * name space as specified by the constant {@link #COMMON_ROOT}. Just calls:
+     * Returns the root preference node for the calling user with extended name
+     * space as specified by the constant {@link #COMMON_ROOT}. Just calls:
      * <pre>
      *  AbstractPreferences.userRoot().node()COMMON_ROOT;
      * </pre>
@@ -176,6 +235,54 @@ public class CommonPreferences {
         return p;
     }
 
+    protected String normalize(String path) {
+        String result = path.replace("\\", "/");
+
+        if (isWindows() && result.startsWith("/")) {
+            result = result.substring(1);
+        }
+
+        if (result.trim().isEmpty()) {
+            return "";
+        }
+        if (result.trim().equals("/")) {
+            return "";
+        }
+
+        if (result.trim().startsWith("/")) {
+            result = result.trim().substring(1);
+        }
+        while (true) {
+            if (!result.contains("//")) {
+                break;
+            }
+            result = result.replace("//", "/");
+        }
+        if (result.endsWith("/")) {
+            result = result.substring(0, result.length() - 1);
+        }
+
+        return result;
+    }
+
+    protected String[] normalize(String[] paths) {
+        if (paths == null) {
+            return new String[0];
+        }
+        String[] result = new String[paths.length];
+
+        for (int i = 0; i < paths.length; i++) {
+            result[i] = normalize(paths[i]);
+        }
+
+        return result;
+    }
+
+    public String join(String[] paths) {
+        String[] norm = normalize(paths);
+        return String.join("/", norm);
+    }
+
     /**
      * Returns a preferences node that represents a directory name space. Just
      * returns a value:
@@ -190,66 +297,240 @@ public class CommonPreferences {
         return rootExtended();
     }
 
-    protected String[] childrenNames(Preferences forNode) throws BackingStoreException {
+    public String[] childrenNames(Preferences forNode) {
+        String[] result = new String[0];
         synchronized (this) {
-            return forNode.childrenNames();
+            try {
+                result = forNode.childrenNames();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+            }
         }
+        return result;
     }
+
     public String[] childrenNames(String relativePath) throws BackingStoreException {
-        String rp = convertPath(relativePath);
+        String rp = normalize(relativePath);
         synchronized (this) {
             return rootExtended().node(rp).childrenNames();
         }
     }
 
-    public String[] childrenNames() throws BackingStoreException {
+    public String[] childrenNames() {
+        String[] result = new String[0];
         synchronized (this) {
-            return rootExtended().childrenNames();
+            try {
+                result = rootExtended().childrenNames();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+            }
+            return result;
         }
     }
 
-    public Preferences clearRoot() throws BackingStoreException {
+    public boolean clearRoot() {
+
+        boolean result = false;
+
         synchronized (this) {
-            String[] childs = rootNode().childrenNames();
-            for (String c : childs) {
-                rootNode().node(c).removeNode();
+            try {
+                String[] childs = rootNode().childrenNames();
+                for (String c : childs) {
+                    rootNode().node(c).removeNode();
+                }
+                result = true;
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+
             }
-            return rootNode();
+            return result;
         }
     }
-    public Preferences clearRootExtended() throws BackingStoreException {
+
+    public boolean clearRootExtended() {
+
+        boolean result = false;
+
         synchronized (this) {
-            String[] childs = childrenNames();
-            for (String c : childs) {
-                rootExtended().node(c).removeNode();
+            try {
+                String[] childs = rootExtended().childrenNames();
+                for (String c : childs) {
+                    rootNode().node(c).removeNode();
+                }
+                result = true;
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+
             }
-            return rootExtended();
+            return result;
+        }
+    }
+
+    public boolean clearPropertiesRoot() {
+
+        boolean result = false;
+
+        synchronized (this) {
+            try {
+                String[] childs = propertiesRoot().childrenNames();
+                for (String c : childs) {
+                    propertiesRoot().node(c).removeNode();
+                }
+                result = true;
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+
+            }
+            return result;
+        }
+    }
+
+    public boolean hasChilderens(Preferences root) {
+        synchronized (this) {
+            return childrenNames().length > 0;
         }
     }
 
     protected Preferences clearCommonUserRoot() throws BackingStoreException {
         synchronized (this) {
-            String[] childs = commonUserRoot().childrenNames();
+            String[] childs = userRoot().childrenNames();
             for (String c : childs) {
-                commonUserRoot().node(c).removeNode();
+                userRoot().node(c).removeNode();
             }
-            return commonUserRoot();
+            return userRoot();
+        }
+    }
+
+    public Preferences addNode(Preferences source, String path) {
+        String newpath = normalize(path);
+        synchronized (this) {
+            return source.node(newpath);
         }
     }
 
     /**
-     * Checks whether a node specified by the parameter exists.
+     * Removes directory nodes starting from the given node. Be careful
+     * regardless whether the child node exists the method always tries to
+     * remove the given node. Once the node is deleted, the method recursively
+     * removes all parent nodes as long as one of the conditions is satisfied
+     * <ul>
+     * <li>The parent node is a root registry node as specified by the method
+     * {@link #rootExtended()}
+     * </li>
+     * <li>The parent node has children nodes
+     * </li>
+     * </ul>
      *
-     * @param namespace a string that specifies a path relative to the node as
-     * defined by the method {@link #rootExtended() }.
-     * @return {@literal  true} if the node exists, {@literal false} - otherwise
+     * The above-mentioned node is not removed.<p>
+     * To remove the node specified by the first parameter set the second
+     * parameter to {@code null } or to an empty string.
+     *
+     * @param rootToDelete initial node to delete
+     * @param path a relative path to the node specified by the first parameter
+     * @return return true when remove success. If the node to delete doesn't
+     * exist then the method does nothing and returns false
      */
-    public boolean nodeExists(String namespace) {
+    public boolean removeNode(Preferences rootToDelete, String path) {
+        String newpath = "";
+        if (path != null) {
+            newpath = normalize(path);
+        }
+
+        boolean result = true;
+        synchronized (this) {
+            try {
+                if (!rootToDelete.nodeExists("") || !rootToDelete.nodeExists(newpath)) {
+                    return false;
+                }
+                removeNode(rootToDelete.node(newpath), rootExtended());
+                rootExtended().flush();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Removes directory nodes starting from the given node. Be careful
+     * regardless whether the child node exists the method always tries to
+     * remove the given node. Once the node is deleted, the method recursively
+     * removes all parent nodes as long as one of the conditions is satisfied
+     * <ul>
+     * <li>The parent node is a root registry node as specified by the method
+     * {@link #rootExtended()}
+     * </li>
+     * <li>The parent node has children nodes
+     * </li>
+     * </ul>
+     *
+     * The above-mentioned node is not removed.<p>
+     * To remove the node specified by the first parameter set the second
+     * parameter to {@code null } or to an empty string.
+     *
+     * @param rootToDelete initial node to delete
+     * @param path a relative path to the node specified by the first parameter
+     * @return return true when remove success. If the node to delete doesn't
+     * exist then the method does nothing and returns false
+     */
+    /*    public boolean removeNode(Preferences rootToDelete, String path) {
+        String newpath = "";
+        if (path != null) {
+            newpath = normalize(path);
+        }
+
+        boolean result = true;
+        synchronized (this) {
+            try {
+                if (!rootToDelete.nodeExists("") || !rootToDelete.nodeExists(newpath)) {
+                    return false;
+                }
+                removeNode(rootToDelete.node(newpath));
+                rootToDelete.flush();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+                result = false;
+            }
+        }
+        return result;
+    }
+     */
+    /**
+     * Checks whether a node specified by the parameter exists. The parameter
+     * {@code namespace} must be relative path to the {@link #rootExtended() }.
+     *
+     * @param relativePath a string that specifies a path relative to the node
+     * as defined by the method {@link #rootExtended() }.
+     * @return {@code  true} if the node exists, {@code false} - otherwise
+     */
+    public boolean nodeExists(String relativePath) {
         boolean b = false;
         try {
-            b = rootExtended().nodeExists(convertPath(namespace));
+            b = rootExtended().nodeExists(normalize(relativePath));
         } catch (BackingStoreException ex) {
-            Logger.getLogger(DirectoryPreferences.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
+        }
+        return b;
+    }
+
+    /**
+     * Checks whether a node specified by the parameter exists. The parameter
+     * {@code relativePath} must be relative path specified by the first
+     * parameter.
+     *
+     * @param root the node that is used to check whether the node specified by
+     * the second parameter exists
+     * @param relativePath a string that specifies a path relative to the node
+     * specified by the first parameter.
+     * @return {@code  true} if the node exists, {@code false} - otherwise
+     */
+    public boolean nodeExists(Preferences root, String... relativePath) {
+        boolean b = false;
+        try {
+            b = root.nodeExists(join(relativePath));
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.SEVERE, null, ex);
         }
         return b;
     }
@@ -261,7 +542,7 @@ public class CommonPreferences {
      * removes all parent nodes as long as one of the conditions is satisfied
      * <ul>
      * <li>The parent node is a root registry node as specified by the method
-     * {@link #removeNode(java.util.prefs.Preferences)}
+     * {@link #rootExtended() }
      * </li>
      * <li>The parent node has children nodes
      * </li>
@@ -270,29 +551,49 @@ public class CommonPreferences {
      * The above-mentioned node is not removed.
      *
      * @param prefs initial node to delete
-     * @throws BackingStoreException Thrown to indicate that a preferences
-     * operation could not complete because of a failure in the backing store,
-     * or a failure to contact the backing store.
      */
-    protected void removeNode(Preferences prefs) throws BackingStoreException {
+    public void removeNode(Preferences prefs) {
+
         Preferences parent = prefs.parent();
-        prefs.removeNode();
-        //String rootAbs = rootExtended().absolutePath();
-        if (parent.absolutePath().equals(rootExtended().absolutePath())) {
-            return;
+        try {
+            prefs.removeNode();
+            if (parent.absolutePath().equals(rootExtended().absolutePath())) {
+                return;
+            }
+            if (parent.childrenNames().length > 0) {
+                return;
+            }
+            removeNode(parent);
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.SEVERE, null, ex);
         }
-        if (parent.childrenNames().length > 0) {
-            return;
-        }
-        removeNode(parent);
+
     }
 
-    protected String convertPath(String path) {
-        String result = path.replace("\\", "/");
-        if (result.startsWith("/")) {
-            result = result.substring(1);
+    public String firstName(String namespace) {
+        if (namespace == null || namespace.isEmpty()) {
+            return null;
         }
-        return result;
+        return normalize(namespace).split("/")[0];
+    }
+
+    public Preferences removeNode(Preferences toRemove, Preferences upperNode) {
+        Preferences parent = toRemove.parent();
+        try {
+            toRemove.removeNode();
+            //String rootAbs = rootExtended().absolutePath();
+            if (parent.absolutePath().equals(upperNode.absolutePath())) {
+                return parent;
+            }
+            if (parent.childrenNames().length > 0) {
+                return parent;
+            }
+            CommonPreferences.this.removeNode(parent, upperNode);
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.INFO, null, ex);
+        }
+        return parent;
+
     }
 
     /**
@@ -306,8 +607,9 @@ public class CommonPreferences {
      * @return an object of type {@link PreferencesProperties}
      */
     public InstancePreferences getProperties(String id) {
-        String cid = convertPath(id);
-        
+
+        String cid = normalize(id);
+
         Preferences prefs = propertiesRoot();
         try {
             synchronized (this) {
@@ -325,14 +627,16 @@ public class CommonPreferences {
     }
 
     public InstancePreferences createProperties(String id) {
-        String cid = convertPath(id);
+        String cid = normalize(id);
         Preferences prefs = propertiesRoot();
         try {
             synchronized (this) {
                 prefs = prefs.node(cid);
                 initProperties(prefs);
                 prefs.flush();
+
                 PreferencesProperties created = new InstancePreferences(cid, prefs);//factory.create(id, prefs);                
+                String s = created.getPreferences().absolutePath();
                 return (InstancePreferences) created;
             }
         } catch (BackingStoreException ex) {
@@ -341,15 +645,15 @@ public class CommonPreferences {
             throw new IllegalStateException(ex);
         }
     }
-    
+
     public InstancePreferences createProperties(String id, boolean needInitProperties) {
-        String cid = convertPath(id);
-        
+        String cid = normalize(id);
+
         Preferences prefs = propertiesRoot();
         try {
             synchronized (this) {
                 prefs = prefs.node(cid);
-                if ( needInitProperties ) {
+                if (needInitProperties) {
                     initProperties(prefs);
                 }
                 prefs.flush();
@@ -361,10 +665,10 @@ public class CommonPreferences {
             throw new IllegalStateException(ex);
         }
     }
-    
+
     protected void initProperties(Preferences prefs) {
     }
-    
+
     /**
      * Removes directory nodes starting from the {@code propertiesRoot }
      * node. Be careful regardless whether the child node exists the method
@@ -383,11 +687,98 @@ public class CommonPreferences {
      *
      */
     public void removePropertiesRoot() {
-        try {
-            removeNode(propertiesRoot());
-        } catch (BackingStoreException ex) {
-            LOG.log(Level.INFO, null, ex);
-        }
+        removeNode(propertiesRoot());
     }
-    
+
+    protected static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
+    private String removeDoubleSlashes(String path) {
+        String result = path;
+        while ( true ) {
+            if ( ! result.contains("//") ) {
+                break;
+            }
+            result = result.replace("//", "/");
+        }
+        return result;
+    }
+    public String absolutePath(String... propNamespaces) {
+        String propsPath = join(propNamespaces);
+        String result = userRoot().absolutePath();
+
+        if (!rootNamespace().isEmpty()) {
+            try {
+                if (!userRoot().nodeExists(rootNamespace())) {
+                    return result;
+                }
+                result += "/" + rootNamespace();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+            }
+        }
+
+        if (!rootExtendedNamespace().isEmpty()) {
+            try {
+                if (!rootNode().nodeExists(rootExtendedNamespace())) {
+                    return removeDoubleSlashes(result);
+                }
+                result += "/" + rootExtendedNamespace();
+            } catch (BackingStoreException ex) {
+                LOG.log(Level.INFO, null, ex);
+            }
+        }
+        if (!propertiesRootNamespace().isEmpty()) {
+            try {
+                if (!rootExtended().nodeExists(propertiesRootNamespace())) {
+                    return removeDoubleSlashes(result);
+                }
+                result += "/" + propertiesRootNamespace();
+            } catch (BackingStoreException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        if (!propsPath.isEmpty()) {
+            try {
+                if (! propertiesRoot().nodeExists(propsPath)) {
+                    return removeDoubleSlashes(result);
+                }
+                result += "/" + propsPath;
+            } catch (BackingStoreException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return removeDoubleSlashes(result);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + Arrays.deepHashCode(this.rootExtentions);
+        hash = 97 * hash + Objects.hashCode(this.rootNode);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CommonPreferences other = (CommonPreferences) obj;
+        if (!Arrays.deepEquals(this.rootExtentions, other.rootExtentions)) {
+            return false;
+        }
+        if (!Objects.equals(this.rootNode, other.rootNode)) {
+            return false;
+        }
+        return true;
+    }
+
 }

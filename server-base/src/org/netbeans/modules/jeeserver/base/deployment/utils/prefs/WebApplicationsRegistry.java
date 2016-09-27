@@ -2,10 +2,6 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.ApplicationsRegistry;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.ApplicationsRegistry;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
-import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
 
 /**
  *
@@ -24,8 +20,7 @@ public class WebApplicationsRegistry extends ApplicationsRegistry {
 
 
     public InstancePreferences findPropertiesByContextPath(String contextPath) {
-        
-        return super.findProperties(CONTEXTPATH_PROP, WEB_APPS);
+        return super.findProperties(CONTEXTPATH_PROP, contextPath);
     }
 
 

@@ -237,7 +237,7 @@ public class InstancePreferences implements PreferencesProperties {
     }
 
     @Override
-    public void putFileAsString(String key, File value){
+    public void putFileAsString(String key, File value) {
         synchronized (this) {
             if (prefs == null) {
                 throw new IllegalStateException("Properties are not valid anymore");
@@ -245,14 +245,14 @@ public class InstancePreferences implements PreferencesProperties {
             try (InputStream is = Files.newInputStream(value.toPath())) {
                 prefs.put(key, stringOf(is));
             } catch (IOException ex) {
-               LOG.log(Level.INFO, null, ex);
+                LOG.log(Level.INFO, null, ex);
             }
         }
     }
 
     @Override
     public File getFileFromString(String key, Path filePath) {
-        File file =  null;
+        File file = null;
         synchronized (this) {
             if (prefs == null) {
                 throw new IllegalStateException("Properties are not valid anymore");
@@ -263,7 +263,7 @@ public class InstancePreferences implements PreferencesProperties {
                 Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
                 file = filePath.toFile();
             } catch (IOException ex) {
-               LOG.log(Level.INFO, null, ex);
+                LOG.log(Level.INFO, null, ex);
             }
             return file;
         }
@@ -353,16 +353,18 @@ public class InstancePreferences implements PreferencesProperties {
 
     @Override
     public PreferencesProperties copyFrom(Properties props) {
-        if (props == null || props.isEmpty()) {
+        synchronized (this) {
+            if (props == null || props.isEmpty()) {
+                return this;
+            }
+
+            Enumeration en = props.propertyNames();
+            while (en.hasMoreElements()) {
+                String nm = (String) en.nextElement();
+                putString(nm, props.getProperty(nm));
+            }
             return this;
         }
-
-        Enumeration en = props.propertyNames();
-        while (en.hasMoreElements()) {
-            String nm = (String) en.nextElement();
-            putString(nm, props.getProperty(nm));
-        }
-        return this;
     }
 
     @Override
@@ -401,7 +403,7 @@ public class InstancePreferences implements PreferencesProperties {
             }
         }
     }
-    
+
     @Override
     public void forEach(BiConsumer<String, String> action) {
         String[] keys = keys();

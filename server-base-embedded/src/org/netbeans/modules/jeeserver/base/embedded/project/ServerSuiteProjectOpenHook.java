@@ -33,7 +33,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.SuiteProjectsManager;
 import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProject.Info;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 

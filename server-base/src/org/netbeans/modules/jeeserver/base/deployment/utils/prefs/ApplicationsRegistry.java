@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -22,19 +21,18 @@ public abstract class ApplicationsRegistry extends DirectoryPreferences {
     private static final Logger LOG = Logger.getLogger(ApplicationsRegistry.class.getName());
 
     public static final String LOCATION = "location";
-    //public static final String WEB_APPS = "web-apps";
-    //public static final String CONTEXTPATH_PROP = "contextPath";
 
-    public ApplicationsRegistry(Path directoryPath) {
+    protected ApplicationsRegistry(Path directoryPath) {
         super(directoryPath);
     }
 
-    public ApplicationsRegistry(Path directoryPath, String... rootExtentions) {
-        super(directoryPath, rootExtentions);
+    protected ApplicationsRegistry(Path directoryPath, String... registryRootExtentions) {
+        super(directoryPath, registryRootExtentions);
     }
 
     
     public abstract String applicationsNodeName();
+    
     public Preferences applicationsRoot() {
         Preferences prefs = propertiesRoot();
         try {
@@ -160,8 +158,8 @@ public abstract class ApplicationsRegistry extends DirectoryPreferences {
         return getProperties(applicationsNodeName() + "/" + appNodeName);
     }
 
-    public InstancePreferences findProperties(Path webappDir) {
-        return findProperties(webappDir.toString());
+    public InstancePreferences findProperties(Path appDir) {
+        return findProperties(appDir.toString());
     }
 
     public InstancePreferences findProperties(File appDir) {
@@ -191,7 +189,7 @@ public abstract class ApplicationsRegistry extends DirectoryPreferences {
     public String findAppNodeName(Path app) {
         String nodeName = null;
         Preferences rp = applicationsRoot();
-        System.out.println("find web app webAppsRoot = " + rp.absolutePath());
+        //System.out.println("find web app webAppsRoot = " + rp.absolutePath());
         try {
             String[] childs = rp.childrenNames();
             for (String id : childs) {

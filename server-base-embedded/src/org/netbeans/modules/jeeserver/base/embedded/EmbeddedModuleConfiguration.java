@@ -8,8 +8,7 @@ import org.netbeans.modules.jeeserver.base.deployment.config.AbstractModuleConfi
 import org.netbeans.modules.jeeserver.base.deployment.config.AvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.WebApplicationsManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -69,7 +68,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
         }
         RP.post(() -> {
 
-            AvailableModules<AbstractModuleConfiguration> avm = DistributeModulesManager.getAvailableModules(srv);
+            AvailableModules<AbstractModuleConfiguration> avm = SuiteManager.getDistributeModules(srv);
 
             if (avm == null) {
                 return;
@@ -103,7 +102,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
                     //
                     // Old serverInstanceId
                     //
-                    distManager.register(webProject);
+                    distManager.register_Old(webProject);
                 }
         }, 0, Thread.NORM_PRIORITY);
 
@@ -264,7 +263,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
                     //
                     // new server
                     //
-                    distManager.register(conf.webProject);
+                    distManager.register_Old(conf.webProject);
                     conf.addListeners();
                 }
             }

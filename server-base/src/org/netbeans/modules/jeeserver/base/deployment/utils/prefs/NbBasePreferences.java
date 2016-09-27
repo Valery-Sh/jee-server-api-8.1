@@ -38,15 +38,18 @@ public class NbBasePreferences extends CommonPreferences {
         super(rootNode, convert(rootExtentions));
     }
     
-    private static String[] convert(String... ext) {
+    protected static String[] convert(String... ext) {
         if ( ext == null || ext.length == 0 ) {
             return ext;
         }
-        for ( int i =0; i < ext.length; i++ ) {
-            ext[i] = ext[i].replace (":", "_");
+        
+        String[] result = new CommonPreferences("a", "b").normalize(ext);
+        for ( int i =0; i < result.length; i++ ) {
+            result[i] = result[i].replace (":", "_");
         }
-        return ext;
+        return result;
     }
+    
     @Override
     protected void initProperties(Preferences prefs) {
         synchronized (this) {
@@ -61,11 +64,11 @@ public class NbBasePreferences extends CommonPreferences {
         }
     }
 
-    @Override
+/*    @Override
     public Preferences commonUserRoot() {
         return rootNode().userRoot();
     }
-
+*/
     public String[] childrenFileNames() {
         return childrenFileNames(rootExtended());
     }

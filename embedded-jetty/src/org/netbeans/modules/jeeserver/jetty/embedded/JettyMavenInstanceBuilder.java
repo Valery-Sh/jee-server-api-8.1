@@ -1,16 +1,11 @@
 package org.netbeans.modules.jeeserver.jetty.embedded;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

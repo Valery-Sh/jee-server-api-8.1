@@ -18,7 +18,6 @@ package org.netbeans.modules.jeeserver.base.embedded;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
@@ -106,8 +105,8 @@ public abstract class EmbeddedInstanceBuilder extends InstanceBuilder {
         String uid = getSuiteUID();
         
         
-        String uri = serverId + ":" + BaseConstants.URIPREFIX_NO_ID + ":" + projectDir.getPath()
-                + ":server:suite:project:" + suite + "/uid" + uid;
+        String uri = serverId + ":" + BaseConstants.URIPREFIX_NO_ID + ":" + normalize(projectDir.getPath())
+                + ":server:suite:project:" + normalize(suite) + "/uid" + uid;
         return uri;
     }
 

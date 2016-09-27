@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -62,7 +63,7 @@ public abstract class InstanceBuilder {
     private static final Logger LOG = Logger.getLogger(InstanceBuilder.class.getName());
 
     private WizardDescriptor wiz;
-    private InstanceBuilder.Options opt;
+    private final InstanceBuilder.Options opt;
 
     public static enum Options {
 
@@ -215,7 +216,21 @@ public abstract class InstanceBuilder {
     protected abstract void modifyPropertymap(Map<String, String> ip);
 
     protected String buildURL(String serverId, FileObject projectDir) {
-        return serverId + ":" + BaseConstants.URIPREFIX_NO_ID + ":" + projectDir.getPath();
+        return serverId + ":" + BaseConstants.URIPREFIX_NO_ID + ":" + normalize(projectDir.getPath());
+    }
+    protected static String normalize(String path) {
+        String result = path.replace("\\", "/");
+        if ( isWindows() && result.startsWith("/")) {
+            result = result.substring(1);
+        }
+        String p = Paths.get(result).getRoot().toString();
+        if ( isWindows() && p.indexOf(":") == 1 ) {
+            result = result.substring(0,2).toUpperCase() +  result.substring(2);
+        }
+        return result;
+    }
+    protected static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
     private void unZipFile(InputStream source, FileObject projectRoot) throws IOException {

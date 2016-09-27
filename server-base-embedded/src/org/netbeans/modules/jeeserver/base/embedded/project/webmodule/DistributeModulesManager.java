@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project.webmodule;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -11,8 +11,6 @@ import static org.netbeans.modules.jeeserver.base.deployment.config.ModulesChang
 import org.netbeans.modules.jeeserver.base.deployment.config.ModulesChangeListener;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.filesystems.FileUtil;
 
 /**
@@ -27,6 +25,7 @@ public class DistributeModulesManager implements ModulesManager {
     private final Map<Path, ModulesChangeListener> listenerMap = new HashMap<>();
     private final Map<Path, ModulesChangeListener> listeners = Collections.synchronizedMap(listenerMap);
 
+    
     @Override
     public Map<Path, ServerInstanceAvailableModules> store() {
         return store;
@@ -67,7 +66,7 @@ public class DistributeModulesManager implements ModulesManager {
         }
     }
 
-    public static ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
+/*    public static ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
         //AvailableDistModulesManager m = getInstance(serverInstance);
         Project suite = SuiteManager.getServerSuiteProject(serverInstance);
         if (suite == null) {
@@ -81,15 +80,15 @@ public class DistributeModulesManager implements ModulesManager {
         }
         return m.get(serverInstance);
     }
-
-    public static DistributeModulesManager getInstance(String uri) {
+*/
+/*    public static DistributeModulesManager getInstance(String uri) {
         Project suite = SuiteManager.getServerSuiteProject(uri);
         if (suite == null) {
             return null;
         }
         return suite.getLookup().lookup(DistributeModulesManager.class);
     }
-    
+*/    
     //private static Project suiteProject;
             
 /*    public synchronized  static DistributeModulesManager getInstance(Project suite) {
@@ -111,7 +110,7 @@ public class DistributeModulesManager implements ModulesManager {
         return suite.getLookup().lookup(DistributeModulesManager.class);
     }
 */
-    public static ServerInstanceAvailableModules getAvailableModules(String uri) {
+/*    public static ServerInstanceAvailableModules getAvailableModules(String uri) {
         Project suite = SuiteManager.getServerSuiteProject(uri);
         if (suite == null) {
             return null;
@@ -128,5 +127,5 @@ public class DistributeModulesManager implements ModulesManager {
         }
         return m.get(p);
     }
-
+*/
 }

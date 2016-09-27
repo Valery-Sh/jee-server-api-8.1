@@ -2,9 +2,7 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.openide.util.NbPreferences;
@@ -27,7 +25,15 @@ public class NbDirectoryPreferences extends NbBasePreferences {
 
     protected NbDirectoryPreferences(Preferences rootNode, Path directoryPath, String... rootExtentions) {
         super(rootNode, rootExtentions);
-        this.DIRECTORY = directoryPath.toString().replace("\\", "/").replace(":", "_");
+        init(directoryPath);
+    }
+    private void init(Path directoryPath){
+        this.DIRECTORY = normalize(directoryPath.toString());
+    }
+    @Override
+    protected String normalize(String path) {
+        String result = super.normalize(path);
+        return result.replace(":", "_");
     }
 
     /**

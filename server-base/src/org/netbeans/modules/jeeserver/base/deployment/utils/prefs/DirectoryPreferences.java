@@ -2,9 +2,8 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
@@ -75,27 +74,62 @@ import java.util.prefs.Preferences;
  */
 public class DirectoryPreferences extends CommonPreferences {
 
-    //private static final Logger LOG = Logger.getLogger(DirectoryPreferences.class.getName());
 
-    
     private String DIRECTORY;
 
     public DirectoryPreferences(Path directoryPath, String... registryRootExtentions) {
         super("", registryRootExtentions);
-        this.DIRECTORY = directoryPath.toString().replace("\\", "/");
+        init(directoryPath);
+    }
+
+    private void init(Path directoryPath) {
+        this.DIRECTORY = normalize(directoryPath.toString());
+        //
+        // rootExtentions are normalized in the super constructor
+        //
+/*        if (rootExtentions != null) {
+            this.rootExtentions = new String[rootExtentions.length];
+            for (int i = 0; i < rootExtentions.length; i++) {
+                this.rootExtentions[i] = normalize(rootExtentions[i]);
+            }
+        }
+*/        
+    }
+    @Override
+    public DirectoryPreferences next(String directory) {
+        String[] ext = Arrays.copyOf(rootExtentions, rootExtentions.length + 1);
+        ext[ext.length-1] = DIRECTORY;
+        return new DirectoryPreferences(Paths.get(directory), normalize(ext));
+    }
+    @Override
+    public String normalize(String path) {
+        
+        String result = super.normalize(path);
+        
+        Path root = Paths.get(result).getRoot();
+        if ( root == null ) {
+            return result;
+        }
+        
+        String p = root.toString();
+        
+        if (isWindows() && p.indexOf(":") == 1) {
+            result = result.substring(0, 2).toUpperCase() + result.substring(2);
+        }
+        return result;
     }
 
     /**
      * Returns a string value than represents the {@code directoryPath}
      * parameter used to create this instance.
-     * 
-     * All {@code backslash} characters of the return string are replaced with a 
+     *
+     * All {@code backslash} characters of the return string are replaced with a
      * {@code forward} slash.
-     * 
-     * @return  a string value than represents the {@code directoryPath}
+     *
+     * @return a string value than represents the {@code directoryPath}
      * parameter used to create this instance.
      */
-    public String getDirectoryNamespace() {
+    public String directoryNamespace() {
         return DIRECTORY;
     }
 
@@ -103,13 +137,62 @@ public class DirectoryPreferences extends CommonPreferences {
     public Preferences propertiesRoot() {
         return rootExtended().node(DIRECTORY);
     }
-    
-    protected void setDirectoryPath(Path directoryPath) {
-        this.DIRECTORY = directoryPath.toString().replace("\\", "/");
+    public Preferences directoryRoot() {
+        return propertiesRoot();
+    }    
+    @Override
+    public String propertiesRootNamespace() {
+        return DIRECTORY;
+    }
+    /**
+     * Return a string value that represents a full path relative to
+     * the {@link #userRoot(). 
+     * overridden to assign a new registry root node.
+     *
+     * @return the value that represents a full path relative to
+     * the user root.
+     */
+    @Override
+    public String userRelativePath() {
+        String ext = rootExtendedNamespace();
+        String dir = directoryNamespace();
+        
+        String result = dir;
+        if ( ! ext.isEmpty() ) {
+            result = ext + "/" + dir;
+        }
+        
+        return result;    
+    }    
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.DIRECTORY);
+        return hash;
     }
 
-    public Path getDirectoryPath() {
-        return Paths.get(DIRECTORY);
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DirectoryPreferences other = (DirectoryPreferences) obj;
+        if (!Objects.equals(this.DIRECTORY, other.DIRECTORY)) {
+            return false;
+        }
+        String ext = rootExtendedNamespace();
+        if (!Objects.equals(ext, other.rootExtendedNamespace())) {
+            return false;
+        }
+        
+        return true;
     }
 
 }

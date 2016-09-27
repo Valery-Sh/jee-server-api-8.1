@@ -40,7 +40,7 @@ import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApi;
 import org.netbeans.modules.jeeserver.base.embedded.apisupport.SupportedApiProvider;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.NbSuitePreferences;
+import org.netbeans.modules.jeeserver.base.embedded.project.NbSuitePreferences;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddDependenciesPanelVisual;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.CustomizerWizardActionAsIterator;
 import org.netbeans.modules.jeeserver.base.embedded.project.wizard.AddExistingProjectWizardActionAsIterator;

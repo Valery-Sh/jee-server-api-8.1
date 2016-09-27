@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.junit.After;
@@ -15,10 +16,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.NbDirectoryPreferences;
 import org.netbeans.modules.jeeserver.base.embedded.SuiteProjectsManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 /**
  *
@@ -230,9 +229,14 @@ public class NbSuitePreferencesTest {
     
     @Test
     public void testTemptemp() throws BackingStoreException {
-        SuiteProjectsManager sr = new SuiteProjectsManager(true);
+        //SuiteProjectsManager sr = new SuiteProjectsManager(true);
         
-        String[] childs = sr.childrenNames();
-        int i=0;
+        //String[] childs = sr.childrenNames();
+        //int i=0;
+        Path dirpath = Paths.get("d:\\Netbeans_810_Plugins\\TestApps\\AMEmbServer04");
+
+        NbDirectoryPreferences prefs = new NbDirectoryPreferences(dirpath, "uid-025c0287-3243-4a16-837e-94be30ecfc19");
+        int l = prefs.childrenNames().length;
+        int a = 0;
     }
 }

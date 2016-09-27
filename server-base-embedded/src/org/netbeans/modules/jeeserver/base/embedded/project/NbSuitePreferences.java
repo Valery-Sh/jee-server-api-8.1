@@ -1,6 +1,5 @@
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project;
 
-import org.netbeans.modules.jeeserver.base.embedded.project.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,9 +11,9 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
-import org.netbeans.modules.jeeserver.base.embedded.EmbJ2eePlatformFactory;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -84,7 +83,8 @@ public class NbSuitePreferences {
      * @return
      */
     protected Preferences rootNode() {
-        return NbPreferences.forModule(EmbJ2eePlatformFactory.class);
+        //return NbPreferences.forModule(EmbJ2eePlatformFactory.class);
+        return NbPreferences.forModule(BaseDeploymentManager.class);
     }
 
     public String[] childrenNames() {

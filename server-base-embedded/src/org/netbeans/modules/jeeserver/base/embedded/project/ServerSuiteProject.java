@@ -1,5 +1,7 @@
 package org.netbeans.modules.jeeserver.base.embedded.project;
 
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.DistributeModulesManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.AvailableModulesManager;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +16,6 @@ import org.netbeans.modules.jeeserver.base.deployment.ide.BaseStartServer;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.ServerInstancesRootNode;
 import org.netbeans.modules.jeeserver.base.embedded.project.nodes.SuiteNodesNotifier;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.AvailableModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.DeleteOperationImplementation;

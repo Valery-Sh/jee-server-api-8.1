@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project.webmodule;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -14,6 +14,8 @@ import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.WebApplicationsRegistry;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.SuiteSupport.WebApplicationRegistry;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.SuiteSupport.WebAppsRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileObject;
@@ -45,10 +47,10 @@ public class WebApplicationsManager {
         return getWebAppFileObjects().contains(webapp.getProjectDirectory());
     }
 
-/*    public static void refreshSuiteInstances(Project suite) {
+    /*    public static void refreshSuiteInstances(Project suite) {
         refreshSuiteInstances(suite.getProjectDirectory());
     }
-*/
+     */
     public static void refreshSuiteInstances(FileObject suiteDir) {
         List<String> all = SuiteManager.getLiveServerInstanceIds(suiteDir);
         all.forEach(uri -> {
@@ -59,27 +61,26 @@ public class WebApplicationsManager {
     }
 
     public void refresh() {
-        
+
         Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());
 
         WebApplicationsRegistry webRegistry = new WebApplicationsRegistry(serverDir);
 
         List<InstancePreferences> propList = webRegistry.getAppPropertiesList();
-        
+
         //Map<String,InstancePreferences> wepappsManager = new HashMap<>();
         //AvailableDistModulesManager wepappsManager = AvailableDistModulesManager.getInstance(serverInstance);
-
         for (InstancePreferences p : propList) {
 
             String webdir = p.getProperty(WebApplicationsRegistry.LOCATION);
-            
+
             if (webdir != null && !new File(webdir).exists()) {
                 webRegistry.removeApplication(Paths.get(webdir));
             } else if (webdir != null) {
                 final FileObject fo = FileUtil.toFileObject(new File(webdir));
 
                 Project webapp = BaseUtil.getOwnerProject(fo);
-                
+
                 if (webapp == null || !ProjectManager.getDefault().isProject(fo) || BaseUtil.getWebModule(fo) == null) {
                     webRegistry.removeApplication(Paths.get(webdir));
                 } else {
@@ -88,7 +89,7 @@ public class WebApplicationsManager {
                     //
                     WebModule w = BaseUtil.getWebModule(fo);
                     String cp = w.getContextPath();
-                    
+
                     String id = webapp.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
                     String uri = SuiteManager.getManager(this.serverInstance).getUri();
 //                    BaseUtil.out("++++ WebAppManager id=" + id);
@@ -104,11 +105,48 @@ public class WebApplicationsManager {
 
     }
 
-    public void register(Project webApp) {
+    protected void register(Path serverDir, Path webappDir, String contextPath) {
+
+        SuiteSupport suiteSupport = SuiteSupport.getInstance(serverDir);
+        WebApplicationRegistry webRegistry = suiteSupport.getInstanceDirectoryRegistry().addWebapp(webappDir);
+
+        InstancePreferences props = webRegistry.createProperties();
+        props.setProperty(BaseConstants.CONTEXTPATH_PROP, contextPath);
+    }
+
+    public void register(Project webapp) {
+
+        Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());
+        Path webappDir = Paths.get(webapp.getProjectDirectory().getPath());
+
+/*        SuiteSupport suiteSupport = SuiteSupport.getInstance(serverDir);
+        WebApplicationRegistry webRegistry = suiteSupport.getInstanceDirectoryRegistry().addWebapp(webappDir);
+
+        InstancePreferences props = webRegistry.createProperties();
+*/
+        WebModule wm = WebModule.getWebModule(webapp.getProjectDirectory());
+        String cp = wm.getContextPath();
+        
+        if (cp == null) {
+            Properties p = SuiteManager.getManager(serverInstance).getSpecifics().getContextProperties(webapp.getProjectDirectory());
+            cp = p.getProperty(BaseConstants.CONTEXTPATH_PROP);
+        }
+        register(serverDir, webappDir, cp);
+/*        if (cp != null) {
+            props.setProperty(BaseConstants.CONTEXTPATH_PROP, cp);
+        } else {
+            Properties p = SuiteManager.getManager(serverInstance).getSpecifics().getContextProperties(webapp.getProjectDirectory());
+            props.setProperty(BaseConstants.CONTEXTPATH_PROP, p.getProperty(cp));
+        }
+*/
+        // ? String uri = SuiteManager.getManager(serverInstance).getUri();
+    }
+
+    public void register_Old(Project webApp) {
 
         Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());
         WebApplicationsRegistry webRegistry = new WebApplicationsRegistry(serverDir);
-        
+
         String prefNodeName = webRegistry.addApplication(Paths.get(webApp.getProjectDirectory().getPath()));
         InstancePreferences props = webRegistry.getProperties("web-apps/" + prefNodeName);
 
@@ -125,31 +163,32 @@ public class WebApplicationsManager {
         //SuiteNotifier sn = SuiteManager.getServerSuiteProject(uri).getLookup().lookup(SuiteNotifier.class);
         //sn.childrenChanged(this, webApp);
     }
+
     public void unregister(Project webApp) {
         unregister(webApp.getProjectDirectory().getPath());
     }
+
     public void unregister(String webAppPath) {
         BaseUtil.out("WebApplicationsNamger unregister webApp=" + webAppPath);
 
         Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());
         WebApplicationsRegistry webRegistry = new WebApplicationsRegistry(serverDir);
         BaseUtil.out("WebApplicationsNamger BEFORE REMOVE ");
-        
+
         webRegistry.removeApplication(Paths.get(webAppPath));
 
-        String uri = SuiteManager.getManager(serverInstance).getUri();
+/*        String uri = SuiteManager.getManager(serverInstance).getUri();
         Project suite = SuiteManager.getServerSuiteProject(uri);
         if (suite != null) {
             //SuiteNotifier sn = suite.getLookup().lookup(SuiteNotifier.class);
             //sn.childrenChanged(this, webAppPath);
         }
-
+*/
     }
 
     public List<FileObject> getWebAppFileObjects() {
-        
+
         //refresh();
-        
         List<FileObject> list = new ArrayList<>();
 
         Path serverDir = Paths.get(serverInstance.getProjectDirectory().getPath());

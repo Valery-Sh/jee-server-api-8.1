@@ -1,4 +1,4 @@
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project.webmodule;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,13 +68,19 @@ public interface ModulesManager {
     default boolean contains(Project serverInstance) {
         return store().containsKey(Paths.get(serverInstance.getProjectDirectory().getPath()));
     }
-
-    public static class Impl implements ModulesManager {
-
-        @Override
-        public Map<Path, ServerInstanceAvailableModules> store() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+/*    public static Provider getProvider() {
+        return new Provider();
+    }
+    public static class Provider {
+        
+        private final AvailableModulesManager availableModulesManger;
+        
+        protected Provider() {
+            this.availableModulesManger = new AvailableModulesManager();
         }
+
     
     }
+*/
 }

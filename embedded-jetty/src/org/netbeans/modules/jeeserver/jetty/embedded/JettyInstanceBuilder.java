@@ -33,7 +33,7 @@ public class JettyInstanceBuilder extends EmbeddedInstanceBuilder {
     private static final Logger LOG = Logger.getLogger(JettyInstanceBuilder.class.getName());
 
     @StaticResource
-    public static final String zipAntTemplatePath = "org/netbeans/modules/jeeserver/jetty/embedded/resources/JettyEmbeddedAntTemplate.zip";//JettyServerInstanceProject.zip";    
+    public static final String ZIP_ANT_TEMPLATE_PATH = "org/netbeans/modules/jeeserver/jetty/embedded/resources/JettyEmbeddedAntTemplate.zip";//JettyServerInstanceProject.zip";    
 
     public JettyInstanceBuilder(Properties configProps, InstanceBuilder.Options options) {
         super(configProps, options);
@@ -77,7 +77,7 @@ public class JettyInstanceBuilder extends EmbeddedInstanceBuilder {
     @Override
     public InputStream getZipTemplateInputStream() {
         return getClass().getClassLoader().getResourceAsStream("/"
-                + zipAntTemplatePath);
+                + ZIP_ANT_TEMPLATE_PATH);
     }
 
     protected FileObject getSrcDir(Project p) {

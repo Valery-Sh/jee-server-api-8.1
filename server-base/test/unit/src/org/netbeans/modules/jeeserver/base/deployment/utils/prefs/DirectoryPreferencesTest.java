@@ -18,6 +18,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.netbeans.modules.jeeserver.base.deployment.BaseJ2eePlatformImpl;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
+import static org.netbeans.modules.jeeserver.base.deployment.utils.prefs.CommonPreferencesTest.ROOT;
+import static org.netbeans.modules.jeeserver.base.deployment.utils.prefs.CommonPreferencesTest.ROOT_EXT;
 import org.openide.util.Exceptions;
 
 /**
@@ -26,7 +28,7 @@ import org.openide.util.Exceptions;
  */
 public class DirectoryPreferencesTest {
 
-    public static String ROOT_EXT = "c:\\users\\ServersManager";
+    public static String ROOT_EXT = "C:\\users\\ServersManager";
 
     private final Path directory01 = Paths.get("c:/MyServers/Server01");
     private final Path directory02 = Paths.get("c:/MyServers/Server02");
@@ -88,6 +90,7 @@ public class DirectoryPreferencesTest {
             System.out.println("tearDown EXCEPTION");
             Logger.getLogger(DirectoryPreferencesTest.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }
 
     /**
@@ -116,7 +119,11 @@ public class DirectoryPreferencesTest {
         // When we use two parameters in the constructor of DirectoryPreferences
         // than the first parameter is used as a last part of the rootExtended()
         //
-        String expResult = instance.rootNode().absolutePath() + "/" + ROOT_EXT.replace("\\", "/");
+        String dlm = "/";
+        if ( instance.rootNode().absolutePath().equals("/") ) {
+            dlm = "";
+        }
+        String expResult = instance.rootNode().absolutePath() + dlm + ROOT_EXT.replace("\\", "/");
         Preferences resultPrefs = instance.rootExtended();
 
         assertEquals(expResult, resultPrefs.absolutePath());
@@ -152,16 +159,17 @@ public class DirectoryPreferencesTest {
         //
         // Must be removed
         //
-        assertFalse(instance01.nodeExists(instance01.getDirectoryNamespace()));
+        assertFalse(instance01.nodeExists(instance01.directoryNamespace()));
 
         //
         // The node c:/MyServers must be kept
         //
         String remainder = directory01.getParent().toString();
+        String s = instance01.propertiesRoot().absolutePath();
         assertTrue(instance01.nodeExists(remainder));
 
     }
-
+ 
 
     /**
      * Test of getProperties method, of class DirectoryPreferences.
@@ -190,12 +198,68 @@ public class DirectoryPreferencesTest {
 
         result = create().getProperties(id);
         assertEquals("myValue", result.getProperty("mykey"));
-        /*        System.out.println("getId = " + result.getId());
-        System.out.println("rootNode.abs = " + create().commonUserRoot().absolutePath());        
-        System.out.println("rootRegistryNode.abs = " + create().rootExtended().absolutePath());        
-        System.out.println("properties.abs = " + result.getPreferences().absolutePath());                
-         */
     }
+    /**
+     * Test of absolutePath method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testAbsolutePath() {
+        System.out.println("absolutePath");
+        DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
+
+        String expResult = instance.rootNode().absolutePath();
+        String result = instance.absolutePath();
+        assertEquals(expResult, result);
+    }
+    /**
+     * Test of absolutePath method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testAbsolutePath_1() {
+        System.out.println("absolutePath");
+        DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
+        
+        String result = instance.absolutePath();
+        String expResult = instance.rootNode().absolutePath();
+        assertEquals(expResult, result);
+    }
+    /**
+     * Test of absolutePath method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testAbsolutePath_2() {
+        System.out.println("absolutePath");
+        DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
+        
+        String expResult = instance.rootExtended().absolutePath();
+        String result = instance.absolutePath();
+        assertEquals(expResult, result);
+    }
+    /**
+     * Test of absolutePath method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testAbsolutePath_3() {
+        System.out.println("absolutePath");
+        DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
+
+        String expResult = instance.propertiesRoot().absolutePath();
+        String result = instance.absolutePath("");
+        assertEquals(expResult, result);
+    }    
+    /**
+     * Test of absolutePath method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testAbsolutePath_4() {
+        System.out.println("absolutePath");
+        DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
+
+        String expResult = instance.createProperties("config/properties")
+                .getPreferences().absolutePath();
+        String result = instance.absolutePath("config/properties");
+        assertEquals(expResult, result);
+    }        
 
     /**
      * Test of getProperties method, of class DirectoryPreferences.
@@ -251,4 +315,15 @@ public class DirectoryPreferencesTest {
         i = 0;
 
     }
+    @Test
+    public void testTEMPTEMP() {
+        System.out.println("TEMPTEMP");
+        
+        String s  = "d:/Netbeans_810_Plugins/TestApps\\AMEmbServer04";
+        //String s  = "D:/Netbeans_810_Plugins/TestApps/AMEmbServer04";
+        DirectoryPreferences dirpref = new DirectoryPreferences(Paths.get(s));
+        InstancePreferences ip = dirpref.getProperties("properties");
+                                                       
+    }
+    
 }

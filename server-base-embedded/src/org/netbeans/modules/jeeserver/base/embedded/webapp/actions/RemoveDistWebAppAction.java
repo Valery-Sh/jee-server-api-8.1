@@ -28,9 +28,9 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.WebApplicationsManager;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -132,7 +132,7 @@ public final class RemoveDistWebAppAction extends AbstractAction implements Cont
                 @Override
                 public void run() {
                     distManager.unregister(webProject);
-                    ServerInstanceAvailableModules am =  DistributeModulesManager.getAvailableModules(serverProject);
+                    ServerInstanceAvailableModules am =  SuiteManager.getDistributeModules(serverProject);
                     am.unregisterWebProject(webProject);
                 }
             });

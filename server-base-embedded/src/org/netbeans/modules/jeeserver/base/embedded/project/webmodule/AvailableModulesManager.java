@@ -1,12 +1,10 @@
-package org.netbeans.modules.jeeserver.base.embedded.project.prefs;
+package org.netbeans.modules.jeeserver.base.embedded.project.webmodule;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvailableModules;
-import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
 
 /**
  *
@@ -21,7 +19,7 @@ public class AvailableModulesManager implements ModulesManager {
     public Map<Path, ServerInstanceAvailableModules> store() {
         return store;
     }
-    public static ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
+/*    public static ServerInstanceAvailableModules getAvailableModules(Project serverInstance) {
         Project suite = SuiteManager.getServerSuiteProject(serverInstance);
         if (suite == null) {
             return null;
@@ -34,6 +32,7 @@ public class AvailableModulesManager implements ModulesManager {
         }
         return m.get(serverInstance);
     }
+*/    
 /*    public static AvailableModulesManager getInstance(Project serverInstance) {
         Project suite = SuiteManager.getServerSuiteProject(serverInstance);
         if (suite == null) {

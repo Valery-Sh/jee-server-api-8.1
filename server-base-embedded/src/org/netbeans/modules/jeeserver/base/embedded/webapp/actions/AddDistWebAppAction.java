@@ -15,10 +15,9 @@ import org.netbeans.modules.jeeserver.base.deployment.config.ServerInstanceAvail
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseConstants;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
 import org.netbeans.modules.jeeserver.base.embedded.project.SuiteManager;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.DistributeModulesManager;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteConstants;
 import org.netbeans.modules.jeeserver.base.embedded.utils.SuiteUtil;
-import org.netbeans.modules.jeeserver.base.embedded.project.prefs.WebApplicationsManager;
+import org.netbeans.modules.jeeserver.base.embedded.project.webmodule.WebApplicationsManager;
 import org.netbeans.spi.project.AuxiliaryProperties;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.DialogDisplayer;
@@ -112,14 +111,14 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
                             Project oldServer = m.getServerProject();
                             WebApplicationsManager distManager = WebApplicationsManager.getInstance(oldServer);
                             distManager.unregister(webProj);
-                            ServerInstanceAvailableModules am =  DistributeModulesManager.getAvailableModules(oldServer);
+                            ServerInstanceAvailableModules am =  SuiteManager.getDistributeModules(oldServer);
                             am.unregisterWebProject(webProj);
                         }
 
                     }
                     WebApplicationsManager distManager = WebApplicationsManager.getInstance(serverInstance);
-                    distManager.register(webProj);
-                    ServerInstanceAvailableModules am =  DistributeModulesManager.getAvailableModules(serverInstance);
+                    distManager.register_Old(webProj);
+                    ServerInstanceAvailableModules am =  SuiteManager.getDistributeModules(serverInstance);
                     am.registerWebProject(webProj);
                     
                 }
