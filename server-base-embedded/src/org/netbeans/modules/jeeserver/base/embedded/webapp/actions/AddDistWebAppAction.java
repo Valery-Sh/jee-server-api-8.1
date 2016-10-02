@@ -117,7 +117,7 @@ public final class AddDistWebAppAction extends AbstractAction implements Context
 
                     }
                     WebApplicationsManager distManager = WebApplicationsManager.getInstance(serverInstance);
-                    distManager.register_Old(webProj);
+                    distManager.register(webProj);
                     ServerInstanceAvailableModules am =  SuiteManager.getDistributeModules(serverInstance);
                     am.registerWebProject(webProj);
                     

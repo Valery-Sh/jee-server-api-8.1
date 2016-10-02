@@ -34,7 +34,7 @@ public abstract class ApplicationsRegistry extends DirectoryPreferences {
     public abstract String applicationsNodeName();
     
     public Preferences applicationsRoot() {
-        Preferences prefs = propertiesRoot();
+        Preferences prefs =  directoryRoot();
         try {
             synchronized (this) {
                 prefs = prefs.node(applicationsNodeName());

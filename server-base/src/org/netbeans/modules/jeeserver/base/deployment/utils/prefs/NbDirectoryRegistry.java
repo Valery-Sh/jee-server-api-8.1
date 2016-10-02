@@ -1,6 +1,7 @@
 package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -8,30 +9,44 @@ import java.util.List;
  * @author Valery
  */
 public class NbDirectoryRegistry extends DirectoryRegistry {
-    
+
     public NbDirectoryRegistry(Path directoryPath) {
         super(directoryPath);
     }
-    protected CommonPreferences createDelegate(Path directoryPath) {
-        return new NbDirectoryPreferences(directoryPath);
+
+    public NbDirectoryRegistry(Path directoryPath, NbDirectoryRegistry parent) {
+        super(directoryPath, parent);
     }
+
+    @Override
+    protected CommonPreferences createDelegate(Path path) {
+        CommonPreferences result;
+        if (parent == null) {
+            result = new NbDirectoryPreferences(path);
+        } else {
+            result = parent.getDelegate().next(path.toString());
+        }
+        result.directoryRoot();
+        return result;
+    }
+
     public static NbDirectoryRegistry getDefault(Path dirPath) {
         return null;
     }
 
     @Override
-    public DirectoryRegistry newInstance(String path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    @Override
-    public DirectoryRegistry newInstance(DirectoryRegistry root,String path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected DirectoryRegistry newInstance(String namespace) {
+        return new NbDirectoryRegistry(Paths.get(namespace), this);
     }
 
-    
     @Override
-    public List<? extends DirectoryRegistry> childrens() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public DirectoryRegistry children(Path childrenPath) {
+        return new NbDirectoryRegistry(childrenPath, this);
     }
 
+ 
+    @Override
+    protected DirectoryRegistry filterChildrens(Path path) {
+        return new NbDirectoryRegistry(path, this);
+    }
 }

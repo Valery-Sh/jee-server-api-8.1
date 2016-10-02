@@ -249,7 +249,7 @@ public class SuiteManager {
         String instancePath = SuiteUtil.extractInstancePath(uri);
         if (instancePath != null) {
             DirectoryPreferences registry = new DirectoryPreferences(Paths.get(instancePath));
-            registry.removePropertiesRoot();
+            registry.remove();
             Project suite = getServerSuiteProject(uri);
             if (suite != null) {
                 suite.getLookup().lookup(DistributeModulesManager.class)
@@ -296,7 +296,7 @@ public class SuiteManager {
             return;
         }
         DirectoryPreferences registry = new DirectoryPreferences(Paths.get(instancePath));
-        registry.removePropertiesRoot();
+        registry.remove();
         Project suite = getServerSuiteProject(uri);
         if (suite != null) {
             suite.getLookup().lookup(DistributeModulesManager.class)

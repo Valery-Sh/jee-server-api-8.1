@@ -129,21 +129,16 @@ public class DirectoryPreferences extends CommonPreferences {
      * @return a string value than represents the {@code directoryPath}
      * parameter used to create this instance.
      */
+    @Override
     public String directoryNamespace() {
         return DIRECTORY;
     }
 
     @Override
-    public Preferences propertiesRoot() {
-        return rootExtended().node(DIRECTORY);
-    }
     public Preferences directoryRoot() {
-        return propertiesRoot();
+        return rootExtended().node(DIRECTORY);
     }    
-    @Override
-    public String propertiesRootNamespace() {
-        return DIRECTORY;
-    }
+    
     /**
      * Return a string value that represents a full path relative to
      * the {@link #userRoot(). 
@@ -152,8 +147,7 @@ public class DirectoryPreferences extends CommonPreferences {
      * @return the value that represents a full path relative to
      * the user root.
      */
-    @Override
-    public String userRelativePath() {
+/*    public String userRelativePath() {
         String ext = rootExtendedNamespace();
         String dir = directoryNamespace();
         
@@ -164,7 +158,7 @@ public class DirectoryPreferences extends CommonPreferences {
         
         return result;    
     }    
-
+*/
     @Override
     public int hashCode() {
         int hash = 7;

@@ -15,6 +15,9 @@ public class SuiteConstants extends BaseConstants {
         UNPACKED_WARS,
         WARS
     }
+    
+    public static String TEST_SUITES_ROOT = "uid-376b0c67-f76a-4b41-90b4-705536190a13";    
+    
     public static String UNKNOWN_VERSION = "0.0.1";
     public static String CUSTOMIZE_MODE_PROP = "customize_mode";
     

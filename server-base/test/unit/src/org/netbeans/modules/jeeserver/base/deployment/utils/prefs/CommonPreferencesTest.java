@@ -107,7 +107,7 @@ public class CommonPreferencesTest {
         System.out.println("rootNamespace");
         CommonPreferences instance = new CommonPreferences(ROOT, ROOT_EXT);
         String expResult = "";
-        String result = instance.propertiesRootNamespace();
+        String result = instance.directoryNamespace();
         assertEquals(expResult, result);
     }
 
@@ -199,7 +199,7 @@ public class CommonPreferencesTest {
         System.out.println("propertiesRoot");
         CommonPreferences instance = new CommonPreferences(ROOT, ROOT_EXT);
         Preferences expResult = instance.rootExtended();
-        Preferences result = instance.propertiesRoot();
+        Preferences result = instance.directoryRoot();
         assertEquals(expResult, result);
     }
 
@@ -323,7 +323,7 @@ public class CommonPreferencesTest {
     }
 
     /**
-     * Test of removeNode method, of class CommonPreferences. Recursively
+     * Test of remove method, of class CommonPreferences. Recursively
      * removes nodes up to rootExtenced()
      */
     @Test
@@ -332,13 +332,13 @@ public class CommonPreferencesTest {
         CommonPreferences instance = new CommonPreferences("", ROOT_EXT);
         Preferences toRemove = instance.rootExtended().node("a/b").node("c:/d");
         Preferences expResult = instance.rootExtended();
-        instance.removeNode(toRemove);
+        instance.remove(toRemove);
         assertTrue(instance.rootExtended().childrenNames().length == 0);
 
     }
 
     /**
-     * Test of removeNode method, of class CommonPreferences. Recursively
+     * Test of remove method, of class CommonPreferences. Recursively
      * removes nodes up to rootExtenced()
      */
     @Test
@@ -348,13 +348,13 @@ public class CommonPreferencesTest {
         Preferences tree1 = instance.rootExtended().node("a/b").node("c:/d");
         Preferences tree2 = instance.rootExtended().node("a/f").node("c/d");
         Preferences toRemove = instance.rootExtended().node("a/b").node("c:/d");
-        instance.removeNode(toRemove);
+        instance.remove(toRemove);
         String[] expResult = new String[]{"a"};
         assertArrayEquals(expResult, instance.childrenNames());
     }
 
     /**
-     * Test of removeNode method, of class CommonPreferences. Recursively
+     * Test of remove method, of class CommonPreferences. Recursively
      * removes nodes up to rootExtenced()
      */
     @Test
@@ -368,7 +368,7 @@ public class CommonPreferencesTest {
         Preferences tree4 = tree3.node("c/d");
 
         Preferences toRemove = instance.rootExtended().node("a/b").node("c:/d");
-        instance.removeNode(toRemove);
+        instance.remove(toRemove);
         String[] expResult = new String[]{"a"};
         assertArrayEquals(expResult, instance.childrenNames());
         //
@@ -451,10 +451,10 @@ public class CommonPreferencesTest {
         instance.addNode(instance.rootExtended(), "c:\\a/b");
 
         Preferences toRemoveRoot = instance.rootExtended().node("c:");
-        boolean b = instance.removeNode(toRemoveRoot, "a/b");
+        boolean b = instance.remove(toRemoveRoot, "a/b");
         assertTrue(b);
 
-        assertFalse(instance.rootExtended().nodeExists("c:/a"));
+        assertFalse(instance.userRoot().nodeExists(instance.rootNamespace()));
     }
 
     @Test
@@ -492,7 +492,7 @@ public class CommonPreferencesTest {
         String result = instance.absolutePath();
         assertEquals(expResult, result);
         //instance.rootExtended();
-        //instance.removeNode(instance.rootExtended(), instance.rootNode());
+        //instance.remove(instance.rootExtended(), instance.rootNode());
 
         //boolean b = instance.rootNode().nodeExists("c:/users/ServersManager");
         //boolean b = instance.rootNode().nodeExists("C:/users/ServersManager");
@@ -510,7 +510,7 @@ public class CommonPreferencesTest {
         String expResult = instance.rootNode().absolutePath();
         assertEquals(expResult, result);
         //instance.rootExtended();
-        //instance.removeNode(instance.rootExtended(), instance.rootNode());
+        //instance.remove(instance.rootExtended(), instance.rootNode());
 
         //boolean b = instance.rootNode().nodeExists("c:/users/ServersManager");
         //boolean b = instance.rootNode().nodeExists("C:/users/ServersManager");
@@ -536,7 +536,7 @@ public class CommonPreferencesTest {
     public void testAbsolutePath_3() {
         System.out.println("absolutePath");
         CommonPreferences instance = new CommonPreferences(ROOT, ROOT_EXT);
-        String expResult = instance.propertiesRoot().absolutePath();
+        String expResult = instance.directoryRoot().absolutePath();
         String result = instance.absolutePath("");
         assertEquals(expResult, result);
     }    

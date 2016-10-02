@@ -2,6 +2,7 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
@@ -31,7 +32,7 @@ public class NbDirectoryPreferences extends NbBasePreferences {
         this.DIRECTORY = normalize(directoryPath.toString());
     }
     @Override
-    protected String normalize(String path) {
+    public String normalize(String path) {
         String result = super.normalize(path);
         return result.replace(":", "_");
     }
@@ -58,12 +59,56 @@ public class NbDirectoryPreferences extends NbBasePreferences {
      * @return the properties root node.
      * @see #getDirectoryNamespace() 
      */
-    @Override
+    /*@Override
     public Preferences propertiesRoot() {
         return rootExtended().node(DIRECTORY);
     }
-
-    public Path getDirectoryPath() {
-        return Paths.get(DIRECTORY);
+    */
+    /**
+     * Returns a string value than represents the {@code directoryPath}
+     * parameter used to create this instance.
+     *
+     * All {@code backslash} characters of the return string are replaced with a
+     * {@code forward} slash.
+     *
+     * @return a string value than represents the {@code directoryPath}
+     * parameter used to create this instance.
+     */
+    @Override
+    public String directoryNamespace() {
+        return DIRECTORY;
     }
+
+    @Override
+    public Preferences directoryRoot() {
+        return rootExtended().node(DIRECTORY);
+    }    
+    
+    @Override
+    public NbDirectoryPreferences next(String directory) {
+        String[] ext = Arrays.copyOf(rootExtentions, rootExtentions.length + 1);
+        ext[ext.length-1] = DIRECTORY;
+        return new NbDirectoryPreferences(Paths.get(directory), normalize(ext));
+    }
+    
+    /**
+     * Return a string value that represents a full path relative to
+     * the {@link #userRoot(). 
+     * overridden to assign a new registry root node.
+     *
+     * @return the value that represents a full path relative to
+     * the user root.
+     */
+/*    public String userRelativePath() {
+        String ext = rootExtendedNamespace();
+        String dir = directoryNamespace();
+        
+        String result = dir;
+        if ( ! ext.isEmpty() ) {
+            result = ext + "/" + dir;
+        }
+        
+        return result;    
+    }    
+*/
 }//class

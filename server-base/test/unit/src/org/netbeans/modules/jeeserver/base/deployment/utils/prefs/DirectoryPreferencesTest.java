@@ -131,7 +131,7 @@ public class DirectoryPreferencesTest {
     }
 
     /**
-     * Test of removeNode method, of class DirectoryPreferences.
+     * Test of remove method, of class DirectoryPreferences.
      *
      * ROOT_EXT = "c:\\users\\MyServerInstance01"; UUID_ROOT =
  DirectoryPreferences.UUID_ROOT; directory01 =
@@ -155,7 +155,7 @@ public class DirectoryPreferencesTest {
         DirectoryPreferences instance03 = new DirectoryPreferences(directory03, ROOT_EXT);
         initProperties(instance03);
 
-        instance01.removeNode(instance01.propertiesRoot());
+        instance01.remove(instance01.directoryRoot());
         //
         // Must be removed
         //
@@ -165,7 +165,7 @@ public class DirectoryPreferencesTest {
         // The node c:/MyServers must be kept
         //
         String remainder = directory01.getParent().toString();
-        String s = instance01.propertiesRoot().absolutePath();
+        String s = instance01.directoryRoot().absolutePath();
         assertTrue(instance01.nodeExists(remainder));
 
     }
@@ -243,7 +243,7 @@ public class DirectoryPreferencesTest {
         System.out.println("absolutePath");
         DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
 
-        String expResult = instance.propertiesRoot().absolutePath();
+        String expResult = instance.directoryRoot().absolutePath();
         String result = instance.absolutePath("");
         assertEquals(expResult, result);
     }    
@@ -253,6 +253,7 @@ public class DirectoryPreferencesTest {
     @Test
     public void testAbsolutePath_4() {
         System.out.println("absolutePath");
+        
         DirectoryPreferences instance = new DirectoryPreferences(directory01, ROOT_EXT);
 
         String expResult = instance.createProperties("config/properties")

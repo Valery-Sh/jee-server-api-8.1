@@ -58,8 +58,21 @@ public class DirectoryRegistryTest {
     }
 
     /**
+     * Test of firstNodeName method, of class
+     *  DirectoryRegistry.
+     */
+    @Test
+    public void testFirstNodeName() {
+        DirectoryRegistry reg = DirectoryRegistry.getDefault(ROOT_01.toString())
+                .children(SERVER01_PATH);
+        String directory = reg.directoryNamespace();
+        String result = reg.firstNodeName(directory);
+        String expresult = "F:";
+        assertEquals(expresult, result);
+    }
+    /**
      * Test of getPropertiesNamespace method, of class
- DirectoryRegistry.
+     *  DirectoryRegistry.
      */
     @Test
     public void testGetPropertiesNamespace() {
@@ -96,8 +109,8 @@ public class DirectoryRegistryTest {
         DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
         DirectoryRegistry instance = root.newInstance(SERVER01_PATH);
 
-        DirectoryPreferences expResult = new DirectoryPreferences(Paths.get(SERVER01_PATH), ROOT_01.toString());
-        DirectoryPreferences result = instance.getDelegate();
+        CommonPreferences expResult = new DirectoryPreferences(Paths.get(SERVER01_PATH), ROOT_01.toString());
+        CommonPreferences result = instance.getDelegate();
         
         String expAbsolutePath = expResult.absolutePath();
         String absolutePath = result.absolutePath();
@@ -227,17 +240,24 @@ public class DirectoryRegistryTest {
         
         assertTrue(instance.nodeExists());
     }
-    /**
-     * Test of nodeExists method, of class DirectoryRegistry.
-     */
     @Test
-    public void testNodeExists_1() {
+    public void testNodeExists_0_1() {
         System.out.println("nodeExists");
         DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
         DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
-        
+        instance.commit();
+        assertTrue(instance.nodeExists());
+    }
+    @Test
+    public void testNodeExists_0_2() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        instance.commit();
+        assertTrue(instance.nodeExists());
         assertTrue(root.nodeExists());
     }
+    
     /**
      * Test of nodeExists method, of class DirectoryRegistry.
      */
@@ -250,6 +270,96 @@ public class DirectoryRegistryTest {
         instance.remove();
         
         assertFalse(instance.nodeExists());
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     */
+    @Test
+    public void testNodeExists_2_1() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        
+        instance.remove();
+        
+        assertTrue(root.nodeExists());
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     * 
+     */
+    @Test
+    public void testNodeExists_2_2() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        //instance.commit();
+        instance.remove();
+        
+        assertTrue(root.nodeExists());
+        assertFalse(instance.nodeExists());        
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     * 
+     */
+    @Test
+    public void testNodeExists_2_3() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        instance.commit();
+        instance.remove();
+        
+        assertTrue(root.nodeExists());
+        assertFalse(instance.nodeExists());        
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     * 
+     */
+    @Test
+    public void testNodeExists_2_4() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        root.commit();
+        instance.remove();
+        
+        assertTrue(root.nodeExists());
+        assertFalse(instance.nodeExists());        
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     * 
+     */
+    @Test
+    public void testNodeExists_2_5() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        root.commit();
+        instance.remove();
+        instance.commit();
+        assertTrue(root.nodeExists());
+        assertTrue(instance.nodeExists());        
+    }
+    /**
+     * Test of nodeExists method, of class DirectoryRegistry.
+     * 
+     */
+    @Test
+    public void testNodeExists_2_6() {
+        System.out.println("nodeExists");
+        DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
+        DirectoryRegistry instance = root.children(SERVER01_PATH).children(CHILD_PATH02);
+        root.commit();
+        instance.commit();
+        
+        instance.remove();
+        
+        assertTrue(root.nodeExists());
+        assertFalse(instance.nodeExists());        
     }
 
     /**
@@ -279,7 +389,7 @@ public class DirectoryRegistryTest {
         DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
         DirectoryRegistry impl = new DirectoryRegistryTestImpl(Paths.get(SERVER01_PATH),root);
         DirectoryRegistry result = root.add(Paths.get(SERVER01_PATH));
-        DirectoryRegistry expResult = new DirectoryRegistryTestImpl(Paths.get(SERVER01_PATH), root);
+        DirectoryRegistry expResult = DirectoryRegistry.getDefault(SERVER01_PATH, root);
         assertEquals(expResult,result);
         //
         // The side effect is that the root and result objects have location.properties
@@ -327,7 +437,7 @@ public class DirectoryRegistryTest {
      * Test of childrens method, of class DirectoryRegistry.
      */
     @Test
-    public void testChildren_1() {
+    public void testChildrens_1() {
         System.out.println("chldrens");
         DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
         DirectoryRegistry server01 =
@@ -477,9 +587,9 @@ public class DirectoryRegistryTest {
     public void testRemove() {
         System.out.println("remove");
         DirectoryRegistry root = new DirectoryRegistryTestImpl(ROOT_01);
-        Preferences root_01 = root.getDelegate().propertiesRoot();
+        Preferences root_01 = root.getDelegate().directoryRoot();
         DirectoryRegistry instance = root.children(SERVER01_PATH);
-        instance.getDelegate().propertiesRoot();
+        instance.getDelegate().directoryRoot();
         
         assertTrue(root.getDelegate().nodeExists(root_01,SERVER01_PATH));
         
@@ -681,7 +791,6 @@ public class DirectoryRegistryTest {
         public DirectoryRegistry newInstance(String path) {
             return new DirectoryRegistryTestImpl(Paths.get(path), this); //To change body of generated methods, choose Tools | Templates.
         }
-        @Override
         protected DirectoryRegistry newInstance(DirectoryRegistry root, String path) {
             return new DirectoryRegistryTestImpl(Paths.get(path), root);
         }

@@ -64,7 +64,7 @@ public class NbSuitePreferencesTest {
     @After
     public void tearDown() throws BackingStoreException {
         //SuiteRegistry r = create();
-        //r.rootNode().removeNode();
+        //r.rootNode().remove();
         
         //create().clearSuite();
     }

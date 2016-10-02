@@ -102,7 +102,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
                     //
                     // Old serverInstanceId
                     //
-                    distManager.register_Old(webProject);
+                    distManager.register(webProject);
                 }
         }, 0, Thread.NORM_PRIORITY);
 
@@ -263,7 +263,7 @@ public abstract class EmbeddedModuleConfiguration extends AbstractModuleConfigur
                     //
                     // new server
                     //
-                    distManager.register_Old(conf.webProject);
+                    distManager.register(conf.webProject);
                     conf.addListeners();
                 }
             }

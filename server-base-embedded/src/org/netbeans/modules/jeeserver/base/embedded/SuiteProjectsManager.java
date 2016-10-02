@@ -16,8 +16,11 @@ import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.jeeserver.base.deployment.BaseDeploymentManager;
 import org.netbeans.modules.jeeserver.base.deployment.utils.BaseUtil;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.DirectoryRegistry;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.InstancePreferences;
 import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.NbBasePreferences;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.NbDirectoryPreferences;
+import org.netbeans.modules.jeeserver.base.deployment.utils.prefs.NbDirectoryRegistry;
 import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProject.Info;
 import org.netbeans.modules.jeeserver.base.embedded.project.ServerSuiteProjectFactory;
 import org.openide.filesystems.FileAttributeEvent;
@@ -513,7 +516,7 @@ public class SuiteProjectsManager {
         public static String ROOT = "c\\root";
 
         public void startTest() throws BackingStoreException {
-            NbBasePreferences prefs = new NbBasePreferences(ROOT, ROOT_EXT);
+/*            NbBasePreferences prefs = new NbBasePreferences(ROOT, ROOT_EXT);
             
             BaseUtil.out("SuiteProjectsManager node nbconf/server-instance exosts=" + prefs.getProperties("nbconf/server-instance"));
             BaseUtil.out("SuiteProjectsManager node MyConf/my-instance-props exosts=" + prefs.getProperties("MyConf/my-instance-props"));
@@ -528,7 +531,26 @@ public class SuiteProjectsManager {
 
             String[] s2 = prefs.rootNode().node("c/root/c/users/ServersManager").childrenNames();
             BaseUtil.out("2.1 SuiteProjectsManager node c/root/c/users/ServersManager=" + s2.length);
-
+*/            
+            NbDirectoryPreferences dirPrefs = new NbDirectoryPreferences(Paths.get("d:\\tttttt/mmmmm"));
+            InstancePreferences ip = dirPrefs.getProperties("my-dir/my-properies");            
+            BaseUtil.out("Nb 01 SuiteProjectsManager NbDirectoryPreferences ip =" + ip);
+            
+            dirPrefs.createProperties("my-dir/my-properies");
+            ip = dirPrefs.getProperties("my-dir/my-properies");
+            BaseUtil.out("Nb 01 SuiteProjectsManager NbDirectoryPreferences ip =" + ip);
+            
+            NbDirectoryRegistry dirReg = new NbDirectoryRegistry(Paths.get("d:\\tttttt/mmmmm"));
+            ip = dirReg.getProperties("my-dir/my-properies");
+            BaseUtil.out("NbReg 01 SuiteProjectsManager NbDirectoryRegistry ip =" + ip);
+            
+            DirectoryRegistry child01 = dirReg.children("d:/newDir");
+            ip = child01.createProperties();
+            BaseUtil.out("NbReg 01 SuiteProjectsManager NbDirectoryRegistry child01 create ip =" + ip);
+            ip = child01.getProperties();
+            BaseUtil.out("NbReg 01 SuiteProjectsManager NbDirectoryRegistry child01 get ip =" + ip);
+            
+            
             /*            InstancePreferences ip = prefs.createProperties("nbconf/server-instance");
             BaseUtil.out("SuiteProjectsManager hidden prop=" + ip.getProperty(InstancePreferences.HIDDEN_KEY));
             NbBasePreferences prefs1 = new NbBasePreferences(ROOT,ROOT_EXT);
@@ -541,7 +563,7 @@ public class SuiteProjectsManager {
         }
 
         public void startTest01() throws BackingStoreException {
-            String ROOT_EXT1 = "c:\\new_users\\ServersManager";
+/*            String ROOT_EXT1 = "c:\\new_users\\ServersManager";
             String ROOT1 = "c:\\new_root";
             NbBasePreferences instance = new NbBasePreferences(ROOT1, ROOT_EXT1);
 
@@ -563,11 +585,11 @@ public class SuiteProjectsManager {
             BaseUtil.out("3 startTest01: SuiteProjectsManager childrenNames.length=" + result.length);
             NbBasePreferences instance1 = new NbBasePreferences(ROOT1, ROOT_EXT1);
             BaseUtil.out("4 startTest01: SuiteProjectsManager childrenNames.length=" + instance1.childrenNames().length);
-
+*/
         }
         
         public void startTest02() throws BackingStoreException {
-            String ROOT_EXT1 = "d:\\new_users02\\ServersManager";
+/*            String ROOT_EXT1 = "d:\\new_users02\\ServersManager";
             String ROOT1 = "d:\\new_root02";
             NbBasePreferences instance = new NbBasePreferences(ROOT1, ROOT_EXT1);
             
@@ -595,7 +617,7 @@ public class SuiteProjectsManager {
             String[] expResult = new String[]{"nbconf"};
             
             BaseUtil.out("4 startTest02: SuiteProjectsManager childrenNames.length=" + result.length);
-
+*/
         }
 
     }

@@ -35,15 +35,16 @@ public class NbBasePreferences extends CommonPreferences {
     }
 
     protected NbBasePreferences(Preferences rootNode, String... rootExtentions) {
-        super(rootNode, convert(rootExtentions));
+        super(rootNode, rootExtentions);
     }
     
-    protected static String[] convert(String... ext) {
+    @Override
+    protected String[] normalize(String... ext) {
         if ( ext == null || ext.length == 0 ) {
             return ext;
         }
         
-        String[] result = new CommonPreferences("a", "b").normalize(ext);
+        String[] result = super.normalize(ext);
         for ( int i =0; i < result.length; i++ ) {
             result[i] = result[i].replace (":", "_");
         }
@@ -54,8 +55,14 @@ public class NbBasePreferences extends CommonPreferences {
     protected void initProperties(Preferences prefs) {
         synchronized (this) {
             try {
+                BaseUtil.out("NbBasePreferences. initProperties(id) prefs = " + prefs);                                
                 prefs.put(PreferencesProperties.HIDDEN_KEY, PreferencesProperties.HIDDEN_VALUE);
-                prefs.parent().flush();
+                BaseUtil.out("NbBasePreferences. initProperties(id) prefs = " + prefs );                                
+                if ( prefs != null ) {
+                    BaseUtil.out("NbBasePreferences. initProperties(id) get hidden  = " + prefs.get(PreferencesProperties.HIDDEN_KEY,"") );                                
+                }
+                
+                prefs.flush();
             } catch (BackingStoreException ex) {
                 BaseUtil.out("StartProjectsManager initProperties(Preferences) EXCEPTION " + ex.getMessage());
                 LOG.log(Level.INFO, null, ex);

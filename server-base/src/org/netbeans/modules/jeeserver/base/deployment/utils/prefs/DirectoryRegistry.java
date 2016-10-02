@@ -5,9 +5,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -25,46 +27,47 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
     private static final Logger LOG = Logger.getLogger(DirectoryRegistry.class.getName());
 
     public static final String CONFIG_PROPERTIES = "config/instance-properties";
-    public static final String DIRECTORY_PROPERTIES = "directory-properties";
     public static final String LOCATION_PROPERTY_KEY = "location";
     public static final String LOCATION = "dir-location";
 
-    private DirectoryPreferences delegate;
+    protected CommonPreferences delegate;
+    //protected DirectoryPreferences delegate;
 
-    private ApplicationsRegistry applicationsRegistry;
+    private final Path directoryPath;
 
-    //private String propertiesNamespace = CONFIG_PROPERTIES;
-    private final Path instancePath;
-
-    private DirectoryRegistry parent;
+    protected DirectoryRegistry parent;
 
     /**
      * Create a new instance. For example for {@code ServerSuiteProject} the
      * second parameter is suite UID.
      *
-     * @param instancePath the path that corresponds to some directory
+     * @param directoryPath the path that corresponds to some directory
      * directory.
      */
-    protected DirectoryRegistry(Path instancePath) {
-        this.instancePath = instancePath;
+    protected DirectoryRegistry(Path directoryPath) {
+        this.directoryPath = directoryPath;
         init();
     }
 
-    protected DirectoryRegistry(Path instancePath, DirectoryRegistry parent) {
-        this.instancePath = instancePath;
+    protected DirectoryRegistry(Path directoryPath, DirectoryRegistry parent) {
+        this.directoryPath = directoryPath;
         this.parent = parent;
         init();
     }
 
     private void init() {
-        if (parent == null) {
-            delegate = new DirectoryPreferences(instancePath);
-        } else {
-            delegate = parent.getDelegate().next(instancePath.toString());
-        }
-        delegate.propertiesRoot();
+        delegate = createDelegate(directoryPath);
     }
-
+    
+    protected CommonPreferences createDelegate(Path dirPath) {
+        if (parent == null) {
+            delegate = new DirectoryPreferences(dirPath);
+        } else {
+            delegate = parent.getDelegate().next(dirPath.toString());
+        }
+        delegate.directoryRoot();
+        return delegate;
+    }
     public static DirectoryRegistry getDefault(String path) {
         return new DirectoryRegistryImpl(Paths.get(path));
     }
@@ -75,7 +78,7 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
 
     protected abstract T newInstance(String path);
 
-    protected abstract T newInstance(DirectoryRegistry root, String path);
+    //protected abstract T newInstance(DirectoryRegistry root, String path);
 
     /**
      *
@@ -85,12 +88,11 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
         return parent;
     }
 
-    public DirectoryRegistry children(Path childrenPath) {
-        DirectoryRegistry dr = new DirectoryRegistryImpl(childrenPath);
-        return dr;
+    protected DirectoryRegistry children(Path childrenPath) {
+        return DirectoryRegistry.getDefault(childrenPath.toString(), this);
     }
 
-    public DirectoryRegistry children(String childrenPath) {
+    public final DirectoryRegistry children(String childrenPath) {
         return children(Paths.get(childrenPath));
     }
 
@@ -111,15 +113,16 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
                 String l = reg.getProperties(LOCATION).getProperty(LOCATION_PROPERTY_KEY);
                 try {
                     Path dirPath = Paths.get(l);
-                    System.out.println(" ---- userRelativePath = " + reg.getDelegate().userRelativePath());
+//                    System.out.println(" ---- userRelativePath = " + reg.getDelegate().userRelativePath());
                     //
                     // Create children from this and location
                     //
-                    DirectoryRegistry child = children(dirPath);
+                    //27.09DirectoryRegistry child = children(dirPath);
+                    DirectoryRegistry child = filterChildrens(dirPath);
                     //
                     // Check whether it's an immediate children
                     //
-                    if (child.absolutePath().equals(reg.absolutePath())) {
+                    if (child != null && child.absolutePath().equals(reg.absolutePath())) {
                         result.add(child);
                     }
                 } catch (InvalidPathException ex) {
@@ -135,6 +138,10 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
         }
     }
 
+    protected DirectoryRegistry filterChildrens(Path directory) {
+        return DirectoryRegistry.getDefault(directory.toString(), this);
+    }
+
     public boolean isRoot() {
         return parent() == null;
     }
@@ -142,7 +149,7 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
     public int size() {
         synchronized (this) {
             try {
-                return parent().getDelegate().propertiesRoot().childrenNames().length;
+                return parent().getDelegate().directoryRoot().childrenNames().length;
             } catch (BackingStoreException ex) {
                 LOG.log(Level.INFO, null, ex);
             }
@@ -154,13 +161,13 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
         return size() == 0;
     }
 
-    public Preferences directoryRoot() {
-        return getDelegate().propertiesRoot();
+    public final Preferences directoryRoot() {
+        return getDelegate().directoryRoot();
     }
 
     protected void childrens(DirectoryRegistry root, List<DirectoryRegistry> list) {
 
-        DirectoryPreferences rootDelegate = root.getDelegate();
+        CommonPreferences rootDelegate = root.getDelegate();
 
         synchronized (this) {
             try {
@@ -182,7 +189,8 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
                         //System.out.println("======== added name=" + name + "; dr abs=" + dr.absolutePath());
                         continue;
                     }
-                    DirectoryRegistry newReg = newInstance((T) root, name);
+                    DirectoryRegistry newReg = DirectoryRegistry.getDefault(name, root);
+                    //DirectoryRegistry newReg = newInstance((T) root, name);
                     //System.out.println("======== name=" + name + "; nameDr abs=" + newReg.absolutePath());
                     childrens(newReg, list);
 
@@ -210,9 +218,9 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
         List<String> result = new ArrayList<>();
         synchronized (this) {
             try {
-                String[] names = getDelegate().propertiesRoot().childrenNames();
+                String[] names = getDelegate().directoryRoot().childrenNames();
                 for (String name : names) {
-                        result.add(name);
+                    result.add(name);
                 }
             } catch (BackingStoreException ex) {
                 LOG.log(Level.INFO, null, ex);
@@ -231,19 +239,19 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
     }
      */
     protected String getDirectoryPropertiesNamespace() {
-        return DIRECTORY_PROPERTIES;
+        return LOCATION;
     }
 
-    public DirectoryPreferences getDelegate() {
+    public CommonPreferences getDelegate() {
         return delegate;
     }
 
-    /*    protected CommonPreferences createDelegate(Path instancePath) {
+    /*    protected CommonPreferences createDelegate(Path directoryPath) {
         return (delegate = getDefaultDelegate());
     }
     protected CommonPreferences getDefaultDelegate() {
         if (delegate == null) {
-            delegate = new DirectoryPreferences(instancePath);
+            delegate = new DirectoryPreferences(directoryPath);
         }
         return delegate;
     }
@@ -297,13 +305,15 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
             return result;
         }
     }
+
     protected void flush() {
-        flush(getDelegate().propertiesRoot());
+        flush(getDelegate().directoryRoot());
     }
 
     protected void commit() {
         InstancePreferences ip = createProperties(LOCATION, false);
         String l = getDelegate().directoryNamespace();
+        System.out.println("COMMIT: " + l);
         ip.setProperty(LOCATION_PROPERTY_KEY, l);
 
         flush(ip.getPreferences());
@@ -312,7 +322,6 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
             parent().commit();
         }
     }
-
 
     public boolean nodeExists() {
         boolean result = true;
@@ -424,15 +433,44 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
     }
 
     public void remove() {
+        if ( ! nodeExists() ) {
+            return;
+        }
         if (parent() != null) {
-            delegate.removeNode(delegate.propertiesRoot(), parent().getDelegate().propertiesRoot());
+            delegate.remove(delegate.directoryRoot(), parent().getDelegate().directoryRoot());
         } else {
-            delegate.removeNode(delegate.propertiesRoot());
+            delegate.remove(delegate.directoryRoot());
         }
     }
 
-    public String namespace() {
-        return getDelegate().propertiesRootNamespace();
+    protected final void remove(Preferences toRemove) {
+        try {
+            toRemove.removeNode();
+        } catch (BackingStoreException ex) {
+            LOG.log(Level.INFO, null, ex);
+        }
+    }
+
+    protected String firstNodeName(String directory) {
+        Preferences userRoot = AbstractPreferences.userRoot();
+        Preferences prefs = AbstractPreferences.userRoot().node(directory);
+
+        if (userRoot.equals(prefs)) {
+            return null;
+        }
+
+        Preferences parent = prefs;
+
+        String firstName = prefs.name();
+        while (! userRoot.equals(prefs)) {
+            firstName = prefs.name();
+            prefs = prefs.parent();
+        }
+        return firstName;
+    }
+
+    public String directoryNamespace() {
+        return getDelegate().directoryNamespace();
     }
 
     public String absolutePath(String... propNamespaces) {
@@ -445,7 +483,6 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
     }
 
     public static class DirectoryRegistryImpl extends DirectoryRegistry {
-
 
         public DirectoryRegistryImpl(Path instancePath) {
             super(instancePath);
@@ -460,10 +497,10 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
             return new DirectoryRegistryImpl(Paths.get(namespace), this);
         }
 
-        @Override
-        protected DirectoryRegistry newInstance(DirectoryRegistry root, String namespace) {
+/*        private DirectoryRegistry newInstance(DirectoryRegistry root, String namespace) {
             return new DirectoryRegistryImpl(Paths.get(namespace), root);
         }
+*/
         /*    protected List<? extends DirectoryRegistryImpl> childrens(boolean style) {
         
         List result = new ArrayList<>();
@@ -482,6 +519,34 @@ public abstract class DirectoryRegistry<T extends DirectoryRegistry> {
         return result;
     }
          */
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 83 * hash + Objects.hashCode(this.absolutePath());
+            hash = 83 * hash + Objects.hashCode(this.getDelegate().directoryNamespace());
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final DirectoryRegistryImpl other = (DirectoryRegistryImpl) obj;
+            if (!Objects.equals(this.absolutePath(), other.absolutePath())) {
+                return false;
+            }
+            if (!Objects.equals(this.getDelegate().directoryNamespace(), other.getDelegate().directoryNamespace())) {
+                return false;
+            }
+            return true;
+        }
     }//class
 
 }//class

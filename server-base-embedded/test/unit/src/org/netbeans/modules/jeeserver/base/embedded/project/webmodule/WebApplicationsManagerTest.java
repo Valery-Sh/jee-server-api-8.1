@@ -112,14 +112,14 @@ public class WebApplicationsManagerTest {
     }
 
     /**
-     * Test of register_Old method, of class WebApplicationsManager.
+     * Test of register method, of class WebApplicationsManager.
      */
     @Test
     public void testRegister() {
         System.out.println("register");
         Project webApp = null;
         WebApplicationsManager instance = WebApplicationsManager.getInstance(webApp);
-        instance.register_Old(webApp);
+        instance.register(webApp);
         
         
     }
