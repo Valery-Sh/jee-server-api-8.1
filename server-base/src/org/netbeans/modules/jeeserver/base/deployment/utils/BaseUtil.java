@@ -106,6 +106,7 @@ public class BaseUtil {
     public static final String J2SE_ICON = "org/netbeans/modules/jeeserver/base/deployment/resources/j2seproject-icon.png";
 
     public static Path createTempDirectory(String dirNamePrefix) {
+
         String postfix = "" + System.currentTimeMillis();
         Path path = null;
         try {

@@ -3,6 +3,7 @@ package org.netbeans.modules.jeeserver.base.deployment.utils.prefs;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import org.openide.filesystems.FileObject;
 
 /**
  *
